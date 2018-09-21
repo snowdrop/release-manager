@@ -37,7 +37,7 @@ jira.issue.getIssue(id, function(error, issue) {
     console.log("Status: ", yamlIssue.status.name)
     console.log("Type: ", yamlIssue.issuetype.name)
     console.log("Author: ", yamlIssue.reporter.name)
-    console.log("Description: ", yamlIssue.description)
+    console.log("Description: \n", yamlIssue.description)
     console.log("Labels: ", yamlIssue.labels)
 
     sprints = yamlIssue.customfield_12310940;
