@@ -32,12 +32,12 @@ jira.issue.getIssue(id, function(error, issue) {
     ymlText = YAML.stringify(issue.fields);
     yamlIssue = yaml.safeLoad(ymlText);
 
-    console.log("Key         : ", id.issueKey)
-    console.log("Title       : ", yamlIssue.summary)
-    console.log("Status      : ", yamlIssue.status.name)
-    console.log("Type        : ", yamlIssue.issuetype.name)
-    console.log("Author      : ", yamlIssue.reporter.name)
-    console.log("Description : \n", yamlIssue.description)
+    console.log("Key         : "+id.issueKey)
+    console.log("Title       : "+yamlIssue.summary)
+    console.log("Status      : "+yamlIssue.status.name)
+    console.log("Type        : "+yamlIssue.issuetype.name)
+    console.log("Author      : "+yamlIssue.reporter.name)
+    console.log("Description :\n"+yamlIssue.description)
     if (yamlIssue.labels.length > 0 ) {console.log("Labels: ", yamlIssue.labels)};
 
     sprints = yamlIssue.customfield_12310940;
