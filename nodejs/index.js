@@ -38,10 +38,9 @@ jira.issue.getIssue(id, function(error, issue) {
     console.log("Type: ", yamlIssue.issuetype.name)
     console.log("Author: ", yamlIssue.reporter.name)
     console.log("Description: \n", yamlIssue.description)
-    console.log("Labels: ", yamlIssue.labels)
+    if (yamlIssue.labels.length > 0 ) {console.log("Labels: ", yamlIssue.labels)};
 
     sprints = yamlIssue.customfield_12310940;
-    console.log("Size ",sprints.length)
     for (var i = 0, lengthSprints = sprints.length; i < lengthSprints; i++) {
         // console.log("Sprint " + sprints[i]);
         sprint = regex.exec(sprints[i]);
