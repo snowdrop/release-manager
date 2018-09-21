@@ -1,6 +1,8 @@
-// Syntax
-// node index.js -u JIRA_USER -p JIRA_PWD -k SB-888
-//
+/**
+* How to use the Node JS Jira client
+* npm install
+* node index.js -u JIRA_USER -p JIRA_PWD -k SB-Num
+*/
 const JiraClient = require('jira-connector');
 const YAML = require('json2yaml');
 const yaml = require('js-yaml');
