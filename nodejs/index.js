@@ -52,7 +52,7 @@ jira.issue.getIssue(id, function(error, issue) {
             str = pairs[j].split("=");
             addValueToList(str[0],str[1])
         }
-        console.log("Sprint info - Name : " + map["name"] + ", status : " + map["state"])
+        console.log("Sprint Name : " + map["name"] + ", state : " + map["state"])
     }
 
 });
