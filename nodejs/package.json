@@ -1,0 +1,16 @@
+{
+  "name": "jira-client",
+  "version": "1.0.0",
+  "description": "Jira Nodejs client",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "Charles Moulliard",
+  "license": "ISC",
+  "dependencies": {
+    "js-yaml": "3.12.0",
+    "json2yaml": "1.1.0",
+    "jira-connector": "2.8.0",
+    "minimist": "1.2.0"
+  }
+}
