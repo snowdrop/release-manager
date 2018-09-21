@@ -3,8 +3,6 @@
   "version": "1.0.0",
   "description": "Jira Nodejs client",
   "main": "index.js",
-  "scripts": {
-  },
   "author": "Charles Moulliard",
   "license": "ISC",
   "dependencies": {

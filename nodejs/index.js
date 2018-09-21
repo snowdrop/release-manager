@@ -9,10 +9,15 @@ const yaml = require('js-yaml');
 
 const argv = require('minimist')(process.argv.slice(2));
 
-var id = { issueKey: 'SB-889' };
+var regex = /\[(.*?)\]/;
+
+// Default value if no id is passed to query the JIRA JBoss Repo
+var id
 
 if (argv.k) {
     id = {issueKey: argv.k}
+} else {
+    id = {issueKey: 'SB-889'}
 }
 
 var jira = new JiraClient( {
@@ -25,13 +30,36 @@ var jira = new JiraClient( {
 
 jira.issue.getIssue(id, function(error, issue) {
     ymlText = YAML.stringify(issue.fields);
-    // console.log(ymlText);
-
     yamlIssue = yaml.safeLoad(ymlText);
+
     console.log("Key: ", id.issueKey)
     console.log("Title: ", yamlIssue.summary)
     console.log("Status: ", yamlIssue.status.name)
     console.log("Type: ", yamlIssue.issuetype.name)
     console.log("Author: ", yamlIssue.reporter.name)
     console.log("Description: ", yamlIssue.description)
+    console.log("Labels: ", yamlIssue.labels)
+
+    sprints = yamlIssue.customfield_12310940;
+    console.log("Size ",sprints.length)
+    for (var i = 0, lengthSprints = sprints.length; i < lengthSprints; i++) {
+        // console.log("Sprint " + sprints[i]);
+        sprint = regex.exec(sprints[i]);
+        pairs = sprint[1].split(",");
+        map = {};
+
+        for (var j = 0, lengthPairs = pairs.length; j < lengthPairs; j++) {
+            str = pairs[j].split("=");
+            addValueToList(str[0],str[1])
+        }
+        console.log("Sprint info - Name : " + map["name"] + ", status : " + map["state"])
+    }
+
 });
+
+function addValueToList(key, value) {
+    //if the list is already created for the "key", then uses it
+    //else creates new list for the "key" to store multiple values in it.
+    map[key] = map[key] || [];
+    map[key].push(value);
+}
