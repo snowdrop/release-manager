@@ -1,0 +1,13 @@
+{
+    "fields": {
+       "project":
+       {
+          "key": "SB"
+       },
+       "summary": "No REST for the Wicked.",
+       "description": "Creating of an issue using ids for projects and issue types using the REST API",
+       "issuetype": {
+          "id": "3"
+       }
+   }
+}
