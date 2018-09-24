@@ -4,24 +4,25 @@
  * node index.js -u JIRA_USER -p JIRA_PWD -k SB-Num
  */
 
-let $ = require('./lib/get.js');
-let argv = require('minimist')(process.argv.slice(2));
+let $ = require('./lib/get.js')
+let argv = require('minimist')(process.argv.slice(2))
+var host
 
 // Instantiate JIRA Client using command line parameters
-function init() {
-    if (argv.h == null) {
-        host = 'jira.jboss.org';
-    } else {
-        host = argv.h
-    }
-    $.JiraClient(host, argv.u, argv.p);
+function init () {
+  if (argv.h == null) {
+    host = 'jira.jboss.org'
+  } else {
+    host = argv.h
+  }
+  $.JiraClient(host, argv.u, argv.p)
 }
 
-init();
+init()
 
 // Call Get Issue
 if (argv.k) {
-    $.getIssueById({issueKey: argv.k})
+  $.getIssueById({ issueKey: argv.k })
 } else {
-    $.getIssueById({issueKey: 'SB-889'})
+  $.getIssueById({ issueKey: 'SB-889' })
 }
