@@ -1,24 +1,36 @@
 let $ = require('./util.js')
 
 module.exports = {
-    ToNewStatus: toNewStatus
+    ToNewStatus: toNewStatus,
+    Issue: toNewIssue
 }
 
 var transitions = new Map()
-transitions.set('InProgress','4')
+transitions.set('InProgress', '4')
 
-// Change the status of the JIRA Issue to a new Transition
-async function toNewStatus(client, id) {
+async function toNewIssue(client, id) {
     try {
-         updateTransition(client, id, transitions.get('InProgress'))
+        client.issue.editIssue({
+            issueKey: id,
+            issue: {
+                fields: {
+                    summary: "This is a test"
+                }
+            }
+        })
     } catch (e) {
         console.log(`Unable to get JIRA issue - Status code of error is:\n${e}`)
     }
 }
 
-function updateTransition(jiraclient, id, transitionId) {
-    jiraclient.issue.transitionIssue(
-        { issueKey: id,
-          transition: { "id": transitionId }
+// Change the status of the JIRA Issue to a new Transition
+async function toNewStatus(client, id) {
+    try {
+        jiraclient.issue.transitionIssue({
+            issueKey: id,
+            transition: {"id": transitions.get('InProgress')}
         })
+    } catch (e) {
+        console.log(`Unable to get JIRA issue - Status code of error is:\n${e}`)
+    }
 }
