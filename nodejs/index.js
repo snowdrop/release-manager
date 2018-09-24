@@ -6,6 +6,7 @@
 
 let operation = require('./lib/operations.js')
 let argv = require('minimist')(process.argv.slice(2))
+var cli
 
 // Instantiate JIRA Client using command line parameters
 function init () {
@@ -15,7 +16,7 @@ function init () {
   } else {
     host = argv.h
   }
-  operation.newClient(host, argv.u, argv.p)
+  cli = operation.newClient(host, argv.u, argv.p)
 }
 
 init()
@@ -24,11 +25,11 @@ switch (argv.o) {
     case "get":
         // Call Get Issue
         if (argv.k) {
-            operation.get.IssueById({ issueKey: argv.k })
+            operation.get.IssueById(cli, { issueKey: argv.k })
         } else {
-            operation.get.IssueById({ issueKey: 'SB-889' })
+            operation.get.IssueById(cli, { issueKey: 'SB-889' })
         }
         break
     case "update":
-        operation.update.Status({ issueKey: argv.k })
+        operation.update.Status(cli, { issueKey: argv.k })
 }

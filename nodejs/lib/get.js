@@ -1,5 +1,4 @@
 let $ = require('./util.js')
-let cli = require('./operations.js')
 
 module.exports = {
   IssueById,
@@ -7,9 +6,9 @@ module.exports = {
 }
 
 // Get issue by id
-async function IssueById(id) {
+async function IssueById(client, id) {
   try {
-    var result = await JiraIssue(id)
+    var result = await JiraIssue(client, id)
 
     issueType = $.convertJsontoObject(result)
 
@@ -47,7 +46,6 @@ async function IssueById(id) {
   }
 }
 
-function JiraIssue(id) {
-  jiraClient = cli.jiraClient
-  return jiraClient.issue.getIssue(id)
+function JiraIssue(jiraclient, id) {
+  return jiraclient.issue.getIssue(id)
 }
