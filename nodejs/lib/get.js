@@ -1,5 +1,5 @@
 let $ = require('./util.js')
-let YAML = require('json2yaml')
+let jsontoyaml = require('json2yaml')
 let yaml = require('js-yaml')
 var jiraClient, ymlText, yamlIssue, regex, sprints
 
@@ -18,21 +18,21 @@ function getIssueById (id) {
     if (error) {
       console.log(error.stack)
     }
-    ymlText = YAML.stringify(issue.fields)
-    yamlIssue = yaml.safeLoad(ymlText)
+    ymlText = jsontoyaml.stringify(issue.fields)
+    issueType = yaml.safeLoad(ymlText)
     regex = /\[(.*?)\]/
 
     console.log('Key         : ' + id.issueKey)
-    console.log('Title       : ' + yamlIssue.summary)
-    console.log('Status      : ' + yamlIssue.status.name)
-    console.log('Type        : ' + yamlIssue.issuetype.name)
-    console.log('Author      : ' + yamlIssue.reporter.name)
-    if (yamlIssue.description != null ) console.log('Description :\n' + yamlIssue.description)
-    if (yamlIssue.labels.length > 0) {
-      console.log('Labels: ', yamlIssue.labels)
+    console.log('Title       : ' + issueType.summary)
+    console.log('Status      : ' + issueType.status.name)
+    console.log('Type        : ' + issueType.issuetype.name)
+    console.log('Author      : ' + issueType.reporter.name)
+    if (issueType.description != null ) console.log('Description :\n' + issueType.description)
+    if (issueType.labels.length > 0) {
+      console.log('Labels: ', issueType.labels)
     };
 
-    sprints = yamlIssue.customfield_12310940
+    sprints = issueType.customfield_12310940
     if (sprints != null) {
       for (var i = 0, lengthSprints = sprints.length; i < lengthSprints; i++) {
         // console.log("Sprint " + sprints[i]);
