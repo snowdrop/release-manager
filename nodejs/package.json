@@ -6,7 +6,8 @@
   "author": "Charles Moulliard",
   "license": "Apache-2.0",
   "scripts": {
-    "lint": "eslint *.js lib/*.js"
+    "lint": "eslint *.js lib/*.js",
+    "lint-fix": "eslint *.js lib/*.js --fix"
   },
   "dependencies": {
     "js-yaml": "3.12.0",

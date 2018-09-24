@@ -1,5 +1,4 @@
 let JiraClient = require('jira-connector')
-var map
 
 module.exports = {
   addValueToList,
@@ -12,15 +11,20 @@ function myJiraClient (host, username, password) {
   return new JiraClient({
     host: host,
     basic_auth: {
-      username: username,
-      password: password
+      base64: convertToBase64(username, password)
     }
   })
 }
 
-function addValueToList (key, value) {
-  // if the list is already created for the "key", then uses it
-  // else creates new list for the "key" to store multiple values in it.
-  map[key] = map[key] || []
-  map[key].push(value)
+function addValueToList (map, key, value) {
+    // if the list is already created for the "key", then uses it
+    // else creates new list for the "key" to store multiple values in it.
+    map[key] = map[key] || []
+    map[key].push(value)
+    return map
+}
+
+function convertToBase64 (username, password) {
+  var userAndPassword = username + ':' + password
+  return Buffer.from(userAndPassword).toString('base64')
 }

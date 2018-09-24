@@ -27,11 +27,10 @@ function getIssueById (id) {
     console.log('Status      : ' + yamlIssue.status.name)
     console.log('Type        : ' + yamlIssue.issuetype.name)
     console.log('Author      : ' + yamlIssue.reporter.name)
-    console.log('Description :\n' + yamlIssue.description)
+    if (yamlIssue.description != null ) console.log('Description :\n' + yamlIssue.description)
     if (yamlIssue.labels.length > 0) {
       console.log('Labels: ', yamlIssue.labels)
-    }
-    ;
+    };
 
     sprints = yamlIssue.customfield_12310940
     if (sprints != null) {
@@ -43,7 +42,7 @@ function getIssueById (id) {
 
         for (var j = 0, lengthPairs = pairs.length; j < lengthPairs; j++) {
           var str = pairs[j].split('=')
-          $.addValueToList(str[0], str[1])
+          map = $.addValueToList(map, str[0], str[1])
         }
         console.log('Sprint Name : ' + map['name'] + ', state : ' + map['state'])
       }
