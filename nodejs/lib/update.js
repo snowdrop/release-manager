@@ -1,11 +1,17 @@
 let $ = require('./util.js')
+let operation = require('./operations.js')
 
 module.exports = {
-  Status: Status
+    Status: status
 }
 
 // Get issue by id
-function Status (jiraclient, id) {
-  var result = jiraClient.issue(id)
-  issueType = $.convertJsontoObject(result)
+async function status(client, id) {
+    try {
+        var result = await operation.get.JiraIssue(client, id)
+        issueType = $.convertJsontoObject(result)
+        console.log(issueType)
+    } catch (e) {
+        console.log(`Unable to get JIRA issue - Status code of error is:\n${e}`)
+    }
 }

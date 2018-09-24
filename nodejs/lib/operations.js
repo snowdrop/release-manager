@@ -1,4 +1,3 @@
-let JiraClient = require('jira-connector')
 let util = require('./util.js')
 
 module.exports = {
@@ -10,6 +9,7 @@ module.exports = {
 
 function newClient(host, username, password) {
     // console.log("Params : ", username, password, host)
+    JiraClient = require('jira-connector')
 
     return new JiraClient({
         host: host,
