@@ -53,6 +53,6 @@ async function GetIssueById(id) {
   }
 }
 
-function getJiraIssue(id) {
+function GetJiraIssue(id) {
   return jiraClient.issue.getIssue(id)
 }

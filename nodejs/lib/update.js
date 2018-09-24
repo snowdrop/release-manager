@@ -4,7 +4,7 @@ var jiraClient
 
 module.exports = {
   JiraClient,
-  UpdateStatus
+  UpdateStatus: Update
 }
 
 function JiraClient (host, username, password) {
@@ -12,7 +12,7 @@ function JiraClient (host, username, password) {
 }
 
 // Get issue by id
-function UpdateStatus (id) {
+function Update (id) {
   var result = jira.GetJiraIssue(id)
   issueType = $.convertJsontoObject(result)
 }
