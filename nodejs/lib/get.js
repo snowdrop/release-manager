@@ -3,7 +3,8 @@ var jiraClient, ymlText, yamlIssue, regex, sprints
 
 module.exports = {
   JiraClient,
-  GetIssueById
+  GetIssueById,
+  GetJiraIssue
 }
 
 function JiraClient(host, username, password) {
@@ -13,7 +14,7 @@ function JiraClient(host, username, password) {
 // Get issue by id
 async function GetIssueById(id) {
   try {
-    var result = await getJiraIssue(id)
+    var result = await GetJiraIssue(id)
 
     issueType = $.convertJsontoObject(result)
 
