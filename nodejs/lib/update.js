@@ -1,7 +1,7 @@
 let $ = require('./util.js')
 
 module.exports = {
-    ToNewStatus: toNewStatus,
+    Status: toNewStatus,
     Issue: toNewIssue
 }
 
