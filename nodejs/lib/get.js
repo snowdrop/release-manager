@@ -1,6 +1,4 @@
 let $ = require('./util.js')
-let jsontoyaml = require('json2yaml')
-let yaml = require('js-yaml')
 var jiraClient, ymlText, yamlIssue, regex, sprints
 
 module.exports = {
@@ -16,11 +14,8 @@ function JiraClient(host, username, password) {
 async function GetIssueById(id) {
   try {
     var result = await getJiraIssue(id)
-    // getJiraIssue(id)
 
-    ymlText = jsontoyaml.stringify(result.fields)
-    console.log(yaml.safeLoad(ymlText))
-    issueType = yaml.safeLoad(ymlText)
+    issueType = $.convertJsontoObject(result)
 
     console.log('Key         : ' + id.issueKey)
     console.log('Title       : ' + issueType.summary)

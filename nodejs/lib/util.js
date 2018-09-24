@@ -1,8 +1,11 @@
 let JiraClient = require('jira-connector')
+let jsontoyaml = require('json2yaml')
+let yaml = require('js-yaml')
 
 module.exports = {
   addValueToList,
-  myJiraClient
+  myJiraClient,
+  convertJsontoObject
 }
 
 function myJiraClient (host, username, password) {
@@ -27,4 +30,12 @@ function addValueToList (map, key, value) {
 function convertToBase64 (username, password) {
   var userAndPassword = username + ':' + password
   return Buffer.from(userAndPassword).toString('base64')
+}
+
+// Convert JSON to YAML and JS Objects
+function convertJsontoObject(result) {
+    ymlText = jsontoyaml.stringify(result.fields)
+    //console.log(yaml.safeLoad(ymlText))
+    type = yaml.safeLoad(ymlText)
+    return type
 }
