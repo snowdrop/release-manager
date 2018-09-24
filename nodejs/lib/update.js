@@ -14,7 +14,11 @@ async function toNewIssue(client, id) {
             issueKey: id,
             issue: {
                 fields: {
-                    summary: "This is a test"
+                    summary: "This is a test",
+                    labels: [
+                        "bugfix",
+                        "blitz_test"
+                    ],
                 }
             }
         })
