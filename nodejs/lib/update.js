@@ -1,25 +1,24 @@
 let $ = require('./util.js')
-var operation = require('./get.js')
 
 module.exports = {
-    Status: status
+    ToNewStatus: toNewStatus
 }
 
-// Get issue by id
-async function status(client, id) {
-    try {
-        var result = await operation.GetJiraIssue(client, id)
-        issueType = $.convertJsontoObject(result)
-        operation.PrintIssue(id, issueType)
+var transitions = new Map()
+transitions.set('InProgress','4')
 
-        issueType.status.name="New"
-        issueTypeUpdated = update(client, issueType, id)
-        operation.PrintIssue(id, issueTypeUpdated)
+// Change the status of the JIRA Issue to a new Transition
+async function toNewStatus(client, id) {
+    try {
+         updateTransition(client, id, transitions.get('InProgress'))
     } catch (e) {
         console.log(`Unable to get JIRA issue - Status code of error is:\n${e}`)
     }
 }
 
-function update(jiraclient, type, id) {
-    return jiraclient.issue.editIssue(id, null, type)
+function updateTransition(jiraclient, id, transitionId) {
+    jiraclient.issue.transitionIssue(
+        { issueKey: id,
+          transition: { "id": transitionId }
+        })
 }
