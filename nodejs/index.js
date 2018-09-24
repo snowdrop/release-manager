@@ -31,5 +31,5 @@ switch (argv.o) {
         }
         break
     case "update":
-        operation.update.Status(cli, { issueKey: argv.k })
+        operation.update.ToNewStatus(cli, argv.k)
 }
