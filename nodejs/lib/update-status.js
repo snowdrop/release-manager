@@ -12,10 +12,12 @@ function JiraClient (host, username, password) {
 
 // Get issue by id
 function updateStatus (id) {
-  jiraClient.issue.getIssue(id, function (error, issue) {
+
+  jiraClient.issue.editIssue(id, function (error, issue) {
     if (error) {
       console.log(error.stack)
     }
-    console.log(issue.fields)
+
+
   })
 }

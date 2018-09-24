@@ -22,7 +22,7 @@ init()
 
 // Call Get Issue
 if (argv.k) {
-  $.getIssueById({ issueKey: argv.k })
+  $.GetIssueById({ issueKey: argv.k })
 } else {
-  $.getIssueById({ issueKey: 'SB-889' })
+  $.GetIssueById({ issueKey: 'SB-889' })
 }

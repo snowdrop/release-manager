@@ -4,48 +4,52 @@ let yaml = require('js-yaml')
 var jiraClient, ymlText, yamlIssue, regex, sprints
 
 module.exports = {
-  JiraClient,
-  getIssueById
+    JiraClient,
+    GetIssueById
 }
 
-function JiraClient (host, username, password) {
-  jiraClient = $.myJiraClient(host, username, password)
+function JiraClient(host, username, password) {
+    jiraClient = $.myJiraClient(host, username, password)
 }
 
 // Get issue by id
-function getIssueById (id) {
-  jiraClient.issue.getIssue(id, function (error, issue) {
-    if (error) {
-      console.log(error.stack)
-    }
-    ymlText = jsontoyaml.stringify(issue.fields)
+function GetIssueById(id) {
+    var result = await getJiraIssue(id)
+    getJiraIssue(id)
+
+    ymlText = jsontoyaml.stringify(result.fields)
+    console.log(yaml.safeLoad(ymlText))
     issueType = yaml.safeLoad(ymlText)
-    regex = /\[(.*?)\]/
 
     console.log('Key         : ' + id.issueKey)
     console.log('Title       : ' + issueType.summary)
     console.log('Status      : ' + issueType.status.name)
     console.log('Type        : ' + issueType.issuetype.name)
     console.log('Author      : ' + issueType.reporter.name)
-    if (issueType.description != null ) console.log('Description :\n' + issueType.description)
+    if (issueType.description != null) console.log('Description :\n' + issueType.description)
     if (issueType.labels.length > 0) {
-      console.log('Labels: ', issueType.labels)
-    };
+        console.log('Labels: ', issueType.labels)
+    }
+    ;
 
+    regex = /\[(.*?)\]/
     sprints = issueType.customfield_12310940
     if (sprints != null) {
-      for (var i = 0, lengthSprints = sprints.length; i < lengthSprints; i++) {
-        // console.log("Sprint " + sprints[i]);
-        var sprint = regex.exec(sprints[i])
-        var pairs = sprint[1].split(',')
-        var map = {}
+        for (var i = 0, lengthSprints = sprints.length; i < lengthSprints; i++) {
+            // console.log("Sprint " + sprints[i]);
+            var sprint = regex.exec(sprints[i])
+            var pairs = sprint[1].split(',')
+            var map = {}
 
-        for (var j = 0, lengthPairs = pairs.length; j < lengthPairs; j++) {
-          var str = pairs[j].split('=')
-          map = $.addValueToList(map, str[0], str[1])
+            for (var j = 0, lengthPairs = pairs.length; j < lengthPairs; j++) {
+                var str = pairs[j].split('=')
+                map = $.addValueToList(map, str[0], str[1])
+            }
+            console.log('Sprint Name : ' + map['name'] + ', state : ' + map['state'])
         }
-        console.log('Sprint Name : ' + map['name'] + ', state : ' + map['state'])
-      }
     }
-  })
+}
+
+function getJiraIssue(id) {
+    return new Promise(jiraClient.issue.getIssue(id))
 }
