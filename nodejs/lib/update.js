@@ -1,5 +1,5 @@
 let $ = require('./util.js')
-var operation = require('./get.js')
+var get = require('./get.js')
 
 module.exports = {
     Status: status
@@ -8,13 +8,13 @@ module.exports = {
 // Get issue by id
 async function status(client, id) {
     try {
-        var result = await operation.GetJiraIssue(client, id)
+        var result = await get.GetJiraIssue(client, id)
         issueType = $.convertJsontoObject(result)
-        operation.PrintIssue(id, issueType)
+        get.PrintIssue(id, issueType)
 
         issueType.status.name="New"
         issueTypeUpdated = update(client, issueType, id)
-        operation.PrintIssue(id, issueTypeUpdated)
+        get.PrintIssue(id, issueTypeUpdated)
     } catch (e) {
         console.log(`Unable to get JIRA issue - Status code of error is:\n${e}`)
     }
