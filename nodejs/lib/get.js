@@ -1,20 +1,15 @@
 let $ = require('./util.js')
-var jiraClient, ymlText, yamlIssue, regex, sprints
+let cli = require('./operations.js')
 
 module.exports = {
-  JiraClient,
-  GetIssueById,
-  GetJiraIssue
-}
-
-function JiraClient(host, username, password) {
-  jiraClient = $.myJiraClient(host, username, password)
+  IssueById,
+  JiraIssue
 }
 
 // Get issue by id
-async function GetIssueById(id) {
+async function IssueById(id) {
   try {
-    var result = await GetJiraIssue(id)
+    var result = await JiraIssue(id)
 
     issueType = $.convertJsontoObject(result)
 
@@ -31,9 +26,8 @@ async function GetIssueById(id) {
       console.log('Labels: ', issueType.labels)
     }
 
-
-    regex = /\[(.*?)\]/
-    sprints = issueType.customfield_12310940
+    var regex = /\[(.*?)\]/
+    var sprints = issueType.customfield_12310940
     if (sprints != null) {
       for (var i = 0, lengthSprints = sprints.length; i < lengthSprints; i++) {
         // console.log("Sprint " + sprints[i]);
@@ -53,6 +47,7 @@ async function GetIssueById(id) {
   }
 }
 
-function GetJiraIssue(id) {
+function JiraIssue(id) {
+  jiraClient = cli.jiraClient
   return jiraClient.issue.getIssue(id)
 }

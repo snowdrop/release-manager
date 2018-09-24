@@ -1,18 +1,12 @@
 let $ = require('./util.js')
-let jira = require('./get.js')
-var jiraClient
+let cli = require('./operations.js')
 
 module.exports = {
-  JiraClient,
-  UpdateStatus: Update
-}
-
-function JiraClient (host, username, password) {
-  jiraClient = $.myJiraClient(host, username, password)
+  Status: Status
 }
 
 // Get issue by id
-function Update (id) {
-  var result = jira.GetJiraIssue(id)
+function Status (id) {
+  var result = cli.jiraClient.issue(id)
   issueType = $.convertJsontoObject(result)
 }

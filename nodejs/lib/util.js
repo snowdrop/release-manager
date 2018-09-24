@@ -1,22 +1,10 @@
-let JiraClient = require('jira-connector')
 let jsontoyaml = require('json2yaml')
 let yaml = require('js-yaml')
 
 module.exports = {
   addValueToList,
-  myJiraClient,
-  convertJsontoObject
-}
-
-function myJiraClient (host, username, password) {
-  // console.log("Params : ", username, password, host)
-
-  return new JiraClient({
-    host: host,
-    basic_auth: {
-      base64: convertToBase64(username, password)
-    }
-  })
+  convertJsontoObject,
+  convertToBase64
 }
 
 function addValueToList (map, key, value) {
