@@ -32,7 +32,7 @@ switch (argv.o) {
         }
         break
     case 'update':
-        operation.UpdateIssueStatus(cli, argv.k)
+        operation.UpdateIssueStatus(cli, argv.k, argv.s)
         break
     case 'edit':
         operation.EditIssue(cli, argv.k)
