@@ -12,11 +12,16 @@ host:
  user: JIRA_USER
  pwd: JIRA_PASSWORD
 ```
-- Next execute a command to get a ticket
+- Install the node packages/modules needed
 
 ```bash
 cd nodejs
 npm install
+```
+
+- Execute this command to get a ticket
+
+```bash
 node index.js get SB-869
 
 Key         : SB-869
