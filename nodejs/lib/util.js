@@ -1,14 +1,16 @@
 let jsontoyaml = require('json2yaml')
 let yaml = require('js-yaml')
+let fs = require('fs')
 let Log = require('./log')
 let logger = require('winston')
 var log = new Log()
-
+const os = require('os');
 
 module.exports = {
   addValueToList,
   convertJsontoObject,
   convertToBase64,
+  parseJIRAConfig,
   Log: new Log(),
   Logger: new newWinstonLogger()
 }
@@ -22,6 +24,17 @@ function newWinstonLogger() {
         ]
     });
 }
+
+function parseJIRAConfig() {
+    try {
+        cfgFile = os.homedir()+'/.jiracli.yml'
+        console.log("Config file : "+cfgFile)
+        return yaml.safeLoad(fs.readFileSync(cfgFile, 'utf8'));
+    } catch (e) {
+        console.log(e);
+    }
+}
+
 function addValueToList (map, key, value) {
   // if the list is already created for the "key", then uses it
   // else creates new list for the "key" to store multiple values in it.

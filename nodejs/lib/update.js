@@ -8,6 +8,8 @@ var transitions = new Map()
 transitions.set('HandOver', '791')
 // Open to Coding In Progress
 transitions.set('InProgress', '4')
+// Revert to Open
+transitions.set('StopProgress', '301')
 transitions.set('ResolveIssue', '5')
 transitions.set('CloseIssue', '2')
 transitions.set('LinkPR', '711')
