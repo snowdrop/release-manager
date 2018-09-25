@@ -4,7 +4,7 @@ https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
 
 ## Nodejs client
 
-- Create a `~/.jiraclient.yml` file with the following information
+- Create a `~/.jiracli.yml` file with the following information
 
 ```yaml
 host:
