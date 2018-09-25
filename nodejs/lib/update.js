@@ -1,6 +1,5 @@
 module.exports = {
   UpdateIssueStatus,
-  EditIssue
 }
 
 var transitions = new Map()
@@ -14,25 +13,6 @@ transitions.set('StopProgress', '301')
 transitions.set('ResolveIssue', '5')
 transitions.set('CloseIssue', '2')
 transitions.set('LinkPR', '711')
-
-async function EditIssue (client, id) {
-  try {
-    await client.issue.editIssue({
-      issueKey: id,
-      issue: {
-        fields: {
-          summary: 'This is a test',
-          labels: [
-            'bugfix',
-            'blitz_test'
-          ]
-        }
-      }
-    })
-  } catch (e) {
-      $.Log.error(`Unable to get JIRA issue - Status code of error is:\n${e}`)
-  }
-}
 
 // Change the status of the JIRA Issue to a new Transition
 async function UpdateIssueStatus (client, id, transitionName) {

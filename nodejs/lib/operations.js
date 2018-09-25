@@ -6,7 +6,7 @@ module.exports = {
   GetIssueById: require('./get.js').GetIssueById,
   PrintIssue: require('./get.js').PrintIssue,
   UpdateIssueStatus: require('./update.js').UpdateIssueStatus,
-  EditIssue: require('./update.js').EditIssue
+  EditIssue: require('./edit.js').EditIssue
 }
 
 function newClient (host, username, password) {
