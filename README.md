@@ -4,9 +4,20 @@ https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
 
 ## Nodejs client
 
+- Create a `~/.jiraclient.yml` file with the following information
+
+```yaml
+host:
+ name: JIRA_HOST // jira.jboss.org
+ user: JIRA_USER
+ pwd: JIRA_PASSWORD
+```
+- Next execute a command to get a ticket
+
 ```bash
-cd nodejsnpm install
-node index.js -u JBOSS_JIRA_USER -p JBOSS_JIRA_PWD -k SB-xxx
+cd nodejs
+npm install
+node index.js get SB-869
 
 Key         : SB-869
 Title       : Contact Atomist support
@@ -19,6 +30,21 @@ Description :
 Sprint Name : SB-2018-09-14, state : CLOSED
 Sprint Name : SB-2018-09-28, state : ACTIVE
 ```
+
+- Update the status 
+
+```bash
+// To move a new ticket to status needed to Hand Over for Development
+node index.js update SB-869 HandOver
+
+// To move the ticket to the In Progress column of a sprint
+node index.js update SB-869 InProgress
+
+// To resolve/close it
+node index.js update SB-869 Resolve|Close
+```
+
+
 ## Java Jira client
 
 ```bash
