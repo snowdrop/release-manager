@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 'use strict'
 
-let $ = require('../lib/util.js')
+let util = require('../lib/util.js')
 let operation = require('../lib/operations.js')
 let program = require('commander')
 
 var cli
 
 // Instantiate JIRA Client using command line parameters
-var cfg = $.parseJIRAConfig()
+var cfg = util.parseJIRAConfig()
 cli = operation.newClient(cfg.host.name, cfg.host.user, cfg.host.pwd)
 
 /*
  * Common features
  */
 program
-  .version($.data.version, '-v')
-  .description($.data.description)
+  .version(util.data.version, '-v')
+  .description(util.data.description)
   .usage('<command> [options]')
 
 /*

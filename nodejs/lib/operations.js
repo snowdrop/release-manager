@@ -1,4 +1,4 @@
-let $ = require('./util.js')
+let util = require('./util.js')
 let JiraClient = require('jira-connector')
 
 module.exports = {
@@ -10,11 +10,11 @@ module.exports = {
 }
 
 function newClient (host, username, password) {
-  //$.Log.debug('Params : ', username, password, host)
+  //util.Log.debug('Params : ', username, password, host)
   return new JiraClient({
     host: host,
     basic_auth: {
-      base64: $.convertToBase64(username, password)
+      base64: util.convertToBase64(username, password)
     }
   })
 }
