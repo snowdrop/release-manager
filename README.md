@@ -22,7 +22,7 @@ npm install
 - Execute this command to get a ticket
 
 ```bash
-node index.js get SB-869
+jira get SB-869
 
 Key         : SB-869
 Title       : Contact Atomist support
@@ -40,13 +40,13 @@ Sprint Name : SB-2018-09-28, state : ACTIVE
 
 ```bash
 // To move a new ticket to status needed to Hand Over for Development
-node index.js update SB-869 HandOver
+jira update SB-869 HandOver
 
 // To move the ticket to the In Progress column of a sprint
-node index.js update SB-869 InProgress
+jira update SB-869 InProgress
 
 // To resolve/close it
-node index.js update SB-869 Resolve|Close
+jira update SB-869 ResolveIssue|CloseIssue
 ```
 
 

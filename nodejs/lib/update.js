@@ -1,5 +1,7 @@
+let $ = require('./util.js')
+
 module.exports = {
-  UpdateIssueStatus,
+  UpdateIssueStatus
 }
 
 var transitions = new Map()
@@ -22,6 +24,6 @@ async function UpdateIssueStatus (client, id, transitionName) {
       transition: { 'id': transitions.get(transitionName) }
     })
   } catch (e) {
-      $.Log.error(`Unable to update status of the JIRA issue - Status code of error is:\n${e}`)
+    $.Log.error(`Unable to update status of the JIRA issue - Status code of error is:\n${e}`)
   }
 }

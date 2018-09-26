@@ -14,12 +14,10 @@ var options = {
   body: bodyData
 }
 
-function update () {
-  request(options, function (error, response, body) {
-    if (error) throw new Error(error)
-    console.log(
-      'Response: ' + response.statusCode + ' ' + response.statusMessage
-    )
-    console.log(body)
-  })
-}
+request(options, function (error, response, body) {
+  if (error) throw new Error(error)
+  console.log(
+    'Response: ' + response.statusCode + ' ' + response.statusMessage
+  )
+  console.log(body)
+})

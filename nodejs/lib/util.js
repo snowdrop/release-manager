@@ -1,38 +1,28 @@
 let jsontoyaml = require('json2yaml')
 let yaml = require('js-yaml')
 let fs = require('fs')
+let data = require('../package.json')
 let Log = require('./log')
-let logger = require('winston')
 var log = new Log()
-const os = require('os');
+const os = require('os')
 
 module.exports = {
+  data,
   addValueToList,
   convertJsontoObject,
   convertToBase64,
   parseJIRAConfig,
-  Log: new Log(),
-  Logger: new newWinstonLogger()
+  Log: new Log()
 }
 
-function newWinstonLogger() {
-    return logger.createLogger({
-        level: process.env.LOG_LEVEL,
-        format: logger.format.simple(),
-        transports: [
-            new logger.transports.Console()
-        ]
-    });
-}
-
-function parseJIRAConfig() {
-    try {
-        cfgFile = os.homedir()+'/.jiracli.yml'
-        console.log("Config file : "+cfgFile)
-        return yaml.safeLoad(fs.readFileSync(cfgFile, 'utf8'));
-    } catch (e) {
-        console.log(e);
-    }
+function parseJIRAConfig () {
+  try {
+    var cfgFile = os.homedir() + '/.jiracli.yml'
+    // console.log('Config file : ' + cfgFile)
+    return yaml.safeLoad(fs.readFileSync(cfgFile, 'utf8'))
+  } catch (e) {
+    console.log(e)
+  }
 }
 
 function addValueToList (map, key, value) {
@@ -51,7 +41,7 @@ function convertToBase64 (username, password) {
 // Convert JSON to YAML and JS Objects
 function convertJsontoObject (result) {
   var ymlText = jsontoyaml.stringify(result.fields)
-  log.debug(yaml.safeLoad(ymlText))
+  // log.debug(yaml.safeLoad(ymlText))
   var type = yaml.safeLoad(ymlText)
   return type
 }

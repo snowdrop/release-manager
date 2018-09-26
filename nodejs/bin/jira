@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+'use strict'
+
+let $ = require('../lib/util.js')
+let operation = require('../lib/operations.js')
+let program = require('commander')
+
+var cli
+
+// Instantiate JIRA Client using command line parameters
+var cfg = $.parseJIRAConfig()
+cli = operation.newClient(cfg.host.name, cfg.host.user, cfg.host.pwd)
+
+/*
+ * Common features
+ */
+program
+  .version($.data.version, '-v')
+  .description($.data.description)
+  .usage('<command> [options]')
+
+/*
+ * JIRA Get command
+ */
+program
+  .command('get <id>')
+  .description('Pass the issue Key to bet fetched (E.g. SB-567)')
+  .action(function (id) {
+    operation.GetIssueById(cli, id)
+  })
+
+/*
+ * JIRA Update status command
+ */
+program
+    .command('update <id> <status>')
+    .description('Pass the issue Key and its status to be changed. Values : HandOver, InProgress, StopProgress, ResolveIssue, CloseIssue, LinkPR')
+    .action(function (id, status) {
+        operation.UpdateIssueStatus(cli, id, status)
+    })
+
+program.parse(process.argv)

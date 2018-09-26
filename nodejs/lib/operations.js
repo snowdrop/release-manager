@@ -10,7 +10,7 @@ module.exports = {
 }
 
 function newClient (host, username, password) {
-  $.Log.debug('Params : ', username, password, host)
+  //$.Log.debug('Params : ', username, password, host)
   return new JiraClient({
     host: host,
     basic_auth: {

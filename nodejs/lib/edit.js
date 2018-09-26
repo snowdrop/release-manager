@@ -1,3 +1,5 @@
+let $ = require('./util.js')
+
 module.exports = {
   EditIssue
 }
@@ -17,6 +19,6 @@ async function EditIssue (client, id) {
       }
     })
   } catch (e) {
-      $.Log.error(`Unable to edit JIRA issue - Status code of error is:\n${e}`)
+    $.Log.error(`Unable to edit JIRA issue - Status code of error is:\n${e}`)
   }
 }
