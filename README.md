@@ -16,7 +16,7 @@ host:
 
 ```bash
 cd nodejs
-npm install
+npm install && npm link
 ```
 
 - Execute this command to get a ticket
