@@ -1,8 +1,12 @@
-## JIRA Java Client
+## JIRA Tools
 
-https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
+JIRA Client tools to be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
 
-## Nodejs client
+TODO : 
+
+- Add `New` and `edit` commands
+
+### Nodejs client
 
 - Create a `~/.jiracli.yml` file with the following information
 
@@ -50,7 +54,7 @@ jira update SB-869 ResolveIssue|CloseIssue
 ```
 
 
-## Java Jira client
+### Java Jira client
 
 ```bash
 mvn clean package 
