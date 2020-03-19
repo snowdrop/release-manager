@@ -29,8 +29,13 @@ public class Client {
     }
 
     private void init() {
-        AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-        restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(args.jiraServerUri), args.user, args.password);
+        try {
+            AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+            restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(args.jiraServerUri), args.user, args.password);
+            restClient.getSessionClient().getCurrentSession().get().getLoginInfo().getFailedLoginCount();
+        } catch (Exception e) {
+          System.out.println(e);
+        }
     }
 
     private void getIssue(String issueNumber) {
