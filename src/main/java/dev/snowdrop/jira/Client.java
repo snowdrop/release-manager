@@ -1,4 +1,4 @@
-package me.snowdrop.jira;
+package dev.snowdrop.jira;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
@@ -7,7 +7,6 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 
 import com.beust.jcommander.JCommander;
 
-import java.io.IOException;
 import java.net.URI;
 
 public class Client {

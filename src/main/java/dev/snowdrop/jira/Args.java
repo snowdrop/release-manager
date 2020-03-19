@@ -1,4 +1,4 @@
-package me.snowdrop.jira;
+package dev.snowdrop.jira;
 
 import com.beust.jcommander.Parameter;
 

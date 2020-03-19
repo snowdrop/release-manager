@@ -11,6 +11,7 @@
     <properties>
         <jira-rest-java-atlassian.version>5.2.1</jira-rest-java-atlassian.version>
         <fugue.version>4.7.2</fugue.version>
+        <aphrodite.version>0.7.9.Final</aphrodite.version>
     </properties>
 
     <dependencyManagement>
@@ -19,6 +20,13 @@
                 <groupId>com.atlassian.jira</groupId>
                 <artifactId>jira-rest-java-client-parent</artifactId>
                 <version>${jira-rest-java-atlassian.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.set</groupId>
+                <artifactId>jboss-aphrodite-parent</artifactId>
+                <version>${aphrodite.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -49,6 +57,12 @@
             <groupId>io.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
             <version>${fugue.version}</version>
+        </dependency>
+
+        <!-- Aphrodite -->
+        <dependency>
+            <groupId>org.jboss.set</groupId>
+            <artifactId>jboss-aphrodite-jira</artifactId>
         </dependency>
 
         <!-- Apache HTTP Component client -->
@@ -100,7 +114,7 @@
                        <manifest>
                            <addClasspath>true</addClasspath>
                            <classpathPrefix>lib/</classpathPrefix>
-                           <mainClass>me.snowdrop.jira.Client</mainClass>
+                           <mainClass>dev.snowdrop.jira.Client</mainClass>
                        </manifest>
                    </archive>
                </configuration>
@@ -141,6 +155,20 @@
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
             </releases>
+        </repository>
+        <repository>
+            <id>aphrodite</id>
+            <name>Aphrodite</name>
+            <url>https://repository.jboss.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </snapshots>
         </repository>
     </repositories>
 
