@@ -1,6 +1,6 @@
 # R&D to develop JIRA Tools
 
-## Table OF Contents
+## Table Of Contents
 
   * [Introduction](#introduction)
   * [Nodejs client](#nodejs-client)
@@ -8,7 +8,6 @@
   * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
      * [Get](#get)
      * [Post](#post)
-
 
 ## Introduction
 
