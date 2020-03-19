@@ -8,12 +8,17 @@
     <artifactId>jira-tool</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <jira-rest-java-atlassian.version>5.2.1</jira-rest-java-atlassian.version>
+        <fugue.version>4.7.2</fugue.version>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.atlassian.jira</groupId>
                 <artifactId>jira-rest-java-client-parent</artifactId>
-                <version>5.0.4</version>
+                <version>${jira-rest-java-atlassian.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -24,27 +29,26 @@
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-rest-java-client-api</artifactId>
-            <version>5.0.4</version>
+            <version>${jira-rest-java-atlassian.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-rest-java-client-core</artifactId>
-            <version>5.0.4</version>
+            <version>${jira-rest-java-atlassian.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.httpclient</groupId>
             <artifactId>atlassian-httpclient-api</artifactId>
-            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.httpclient</groupId>
             <artifactId>atlassian-httpclient-library</artifactId>
-            <version>1.0.0</version>
         </dependency>
 
         <dependency>
-            <groupId>com.atlassian.fugue</groupId>
+            <groupId>io.atlassian.fugue</groupId>
             <artifactId>fugue</artifactId>
+            <version>${fugue.version}</version>
         </dependency>
 
         <!-- Apache HTTP Component client -->
@@ -123,7 +127,7 @@
         <repository>
             <id>atlassian.com</id>
             <name>Atlassian</name>
-            <url>http://maven.atlassian.com/public/</url>
+            <url>https://maven.atlassian.com/public/</url>
         </repository>
         <repository>
             <id>atlassian-public</id>
