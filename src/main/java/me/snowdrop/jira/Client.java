@@ -49,7 +49,7 @@ public class Client {
         if (uri != null) {
             return URI.create(uri);
         } else {
-            return URI.create("https://issues.jboss.org/");
+            return URI.create("https://issues.redhat.com/");
         }
     }
 }
