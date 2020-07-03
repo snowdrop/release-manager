@@ -49,8 +49,26 @@ https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
 ```bash
 cd atlassian
 mvn clean package 
-java -jar target/uber-atlassian-1.0-SNAPSHOT.jar -user JBOSS_JIRA_USER -password JBOSS_JIRA_PWD -issue SB-xxx
 ```
+- To get an issue
+```bash
+java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+    -user JBOSS_JIRA_USER \
+    -password JBOSS_JIRA_PWD \
+    -url https://issues.redhat.com \
+    -action get \
+    -issue ENTSBT-xxx
+```
+- To delete an issue
+```bash
+java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+    -user JBOSS_JIRA_USER \
+    -password JBOSS_JIRA_PWD \
+    -url https://issues.redhat.com \
+    -action delete \
+    -issue ENTSBT-xxx
+```
+
 
 ### Nodejs client
 
