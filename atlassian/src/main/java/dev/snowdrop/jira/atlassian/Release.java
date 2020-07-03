@@ -15,6 +15,9 @@ public class Release {
     @JsonProperty
     private String title;
 
+    @JsonProperty
+    private String template;
+
     public String getVersion() {
         return version;
     }
@@ -45,5 +48,13 @@ public class Release {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getTemplate() {
+        return template;
+    }
+
+    public void setTemplate(String template) {
+        this.template = template;
     }
 }

@@ -50,6 +50,16 @@ https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
 cd atlassian
 mvn clean package 
 ```
+
+- To create an issue
+```bash
+java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+    -user JBOSS_JIRA_USER \
+    -password JBOSS_JIRA_PWD \
+    -cfg etc/release.yaml \
+    -action create \
+    -url https://issues.redhat.com
+```
 - To get an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \

@@ -81,7 +81,7 @@ public class Client {
         iib.setProjectKey("ENTSBT");
         iib.setSummary(release.getTitle());
         iib.setDescription(
-                String.format(TEMPLATE,
+                String.format(release.getTemplate(),
                         release.getVersion(),
                         release.getDate(),
                         release.getEOL()));
