@@ -9,6 +9,9 @@ public class Args {
     @Parameter
     protected List<String> parameters = new ArrayList<>();
 
+    @Parameter(names = "-cfg", description = "Release YAML file path")
+    protected String cfg;
+
     @Parameter(names = "-action", description = "Action to be performed: search, create, delete")
     protected String action;
 

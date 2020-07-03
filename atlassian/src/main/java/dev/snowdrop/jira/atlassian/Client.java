@@ -41,7 +41,7 @@ public class Client {
                 break;
 
             case "delete" :
-                // Statements
+                client.deleteIssue(args.issue);
                 break;
         }
     }
@@ -49,7 +49,7 @@ public class Client {
     private void init() {
         try {
             // Parse YAML config
-            readYaml();
+            readYaml(args.cfg);
 
             // Create JIRA authenticated client
             AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
@@ -65,8 +65,13 @@ public class Client {
         final IssueRestClient cl = restClient.getIssueClient();
         // Get Issue Info
         Issue issue = cl.getIssue(issueNumber).claim();
-        //println(issue);
-        println("Find issue :-)");
+        println(issue);
+    }
+
+    private void deleteIssue(String issue) {
+        final IssueRestClient cl = restClient.getIssueClient();
+        cl.deleteIssue(issue, false);
+        LOG.infof("Issue %s deleted",issue);
     }
 
     private void createIssue() {
@@ -74,13 +79,17 @@ public class Client {
 
         IssueInputBuilder iib = new IssueInputBuilder();
         iib.setProjectKey("ENTSBT");
-        iib.setSummary("Test Summary");
-        iib.setDescription(String.format(TEMPLATE,release.getVersion(),release.getDate(),release.getEOL()));
+        iib.setSummary(release.getTitle());
+        iib.setDescription(
+                String.format(TEMPLATE,
+                        release.getVersion(),
+                        release.getDate(),
+                        release.getEOL()));
         iib.setIssueType(TASK_TYPE());
         iib.setDueDate(new DateTime());
         IssueInput issue = iib.build();
         BasicIssue issueObj = cl.createIssue(issue).claim();
-        System.out.println("Issue " + issueObj.getKey() + " created successfully");
+        LOG.infof("Issue %s created successfully",issueObj.getKey());
     }
 
     private void println(Object o) {

@@ -51,14 +51,10 @@ public class Utility {
         }
     }
 
-    public static void readYaml() {
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream is = Utility.class.getResourceAsStream("/release.yaml");
-        InputStreamReader isr = new InputStreamReader(is);
-
+    public static void readYaml(String path) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory()); // jackson databind
         try {
-            release = mapper.readValue(isr, Release.class);
+            release = mapper.readValue(new File(path), Release.class);
         } catch (IOException e) {
             e.printStackTrace();
         }

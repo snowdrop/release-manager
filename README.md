@@ -56,6 +56,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -url https://issues.redhat.com \
+    -cfg etc/release.yaml \
     -action get \
     -issue ENTSBT-xxx
 ```
@@ -65,6 +66,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -url https://issues.redhat.com \
+    -cfg etc/release.yaml \
     -action delete \
     -issue ENTSBT-xxx
 ```

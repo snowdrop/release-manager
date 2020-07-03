@@ -12,6 +12,9 @@ public class Release {
     @JsonProperty
     private String EOL;
 
+    @JsonProperty
+    private String title;
+
     public String getVersion() {
         return version;
     }
@@ -34,5 +37,13 @@ public class Release {
 
     public void setEOL(String EOL) {
         this.EOL = EOL;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
