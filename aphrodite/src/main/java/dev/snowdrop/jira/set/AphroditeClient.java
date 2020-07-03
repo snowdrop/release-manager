@@ -33,6 +33,7 @@ public class AphroditeClient {
 
         client.init();
         client.getIssues(args.issue);
+        client.getIssue(args.issue);
 
         aphrodite.close();
     }
@@ -43,6 +44,13 @@ public class AphroditeClient {
         } catch (AphroditeException e) {
             LOG.error(e);
         }
+    }
+
+    // Get individual Issue
+    private void getIssue(String issueKey) throws Exception {
+        URL url = new URL(jiraServerUri + "/browse/" + issueKey);
+        LOG.info("Url : " + url);
+        LOG.info("Description : " + aphrodite.getIssue(url).getDescription());
     }
 
     private void getIssues(String issueKey) throws MalformedURLException {
