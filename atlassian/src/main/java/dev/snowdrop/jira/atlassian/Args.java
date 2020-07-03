@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.set;
+package dev.snowdrop.jira.atlassian;
 
 import com.beust.jcommander.Parameter;
 

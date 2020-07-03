@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.set;
+package dev.snowdrop.jira.atlassian;
 
 import org.jboss.logging.Logger;
 import org.jboss.set.aphrodite.Aphrodite;

@@ -45,7 +45,7 @@ https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
 ```bash
 cd atlassian
 mvn clean package 
-java -jar target/uber-jira-tool-1.0-SNAPSHOT.jar -user JBOSS_JIRA_USER -password JBOSS_JIRA_PWD -issue SB-xxx
+java -jar target/uber-atlassian-1.0-SNAPSHOT.jar -user JBOSS_JIRA_USER -password JBOSS_JIRA_PWD -issue SB-xxx
 ```
 
 ### Nodejs client
