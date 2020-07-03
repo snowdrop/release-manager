@@ -55,7 +55,7 @@ public class AphroditeClient {
 
     private void getIssues(String issueKey) throws MalformedURLException {
         Collection<URL> urls = new ArrayList<>();
-        urls.add(new URL(jiraServerUri + "/" + issueKey));
+        urls.add(new URL(jiraServerUri + "/browse/" + issueKey));
         List<Issue> issues = aphrodite.getIssues(urls);
         for (Issue i : issues) {
             LOG.info("Issue : " + i.getDescription());

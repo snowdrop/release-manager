@@ -37,7 +37,7 @@ mkdir etc && touch etc/aphrodite.json
 mvn clean package 
 java -jar target/uber-aphrodite-1.0-SNAPSHOT.jar \
             -cfg ./etc/aphrodite.json \
-            -url https://issues.redhat.com/ \
+            -url https://issues.redhat.com \
             -issue ENTSBT-343
 ```
 
