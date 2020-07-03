@@ -6,6 +6,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -49,11 +51,16 @@ public class Utility {
         }
     }
 
-    public static void readYaml() throws IOException {
+    public static void readYaml() {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        File file = new File(classLoader.getResource("release.yaml").getFile());
+        InputStream is = Utility.class.getResourceAsStream("/release.yaml");
+        InputStreamReader isr = new InputStreamReader(is);
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory()); // jackson databind
-        release = mapper.readValue(file, Release.class);
+        try {
+            release = mapper.readValue(isr, Release.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

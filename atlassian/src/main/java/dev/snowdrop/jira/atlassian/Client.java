@@ -11,9 +11,12 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 import com.beust.jcommander.JCommander;
 import org.joda.time.DateTime;
 
+import org.jboss.logging.Logger;
+
 import static dev.snowdrop.jira.atlassian.Utility.*;
 
 public class Client {
+    private static final Logger LOG = Logger.getLogger(Client.class);
     private static Args args;
     private static JiraRestClient restClient;
 
@@ -45,16 +48,16 @@ public class Client {
 
     private void init() {
         try {
+            // Parse YAML config
+            readYaml();
+
             // Create JIRA authenticated client
             AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
             restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(args.jiraServerUri), args.user, args.password);
             restClient.getSessionClient().getCurrentSession().get().getLoginInfo().getFailedLoginCount();
 
-            // Parse YAML config
-            readYaml();
-
         } catch (Exception e) {
-            System.out.println(e);
+            LOG.error(e);
         }
     }
 
@@ -62,7 +65,8 @@ public class Client {
         final IssueRestClient cl = restClient.getIssueClient();
         // Get Issue Info
         Issue issue = cl.getIssue(issueNumber).claim();
-        println(issue);
+        //println(issue);
+        println("Find issue :-)");
     }
 
     private void createIssue() {
