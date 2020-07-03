@@ -100,11 +100,11 @@ jira update SB-869 ResolveIssue|CloseIssue
 #### Get
 
 ```bash
-http --verify=no --auth user:pwd https://issues.jboss.org/rest/api/latest/issue/SB-889
+http --verify=no --follow --auth user:pwd https://issues.jboss.org/rest/api/2/issue/SB-889
 ```
 
 #### Post
 
 ```bash
-http --verify=no --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
+http --verify=no --follow  --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
 ```
