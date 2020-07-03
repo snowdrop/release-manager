@@ -45,11 +45,13 @@ public class Client {
 
     private void init() {
         try {
+            // Create JIRA authenticated client
             AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
             restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(args.jiraServerUri), args.user, args.password);
             restClient.getSessionClient().getCurrentSession().get().getLoginInfo().getFailedLoginCount();
 
-
+            // Parse YAML config
+            readYaml();
 
         } catch (Exception e) {
             System.out.println(e);
@@ -69,7 +71,7 @@ public class Client {
         IssueInputBuilder iib = new IssueInputBuilder();
         iib.setProjectKey("ENTSBT");
         iib.setSummary("Test Summary");
-        iib.setDescription(String.format(TEMPLATE,"2.3.RELEASE","September 1st 2020","September 2021"));
+        iib.setDescription(String.format(TEMPLATE,release.getVersion(),release.getDate(),release.getEOL()));
         iib.setIssueType(TASK_TYPE());
         iib.setDueDate(new DateTime());
         IssueInput issue = iib.build();

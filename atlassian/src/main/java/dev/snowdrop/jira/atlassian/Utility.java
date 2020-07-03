@@ -10,6 +10,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Utility {
+    public static Release release;
+
     public static final String TEMPLATE = "The snowdrop team is really pleased to contact you as we will release in 12 weeks a new Snowdrop BOM based on the following Spring Boot version: *%s*\n" +
             "As product owner of the following component and/or starter: A.B.C, we would like to know if you plan to release a new component (see version defined within the BOM file) that we will start to test at: *%s*.\n" +
             "If you don't plan to release a new component/starter, could you please test and control if your component will continue to work with this version of spring boot and patch it for CVEs.\n" +
@@ -52,6 +54,6 @@ public class Utility {
         File file = new File(classLoader.getResource("release.yaml").getFile());
 
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory()); // jackson databind
-        mapper.readValue(file, Release.class);
+        release = mapper.readValue(file, Release.class);
     }
 }
