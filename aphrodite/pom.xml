@@ -36,6 +36,12 @@
             <artifactId>jboss-logging</artifactId>
             <version>3.3.3.Final</version>
         </dependency>
+        <!-- Command line tool -->
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.78</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -46,6 +52,36 @@
                 <version>3.0.0</version>
                 <configuration>
                     <mainClass>dev.snowdrop.jira.atlassian.AphroditeClient</mainClass>
+                </configuration>
+            </plugin>
+            <!-- Build an executable JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>dev.snowdrop.jira.set.AphroditeClient</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <finalName>uber-${artifactId}-${version}</finalName>
                 </configuration>
             </plugin>
         </plugins>
@@ -65,6 +101,11 @@
                 <enabled>true</enabled>
                 <updatePolicy>never</updatePolicy>
             </snapshots>
+        </repository>
+        <repository>
+            <id>maven-central</id>
+            <name>maven-central</name>
+            <url>https://repo1.maven.org/maven2/</url>
         </repository>
     </repositories>
 

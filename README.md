@@ -34,7 +34,11 @@ mkdir etc && touch etc/aphrodite.json
 ```
 - Launch it to get JIRA issues
 ```bash
-mvn exec:java -Daphrodite.config=./etc/aphrodite.json
+mvn clean package 
+java -jar target/uber-aphrodite-1.0-SNAPSHOT.jar \
+            -cfg ./etc/aphrodite.json \
+            -url https://issues.redhat.com/ \
+            -issue ENTSBT-343
 ```
 
 ### Java Atlassian Jira client
