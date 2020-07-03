@@ -2,19 +2,30 @@
 
 ## Table Of Contents
 
-  * [Introduction](#introduction)
-    * [Nodejs client](#nodejs-client)
-    * [Java Jira client](#java-jira-client)
-    * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
-       * [Get](#get)
-       * [Post](#post)
-
-
+    * [Introduction](#introduction)
+    * [Clients](#clients)
+      * [Nodejs client](#nodejs-client)
+      * [Java Jira client](#java-jira-client)
+      * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
+         * [Get](#get)
+         * [Post](#post)
+       
 ## Introduction
 
-JIRA Client tools to be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
+R&D Project to test different JIRA Client tool. They could be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
 
 TODO: Add `New` and `edit` commands
+
+## Clients
+
+### Java Jira client
+
+https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
+
+```bash
+mvn clean package 
+java -jar target/uber-jira-tool-1.0-SNAPSHOT.jar -user JBOSS_JIRA_USER -password JBOSS_JIRA_PWD -issue SB-xxx
+```
 
 ### Nodejs client
 
@@ -61,16 +72,6 @@ jira update SB-869 InProgress
 
 // To resolve/close it
 jira update SB-869 ResolveIssue|CloseIssue
-```
-
-
-### Java Jira client
-
-https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
-
-```bash
-mvn clean package 
-java -jar target/uber-jira-tool-1.0-SNAPSHOT.jar -user JBOSS_JIRA_USER -password JBOSS_JIRA_PWD -issue SB-xxx
 ```
  
 ### HTTP Request to get or create JIRA tickets
