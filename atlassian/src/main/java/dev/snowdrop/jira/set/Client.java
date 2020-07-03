@@ -1,4 +1,4 @@
-package dev.snowdrop.jira;
+package dev.snowdrop.jira.set;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;

@@ -1,4 +1,4 @@
-package dev.snowdrop.jira;
+package dev.snowdrop.jira.set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,10 +10,8 @@ public class AphroditeClient {
 
     private static Aphrodite client;
     private static final Log LOG = LogFactory.getLog(AphroditeClient.class);
-    public static final String JSON_FILE_PROPERTY = "aphrodite.json";
 
     public static void main(String[] argv) {
-        System.setProperty("aphrodite.config", JSON_FILE_PROPERTY);
         init();
     }
 
