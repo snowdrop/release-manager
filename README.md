@@ -18,11 +18,32 @@ TODO: Add `New` and `edit` commands
 
 ## Clients
 
-### Java Jira client
+### Java Aphrodite client
+
+See the Set Aphrodite project for more [information](https://github.com/jboss-set/aphrodite)
+
+- Move to the `aphrodite` folder and compile the java client
+```bash
+cd aphrodite
+mvn clean compile 
+```
+
+- Create the `aphrodite.json` file containing your [jira credentials](https://github.com/jboss-set/aphrodite/blob/master/aphrodite.properties.json.example)
+```bash
+mkdir etc && touch etc/aphrodite.json
+```
+- Launch it to get JIRA issues
+```bash
+mvn exec:java -Daphrodite.config=./etc/aphrodite.json
+```
+
+### Java Atlassian Jira client
 
 https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
 
+- Move to the atlassian folder and compile the java client
 ```bash
+cd atlassian
 mvn clean package 
 java -jar target/uber-jira-tool-1.0-SNAPSHOT.jar -user JBOSS_JIRA_USER -password JBOSS_JIRA_PWD -issue SB-xxx
 ```
