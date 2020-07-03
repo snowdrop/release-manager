@@ -53,6 +53,7 @@ public class AphroditeClient {
         LOG.info("Description : " + aphrodite.getIssue(url).getDescription());
     }
 
+    // Get collection of issues
     private void getIssues(String issueKey) throws MalformedURLException {
         Collection<URL> urls = new ArrayList<>();
         urls.add(new URL(jiraServerUri + "/browse/" + issueKey));
@@ -60,5 +61,9 @@ public class AphroditeClient {
         for (Issue i : issues) {
             LOG.info("Issue : " + i.getDescription());
         }
+    }
+
+    // TODO: Create an issue - see : https://github.com/jboss-set/aphrodite/issues/217
+    private void createIssue() {
     }
 }
