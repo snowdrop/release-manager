@@ -3,6 +3,9 @@ package dev.snowdrop.jira.atlassian;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,5 +45,10 @@ public class Utility {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static DateTime formatDueDate(String dueDate) {
+        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
+        return formatter.parseDateTime(dueDate);
     }
 }

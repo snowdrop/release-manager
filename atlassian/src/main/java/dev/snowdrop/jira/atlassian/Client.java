@@ -86,7 +86,7 @@ public class Client {
                         release.getDate(),
                         release.getEOL()));
         iib.setIssueType(TASK_TYPE());
-        iib.setDueDate(new DateTime());
+        iib.setDueDate(formatDueDate(release.getDueDate()));
         IssueInput issue = iib.build();
         BasicIssue issueObj = cl.createIssue(issue).claim();
         LOG.infof("Issue %s created successfully",issueObj.getKey());

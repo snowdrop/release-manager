@@ -22,4 +22,5 @@ template:
   where A.B.C could be: Apache Tomcat Embed, Undertow, Resteasy, ..."
 
 date: September 1st 2020
+dueDate: "08/18/2020"
 eol: September 2021

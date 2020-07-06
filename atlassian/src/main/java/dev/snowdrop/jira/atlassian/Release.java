@@ -18,6 +18,9 @@ public class Release {
     @JsonProperty
     private String template;
 
+    @JsonProperty
+    private String dueDate;
+
     public String getVersion() {
         return version;
     }
@@ -56,5 +59,13 @@ public class Release {
 
     public void setTemplate(String template) {
         this.template = template;
+    }
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
     }
 }
