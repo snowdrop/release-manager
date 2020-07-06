@@ -1,7 +1,5 @@
 package dev.snowdrop.jira.atlassian.model;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.util.List;
 
 public class Release {
@@ -12,15 +10,16 @@ public class Release {
     private String title;
     private String template;
     private String dueDate;
-    private Component[] components;
 
-    public Component[] getComponents() {
+    public List<Component> getComponents() {
         return components;
     }
 
-    public void setComponents(Component[] components) {
+    public void setComponents(List<Component> components) {
         this.components = components;
     }
+
+    private List<Component> components;
 
     public String getVersion() {
         return version;
