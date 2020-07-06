@@ -1,28 +1,26 @@
-package dev.snowdrop.jira.atlassian;
+package dev.snowdrop.jira.atlassian.model;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.util.List;
+
 public class Release {
-    @JsonProperty
     private String version;
-
-    @JsonProperty
     private String fixVersion;
-
-    @JsonProperty
     private String date;
-
-    @JsonProperty
     private String EOL;
-
-    @JsonProperty
     private String title;
-
-    @JsonProperty
     private String template;
-
-    @JsonProperty
     private String dueDate;
+    private Component[] components;
+
+    public Component[] getComponents() {
+        return components;
+    }
+
+    public void setComponents(Component[] components) {
+        this.components = components;
+    }
 
     public String getVersion() {
         return version;
