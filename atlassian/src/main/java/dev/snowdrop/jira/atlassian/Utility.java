@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Utility {
-    private static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
+    public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static Release release;
 
     public static IssueType TASK_TYPE() {
@@ -75,5 +75,21 @@ public class Utility {
         }
         versions.add(version);
         return versions;
+    }
+
+    public static Version setTargetRelease() {
+        try {
+            return new Version(
+                    new URI(JIRA_ISSUES_API + "/version/12345960"),
+                    12345960L,
+                    "2.3.0.GA",
+                    "Spring Boot 2.3 Release",
+                    false,
+                    false,
+                    null);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
