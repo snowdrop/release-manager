@@ -132,7 +132,7 @@
         <repository>
             <id>atlassian.com</id>
             <name>Atlassian</name>
-            <url>tps://maven.atlassian.com/public/ht</url>
+            <url>https://maven.atlassian.com/public/</url>
         </repository>
         <repository>
             <id>atlassian-public</id>
