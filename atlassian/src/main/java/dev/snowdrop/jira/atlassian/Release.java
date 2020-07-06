@@ -7,6 +7,9 @@ public class Release {
     private String version;
 
     @JsonProperty
+    private String fixVersion;
+
+    @JsonProperty
     private String date;
 
     @JsonProperty
@@ -67,5 +70,13 @@ public class Release {
 
     public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
+    }
+
+    public String getFixVersion() {
+        return fixVersion;
+    }
+
+    public void setFixVersion(String fixVersion) {
+        this.fixVersion = fixVersion;
     }
 }
