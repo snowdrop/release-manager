@@ -131,6 +131,8 @@ jira update SB-869 ResolveIssue|CloseIssue
  
 ### HTTP Request to get or create JIRA tickets
 
+Atlassian REST API doc: https://developer.atlassian.com/cloud/jira/platform/rest/v2/
+
 #### Get
 
 ```bash

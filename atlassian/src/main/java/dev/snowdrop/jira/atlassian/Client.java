@@ -9,7 +9,6 @@ import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 
 import com.beust.jcommander.JCommander;
-import org.joda.time.DateTime;
 
 import org.jboss.logging.Logger;
 
