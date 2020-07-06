@@ -1,5 +1,8 @@
 version: 2.3.0.RELEASE
-title: "New SpringBoot release 2.3.0, waiting your component/starter update !"
+date:    September 1st 2020
+dueDate: "08/18/2020"
+eol:     September 2021
+title:   "New SpringBoot release 2.3.0, waiting your component/starter update !"
 template:
  "The snowdrop team is really pleased to contact you as we will release in 12 weeks a new Snowdrop BOM based on the following Spring Boot version: *%s*
   As product owner of the following component and/or starter: A.B.C, we would like to know if you plan to release a new component (see version defined within the BOM file)
@@ -20,7 +23,3 @@ template:
   PNC/Indy URL : http://indy.psi.redhat.com/browse/maven
   MRRC URL (if already released) : https://maven.repository.redhat.com/ga/
   where A.B.C could be: Apache Tomcat Embed, Undertow, Resteasy, ..."
-
-date: September 1st 2020
-dueDate: "08/18/2020"
-eol: September 2021
