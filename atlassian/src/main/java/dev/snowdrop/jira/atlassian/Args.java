@@ -18,6 +18,9 @@ public class Args {
     @Parameter(names = "-issue", description = "JIRA Issue")
     protected String issue;
 
+    @Parameter(names = "-to_issue", description = "To JIRA Issue")
+    protected String toIssue;
+
     @Parameter(names = "-url", description = "URL of the JIRA server")
     protected String jiraServerUri;
 

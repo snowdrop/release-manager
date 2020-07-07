@@ -30,6 +30,10 @@ public class Client {
                 Service.createIssue();
                 break;
 
+            case "link" :
+                Service.linkIssues(args.issue,args.toIssue);
+                break;
+
             case "delete" :
                 Service.deleteIssue(args.issue);
                 break;

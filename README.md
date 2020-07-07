@@ -43,7 +43,13 @@ java -jar target/uber-aphrodite-1.0-SNAPSHOT.jar \
 
 ### Java Atlassian Jira client
 
-https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
+References:
+
+- https://developer.atlassian.com/server/jira/platform/java-apis/#java-api-policy-for-jira
+
+- https://bitbucket.org/atlassian/jira-rest-java-client/src/75a64c9d81aa?at=master
+
+Instructions:
 
 - Move to the atlassian folder and compile the java client
 ```bash
@@ -79,6 +85,17 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -cfg etc/release.yaml \
     -action delete \
     -issue ENTSBT-xxx
+```
+- To Link issues using as Type `Is Blocked By`. The `to_issue` represents the `to` or `target` issue that we would like to use as the issue blocking the current `issue`. 
+```bash
+ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+    -user JBOSS_JIRA_USER \
+    -password JBOSS_JIRA_PWD \
+    -url https://issues.redhat.com \
+    -cfg etc/release.yaml \
+    -action link \
+    -issue ENTSBT-xxx \
+    -to_issue EAP-yyy 
 ```
 
 
@@ -131,7 +148,7 @@ jira update SB-869 ResolveIssue|CloseIssue
  
 ### HTTP Request to get or create JIRA tickets
 
-Atlassian REST API doc: https://developer.atlassian.com/cloud/jira/platform/rest/v2/
+Atlassian REST API v2 doc: https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/
 
 #### Get
 

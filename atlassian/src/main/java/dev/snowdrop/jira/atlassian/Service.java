@@ -5,6 +5,7 @@ import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
+import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
 import org.jboss.logging.Logger;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;
@@ -12,6 +13,13 @@ import static dev.snowdrop.jira.atlassian.Utility.*;
 public class Service {
     private static final Logger LOG = Logger.getLogger(Service.class);
     private static final String TARGET_RELEASE_CUSTOMFIELD_ID = "customfield_12311240";
+    private static final String LINK_TYPE = "Dependency";
+
+    public static void linkIssues(String fromIssue, String toIssue) {
+        final IssueRestClient cl = restClient.getIssueClient();
+        cl.linkIssue(new LinkIssuesInput(fromIssue, toIssue, LINK_TYPE)).claim();
+        LOG.infof("Linked the issue %s with the target/blocling issue %s", fromIssue, toIssue);
+    }
 
     public static void getIssue(String issueNumber) {
         final IssueRestClient cl = restClient.getIssueClient();
@@ -34,11 +42,12 @@ public class Service {
         iib.setSummary(release.getTitle());
         iib.setDescription(
                 String.format(release.getTemplate(),
+                        release.getComponents().get(0).getName(),
                         release.getVersion(),
                         release.getDate(),
                         release.getEOL()));
         iib.setIssueType(TASK_TYPE());
-        iib.setDueDate(formatDueDate(release.getDueDate()));
+        // iib.setDueDate(formatDueDate(release.getDueDate()));
         // See: https://github.com/snowdrop/jira-tool/issues/7
         // iib.setFixVersions(setFixVersion());
         /*

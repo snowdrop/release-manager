@@ -27,7 +27,7 @@ template:
 
 components:
  - jiraProject: # # https://issues.redhat.com/projects/EAPSUP/issues
-   name: hibernate
+   name: Hibernate
    version: 5.0.15
 
 
