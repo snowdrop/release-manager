@@ -1,7 +1,6 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
-import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
@@ -10,8 +9,8 @@ import org.jboss.logging.Logger;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;
 
-public class Operation {
-    private static final Logger LOG = Logger.getLogger(Operation.class);
+public class Service {
+    private static final Logger LOG = Logger.getLogger(Service.class);
     private static final String TARGET_RELEASE_CUSTOMFIELD_ID = "customfield_12311240";
 
     public static void getIssue(String issueNumber) {

@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Utility {
-    private static final Logger LOG = Logger.getLogger(Operation.class);
+    private static final Logger LOG = Logger.getLogger(Service.class);
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static Release release;
     public static JiraRestClient restClient;

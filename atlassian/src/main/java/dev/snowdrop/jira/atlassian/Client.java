@@ -1,14 +1,5 @@
 package dev.snowdrop.jira.atlassian;
 
-import com.atlassian.jira.rest.client.api.IssueRestClient;
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.input.FieldInput;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-
 import com.beust.jcommander.JCommander;
 
 import org.jboss.logging.Logger;
@@ -32,15 +23,15 @@ public class Client {
 
         switch(args.action) {
             case "get" :
-                Operation.getIssue(args.issue);
+                Service.getIssue(args.issue);
                 break;
 
             case "create" :
-                Operation.createIssue();
+                Service.createIssue();
                 break;
 
             case "delete" :
-                Operation.deleteIssue(args.issue);
+                Service.deleteIssue(args.issue);
                 break;
         }
     }
