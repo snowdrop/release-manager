@@ -4,7 +4,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 
 public class Component {
 
-    @JsonProperty("jira_project")
+    @JsonProperty("jira-project")
     private String jiraProject;
     private String name;
     private String version;

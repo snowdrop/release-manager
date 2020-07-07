@@ -17,7 +17,7 @@ public class ValidateYAMLtoPojoTest {
     private static String YAML =
             "version: 2.3.0.RELEASE\n" +
             "components:\n" +
-            " - jiraProject: # # https://issues.redhat.com/projects/EAPSUP/issues\n" +
+            " - jira-project: # https://issues.redhat.com/projects/EAPSUP/issues\n" +
             "   name: hibernate\n" +
             "   version: 5.0.15";
 
