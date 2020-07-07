@@ -26,7 +26,7 @@ template:
   MRRC URL, if already released (e.g. https://maven.repository.redhat.com/ga/...)"
 
 components:
- - jira_project: # # https://issues.redhat.com/projects/EAPSUP/issues
+ - jiraProject: # # https://issues.redhat.com/projects/EAPSUP/issues
    name: hibernate
    version: 5.0.15
 
