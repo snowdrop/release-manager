@@ -2,6 +2,8 @@ package dev.snowdrop.jira.atlassian;
 
 import com.beust.jcommander.JCommander;
 
+import dev.snowdrop.jira.atlassian.model.Issue;
+import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;
@@ -30,6 +32,10 @@ public class Client {
                 Service.createIssue();
                 break;
 
+            case "create-release" :
+                Service.createReleaseIssues();
+                break;
+
             case "link" :
                 Service.linkIssues(args.issue,args.toIssue);
                 break;
@@ -43,7 +49,12 @@ public class Client {
     private void init() {
         try {
             // Parse YAML config
-            readYaml(args.cfg);
+            if(args.cfg.contains("issue.yaml")) {
+                readYaml(args.cfg, Issue.class);
+            } else {
+                // We assume that we want to generate the issues for a release
+                readYaml(args.cfg, Release.class);
+            }
 
             // Create JIRA authenticated client
             initRestClient(args.jiraServerUri,args.user,args.password);

@@ -3,6 +3,8 @@ package dev.snowdrop.jira.atlassian.model;
 import java.util.List;
 
 public class Release {
+
+    private String projectKey;
     private String version;
     private String fixVersion;
     private String date;
@@ -10,6 +12,14 @@ public class Release {
     private String title;
     private String template;
     private String dueDate;
+
+    public String getProjectKey() {
+        return projectKey;
+    }
+
+    public void setProjectKey(String projectKey) {
+        this.projectKey = projectKey;
+    }
 
     public List<Component> getComponents() {
         return components;

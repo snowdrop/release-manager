@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class Utility {
     private static final Logger LOG = Logger.getLogger(Service.class);
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
-    public static Release release;
+    public static Object pojo;
     public static JiraRestClient restClient;
 
     public static void initRestClient(String jiraServerUri, String user, String password) {
@@ -62,10 +62,10 @@ public class Utility {
         }
     }
 
-    public static void readYaml(String path) {
+    public static void readYaml(String path, Class<?> clazz) {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory()); // jackson databind
         try {
-            release = mapper.readValue(new File(path), Release.class);
+            pojo = mapper.readValue(new File(path), clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -1,20 +1,17 @@
 package dev.snowdrop.jira.atlassian.model;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 public class Component {
 
-    @JsonProperty("jira-project")
-    private String jiraProject;
+    private String projectKey;
     private String name;
     private String version;
 
-    public String getJiraProject() {
-        return jiraProject;
+    public String getProjectKey() {
+        return projectKey;
     }
 
-    public void setJiraProject(String jiraProject) {
-        this.jiraProject = jiraProject;
+    public void setProjectKey(String projectKey) {
+        this.projectKey = projectKey;
     }
 
     public String getName() {
