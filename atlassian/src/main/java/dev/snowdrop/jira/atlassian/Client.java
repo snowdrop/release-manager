@@ -43,6 +43,10 @@ public class Client {
             case "delete" :
                 Service.deleteIssue(args.issue);
                 break;
+
+            case "delete-bulk" :
+                Service.deleteIssues(args.issues);
+                break;
         }
     }
 

@@ -87,9 +87,20 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -issue ENTSBT-xxx
 ```
 
+- To delete several issues
+```bash
+java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+    -user JBOSS_JIRA_USER \
+    -password JBOSS_JIRA_PWD \
+    -url https://issues.redhat.com \
+    -cfg etc/release.yaml \
+    -action delete-bulk \
+    -issue ENTSBT-xxx ENTSBT-yyy ENTSBT-zzz
+```
+
 Release:
 
-- To create as a bulk issues/tasks related to a parent issue, use this command and next link the issues blocking the release
+- To create as a bulk of issues/tasks related to a parent issue, use this command and next link the issues blocking the release
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -98,7 +109,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -action create-release \
     -url https://issues.redhat.com
 ```
-```
+
 - To Link issues using as Type `Is Blocked By`. The `to_issue` represents the `to` or `target` issue that we would like to use as the issue blocking the current `issue`. 
 ```bash
  java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \

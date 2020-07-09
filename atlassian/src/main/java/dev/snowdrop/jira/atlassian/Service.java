@@ -10,6 +10,8 @@ import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
+import java.util.List;
+
 import static dev.snowdrop.jira.atlassian.Utility.*;
 
 public class Service {
@@ -30,8 +32,15 @@ public class Service {
 
     public static void deleteIssue(String issue) {
         final IssueRestClient cl = restClient.getIssueClient();
-        cl.deleteIssue(issue, false);
+        cl.deleteIssue(issue, false).claim();
         LOG.infof("Issue %s deleted",issue);
+    }
+    public static void deleteIssues(List<String> issues) {
+        final IssueRestClient cl = restClient.getIssueClient();
+        for(String issue : issues) {
+            cl.deleteIssue(issue, false).claim();
+            LOG.infof("Issue %s deleted",issue);
+        }
     }
 
     public static void createReleaseIssues() {

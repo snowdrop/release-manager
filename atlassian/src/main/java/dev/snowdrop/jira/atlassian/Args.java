@@ -18,6 +18,9 @@ public class Args {
     @Parameter(names = "-issue", description = "JIRA Issue")
     protected String issue;
 
+    @Parameter(names = "-issues", description = "of Bulk JIRA Issues", variableArity = true)
+    protected List<String> issues;
+
     @Parameter(names = "-to_issue", description = "To JIRA Issue")
     protected String toIssue;
 
