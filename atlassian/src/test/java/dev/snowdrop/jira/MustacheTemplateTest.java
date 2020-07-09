@@ -9,7 +9,9 @@ import dev.snowdrop.jira.atlassian.model.Release;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -33,16 +35,28 @@ public class MustacheTemplateTest {
 
         StringWriter writer = new StringWriter();
         m.execute(writer, release).flush();
-        assertEquals("Release",writer.toString());
+        assertEquals("Release", writer.toString());
     }
 
     @Test
-    public void simpleExampleTest() throws Exception {
+    public void TemplateWithAFieldTest() throws Exception {
+        HashMap<String, Object> scopes = new HashMap<String, Object>();
+        scopes.put("data", new Data("Charles"));
+
+        Writer writer = new StringWriter();
+        MustacheFactory mf = new DefaultMustacheFactory();
+        Mustache m = mf.compile("simple.mustache");
+        m.execute(writer, scopes).flush();
+        assertEquals("Hello World, Charles", writer.toString());
+    }
+
+    @Test
+    public void TemplateWithItemsTest() throws Exception {
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache m = mf.compile("template.mustache");
 
         StringWriter writer = new StringWriter();
-        m.execute(writer, new Data()).flush();
+        m.execute(writer, new Data("")).flush();
 
         String expected = "Name: Item 1\n" +
                 "Price: $19.99\n" +
@@ -52,6 +66,6 @@ public class MustacheTemplateTest {
                 "Price: $29.99\n" +
                 "    Feature: Old.\n" +
                 "    Feature: Ugly.\n";
-        assertEquals(expected,writer.toString());
+        assertEquals(expected, writer.toString());
     }
 }
