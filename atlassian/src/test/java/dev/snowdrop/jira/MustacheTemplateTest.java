@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MustacheTemplateTest {
 
     private static final String YAML_FILE = "release.yaml";
-    private static final String MUSTACHE_FILE = "release.mustache";
+    private static final String MUSTACHE_FILE = "description.mustache";
 
     @Test
     public void issueDescriptionTest() throws URISyntaxException, IOException {
@@ -37,20 +36,5 @@ public class MustacheTemplateTest {
         StringWriter writer = new StringWriter();
         m.execute(writer, scopes).flush();
         assertEquals(writer.toString().contains("2.3.0.RELEASE"),true);
-    }
-
-    @Test
-    public void TemplateWithJustAFieldTest() throws Exception {
-        Release release = new Release();
-        release.setVersion("2.3.0.GA");
-
-        HashMap<String, Object> scopes = new HashMap<String, Object>();
-        scopes.put("release", release);
-
-        Writer writer = new StringWriter();
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache m = mf.compile("simple.mustache");
-        m.execute(writer, scopes).flush();
-        assertEquals("Version: 2.3.0.GA", writer.toString());
     }
 }
