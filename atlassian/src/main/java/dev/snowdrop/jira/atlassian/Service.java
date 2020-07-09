@@ -42,13 +42,7 @@ public class Service {
             IssueInputBuilder iib = new IssueInputBuilder();
             iib.setProjectKey(component.getProjectKey());
             iib.setSummary(release.getTitle());
-            iib.setDescription(
-                    String.format(release.getTemplate(),
-                            release.getVersion(),
-                            component.getName(),
-                            component.getVersion(),
-                            release.getDate(),
-                            release.getEOL()));
+            iib.setDescription(generateIssueDescription(release,component));
             iib.setIssueType(TASK_TYPE());
             /*
              TODO: To be investigated

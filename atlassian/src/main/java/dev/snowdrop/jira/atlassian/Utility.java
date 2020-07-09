@@ -6,6 +6,10 @@ import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
+import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
@@ -14,17 +18,26 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class Utility {
     private static final Logger LOG = Logger.getLogger(Service.class);
+    private static final String MUSTACHE_FILE = "description.mustache";
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static Object pojo;
     public static JiraRestClient restClient;
+    public static Mustache m;
+
+    public static void init() {
+        MustacheFactory mf = new DefaultMustacheFactory();
+        m = mf.compile(MUSTACHE_FILE);
+    }
 
     public static void initRestClient(String jiraServerUri, String user, String password) {
         AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
@@ -74,6 +87,29 @@ public class Utility {
     public static DateTime formatDueDate(String dueDate) {
         DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
         return formatter.parseDateTime(dueDate);
+    }
+
+    public static String generateIssueDescription(Release r, Component c) {
+        StringWriter writer = new StringWriter();
+
+        HashMap<String, Object> scopes = new HashMap<String, Object>();
+        scopes.put("release", r);
+        scopes.put("component", c);
+
+        if (c.getIsStarter() == null) {
+            scopes.put("isComponent",true);
+            scopes.put("type","component");
+        } else {
+            scopes.put("isStarter",true);
+            scopes.put("type","starter");
+        }
+
+        try {
+            m.execute(writer, scopes).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer.toString();
     }
 
     public static Iterable<Version> setFixVersion() {

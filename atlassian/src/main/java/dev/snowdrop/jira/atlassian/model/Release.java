@@ -10,7 +10,6 @@ public class Release {
     private String date;
     private String EOL;
     private String title;
-    private String template;
     private String dueDate;
 
     public String getProjectKey() {
@@ -61,14 +60,6 @@ public class Release {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getTemplate() {
-        return template;
-    }
-
-    public void setTemplate(String template) {
-        this.template = template;
     }
 
     public String getDueDate() {
