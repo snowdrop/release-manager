@@ -34,7 +34,7 @@ public class Utility {
     public static JiraRestClient restClient;
     public static Mustache m;
 
-    public static void init() {
+    static {
         MustacheFactory mf = new DefaultMustacheFactory();
         m = mf.compile(MUSTACHE_FILE);
     }
