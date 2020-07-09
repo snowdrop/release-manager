@@ -25,6 +25,7 @@ public class MustacheTemplateTest {
             "\n" +
             "As product owner of the following component: Hibernate, we would like to know if you plan to release a new component for the version: 5.0.15\n" +
             "that we will start to test the: 08/18/2020.\n" +
+            "\n" +
             "If you don't plan to release a new component, could you please test and control if your component will continue to work with this version of spring boot\n" +
             "We expect, in this case, that you will perform QE test and provide us a signoff !\n" +
             "\n" +
@@ -62,6 +63,6 @@ public class MustacheTemplateTest {
 
         StringWriter writer = new StringWriter();
         m.execute(writer, scopes).flush();
-        assertEquals(writer.toString(),expected);
+        assertEquals(expected,writer.toString());
     }
 }
