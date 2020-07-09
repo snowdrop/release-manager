@@ -19,7 +19,7 @@ public class Service {
     public static void linkIssues(String fromIssue, String toIssue) {
         final IssueRestClient cl = restClient.getIssueClient();
         cl.linkIssue(new LinkIssuesInput(fromIssue, toIssue, LINK_TYPE)).claim();
-        LOG.infof("Linked the issue %s with the target/blocling issue %s", fromIssue, toIssue);
+        LOG.infof("Linked the issue %s with the blocking issue %s", fromIssue, toIssue);
     }
 
     public static void getIssue(String issueNumber) {
