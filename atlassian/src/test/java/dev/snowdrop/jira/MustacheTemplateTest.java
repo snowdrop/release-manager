@@ -32,9 +32,11 @@ public class MustacheTemplateTest {
 
         HashMap<String, Object> scopes = new HashMap<String, Object>();
         scopes.put("release", release);
+        scopes.put("component", release.getComponents().get(0));
 
         StringWriter writer = new StringWriter();
         m.execute(writer, scopes).flush();
         assertEquals(writer.toString().contains("2.3.0.RELEASE"),true);
+        assertEquals(writer.toString().contains("Hibernate"),true);
     }
 }
