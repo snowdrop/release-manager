@@ -36,6 +36,10 @@ public class Client {
                 Service.createReleaseIssues();
                 break;
 
+            case "clone" :
+                Service.cloneIssue(args.issue);
+                break;
+
             case "link" :
                 Service.linkIssues(args.issue,args.toIssue);
                 break;

@@ -69,6 +69,22 @@ public class Utility {
         return null;
     }
 
+    public static IssueType SUB_TASK_TYPE() {
+        try {
+            // TODO: Add a method able to fetch the IssueTypes and selecting `Request`, if not available `Task`
+            return new IssueType(
+                    new URI(JIRA_ISSUES_API + "issuetype/5"),
+                    5L,
+                    "Sub-task",
+                    true,
+                    "The sub-task of the issue",
+                    new URI("https://issues.redhat.com/secure/viewavatar?size=xsmall&avatarId=13276&avatarType=issuetype"));
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static URI jiraServerUri(String uri) {
         if (uri != null) {
             return URI.create(uri);

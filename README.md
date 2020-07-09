@@ -112,7 +112,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
 
 - To Link issues using as Type `Is Blocked By`. The `to_issue` represents the `to` or `target` issue that we would like to use as the issue blocking the current `issue`. 
 ```bash
- java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -url https://issues.redhat.com \
@@ -120,6 +120,16 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -action link \
     -issue ENTSBT-xxx \
     -to_issue EAP-yyy 
+```
+- To clone a Release issue and their sub-tasks
+```bash
+ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+    -user JBOSS_JIRA_USER \
+    -password JBOSS_JIRA_PWD \
+    -url https://issues.redhat.com \
+    -cfg etc/release.yaml \
+    -action clone \
+    -issue ENTSBT-ddd
 ```
 
 

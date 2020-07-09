@@ -1,8 +1,8 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
-import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.*;
+import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
@@ -33,25 +33,66 @@ public class Service {
     public static void deleteIssue(String issue) {
         final IssueRestClient cl = restClient.getIssueClient();
         cl.deleteIssue(issue, false).claim();
-        LOG.infof("Issue %s deleted",issue);
+        LOG.infof("Issue %s deleted", issue);
     }
+
     public static void deleteIssues(List<String> issues) {
         final IssueRestClient cl = restClient.getIssueClient();
-        for(String issue : issues) {
+        for (String issue : issues) {
             cl.deleteIssue(issue, false).claim();
-            LOG.infof("Issue %s deleted",issue);
+            LOG.infof("Issue %s deleted", issue);
+        }
+    }
+
+    public static void cloneIssue(String issueToClone) {
+        final IssueRestClient cl = restClient.getIssueClient();
+        Issue issue = cl.getIssue(issueToClone).claim();
+        if (issueToClone != null) {
+            // Create the cloned task
+            IssueInputBuilder iib = new IssueInputBuilder();
+            iib.setProjectKey(issue.getProject().getKey());
+            iib.setDescription(issue.getDescription());
+            iib.setSummary("[Spring Boot 2.4] Release steps CR [Q1-2121]");
+            iib.setIssueType(TASK_TYPE());
+            IssueInput ii = iib.build();
+            BasicIssue issueCloned = cl.createIssue(ii).claim();
+            LOG.infof("Issue cloned: %s", issueCloned.getKey());
+
+            // Get the list of the sub-tasks
+            Iterable<Subtask> subTasks = issue.getSubtasks();
+            for (Subtask subtask : subTasks) {
+                // Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
+                Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
+                if (fetchSubTask != null) {
+                    // Create a sub-task that we will link to the parent
+                    iib = new IssueInputBuilder();
+                    iib.setProjectKey(issue.getProject().getKey());
+                    iib.setSummary(subtask.getSummary());
+                    iib.setIssueType(subtask.getIssueType());
+                    if (fetchSubTask.getAssignee() != null) {
+                        iib.setAssignee(fetchSubTask.getAssignee());
+                    }
+                    iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", issueCloned.getKey()));
+                    ii = iib.build();
+                    BasicIssue subTaskIssue = cl.createIssue(ii).claim();
+                    LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
+                }
+            }
+
+        } else {
+            LOG.warnf("Issue to be cloned not found : %s !", issueToClone);
         }
     }
 
     public static void createReleaseIssues() {
         final IssueRestClient cl = restClient.getIssueClient();
-        Release release = (Release)pojo;
+        Release release = (Release) pojo;
 
-        for(Component component : release.getComponents()) {
+        for (Component component : release.getComponents()) {
             IssueInputBuilder iib = new IssueInputBuilder();
             iib.setProjectKey(component.getProjectKey());
             iib.setSummary(release.getTitle());
-            iib.setDescription(generateIssueDescription(release,component));
+            iib.setDescription(generateIssueDescription(release, component));
             iib.setIssueType(TASK_TYPE());
             /*
              TODO: To be investigated
@@ -67,13 +108,13 @@ public class Service {
 
             IssueInput issue = iib.build();
             BasicIssue issueObj = cl.createIssue(issue).claim();
-            LOG.infof("Issue %s created successfully",issueObj.getKey());
+            LOG.infof("Issue %s created successfully", issueObj.getKey());
         }
     }
 
     public static void createIssue() {
         final IssueRestClient cl = restClient.getIssueClient();
-        dev.snowdrop.jira.atlassian.model.Issue issuePOJO = (dev.snowdrop.jira.atlassian.model.Issue)pojo;
+        dev.snowdrop.jira.atlassian.model.Issue issuePOJO = (dev.snowdrop.jira.atlassian.model.Issue) pojo;
 
         IssueInputBuilder iib = new IssueInputBuilder();
         iib.setProjectKey(issuePOJO.getProjectKey());
@@ -82,7 +123,7 @@ public class Service {
         iib.setIssueType(TASK_TYPE());
         IssueInput issue = iib.build();
         BasicIssue issueObj = cl.createIssue(issue).claim();
-        LOG.infof("Issue %s created successfully",issueObj.getKey());
+        LOG.infof("Issue %s created successfully", issueObj.getKey());
     }
 
 }
