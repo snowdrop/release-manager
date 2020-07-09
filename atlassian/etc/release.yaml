@@ -8,14 +8,11 @@ template:
  "The snowdrop team is really pleased to contact you as we will release in 12 weeks a new Snowdrop BOM based on the following Spring Boot version: *%s*
 
 
-  As product owner of the following component and/or starter: *%s*, we would like to know if you plan to release a new component (see version defined within the BOM file)
+  As product owner of the following component and/or starter: *%s*, we would like to know if you plan to release a new component for the version: *%s*
   that we will start to test the: *%s*.
 
 
-  If you don't plan to release a new component/starter, could you please test and control if your component will continue to work with this version of spring boot.
-
-
-  We expect, in this case, that you will perform QE test and provide us a signoff
+  If you don't plan to release a new component/starter, could you please test and control if your component/starter will continue to work with this version of spring boot. We expect, in this case, that you will perform QE test and provide us a signoff !
 
 
   The EOL of this Snowdrop release is scheduled: %s
@@ -24,16 +21,13 @@ template:
   We expect to get from you:
 
 
-  Product name and version (e.g. JWS - 5.3.1)
+  - Product name and version (e.g. JWS - 5.3.1)
 
+  - Component/Starter name & Version supported (e.g. Apache Tomcat - 9.0.30-redhat-00001)
 
-  Artifact / Component name & Version supported (e.g. Apache Tomcat - 9.0.30-redhat-00001)
+  - PNC/Indy URL (e.g. http://indy.psi.redhat.com/browse/maven/...)
 
-
-  PNC/Indy URL (e.g. http://indy.psi.redhat.com/browse/maven/...)
-
-
-  MRRC URL, if already released (e.g. https://maven.repository.redhat.com/ga/...)"
+  - MRRC URL, if already released (e.g. https://maven.repository.redhat.com/ga/...)"
 
 components:
  - projectKey: SB #EAPSUP
@@ -42,7 +36,9 @@ components:
  - projectKey: SB #EAPSUP
    name: Tomcat
    version: 9.0.36
-
+ - projectKey: SB #EAPSUP
+   name: RestEASY
+   isStarter: true
 
 
 # https://issues.redhat.com/projects/KEYCLOAK/issues/

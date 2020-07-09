@@ -6,6 +6,7 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
+import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
@@ -37,31 +38,34 @@ public class Service {
         final IssueRestClient cl = restClient.getIssueClient();
         Release release = (Release)pojo;
 
-        IssueInputBuilder iib = new IssueInputBuilder();
-        iib.setProjectKey(release.getProjectKey());
-        iib.setSummary(release.getTitle());
-        iib.setDescription(
-                String.format(release.getTemplate(),
-                        release.getComponents().get(0).getName(),
-                        release.getVersion(),
-                        release.getDate(),
-                        release.getEOL()));
-        iib.setIssueType(TASK_TYPE());
-        /*
-          TODO: To be investigated
+        for(Component component : release.getComponents()) {
+            IssueInputBuilder iib = new IssueInputBuilder();
+            iib.setProjectKey(component.getProjectKey());
+            iib.setSummary(release.getTitle());
+            iib.setDescription(
+                    String.format(release.getTemplate(),
+                            release.getVersion(),
+                            component.getName(),
+                            component.getVersion(),
+                            release.getDate(),
+                            release.getEOL()));
+            iib.setIssueType(TASK_TYPE());
+            /*
+             TODO: To be investigated
 
-          snowdrop-bot user cannot set the following field
-          iib.setDueDate(formatDueDate(release.getDueDate()));
+             snowdrop-bot user cannot set the following field
+             iib.setDueDate(formatDueDate(release.getDueDate()));
 
-          See: https://github.com/snowdrop/jira-tool/issues/7
+             See: https://github.com/snowdrop/jira-tool/issues/7
 
-          IF we know the custom_field value, then we can fill the following field
-          iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
-         */
+             IF we know the custom_field value, then we can fill the following field
+             iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
+            */
 
-        IssueInput issue = iib.build();
-        BasicIssue issueObj = cl.createIssue(issue).claim();
-        LOG.infof("Issue %s created successfully",issueObj.getKey());
+            IssueInput issue = iib.build();
+            BasicIssue issueObj = cl.createIssue(issue).claim();
+            LOG.infof("Issue %s created successfully",issueObj.getKey());
+        }
     }
 
     public static void createIssue() {

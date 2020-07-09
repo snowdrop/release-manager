@@ -5,6 +5,15 @@ public class Component {
     private String projectKey;
     private String name;
     private String version;
+    private String isStarter;
+
+    public String getIsStarter() {
+        return isStarter;
+    }
+
+    public void setIsStarter(String isStarter) {
+        this.isStarter = isStarter;
+    }
 
     public String getProjectKey() {
         return projectKey;
