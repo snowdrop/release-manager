@@ -9,14 +9,12 @@ import dev.snowdrop.jira.atlassian.model.Release;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MustacheTemplateTest {
@@ -33,39 +31,26 @@ public class MustacheTemplateTest {
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache m = mf.compile(MUSTACHE_FILE);
 
+        HashMap<String, Object> scopes = new HashMap<String, Object>();
+        scopes.put("release", release);
+
         StringWriter writer = new StringWriter();
-        m.execute(writer, release).flush();
-        assertEquals("Release", writer.toString());
+        m.execute(writer, scopes).flush();
+        assertEquals(writer.toString().contains("2.3.0.RELEASE"),true);
     }
 
     @Test
-    public void TemplateWithAFieldTest() throws Exception {
+    public void TemplateWithJustAFieldTest() throws Exception {
+        Release release = new Release();
+        release.setVersion("2.3.0.GA");
+
         HashMap<String, Object> scopes = new HashMap<String, Object>();
-        scopes.put("data", new Data("Charles"));
+        scopes.put("release", release);
 
         Writer writer = new StringWriter();
         MustacheFactory mf = new DefaultMustacheFactory();
         Mustache m = mf.compile("simple.mustache");
         m.execute(writer, scopes).flush();
-        assertEquals("Hello World, Charles", writer.toString());
-    }
-
-    @Test
-    public void TemplateWithItemsTest() throws Exception {
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache m = mf.compile("template.mustache");
-
-        StringWriter writer = new StringWriter();
-        m.execute(writer, new Data("")).flush();
-
-        String expected = "Name: Item 1\n" +
-                "Price: $19.99\n" +
-                "    Feature: New!\n" +
-                "    Feature: Awesome!\n" +
-                "Name: Item 2\n" +
-                "Price: $29.99\n" +
-                "    Feature: Old.\n" +
-                "    Feature: Ugly.\n";
-        assertEquals(expected, writer.toString());
+        assertEquals("Version: 2.3.0.GA", writer.toString());
     }
 }
