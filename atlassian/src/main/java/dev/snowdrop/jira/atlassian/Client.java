@@ -33,11 +33,11 @@ public class Client {
                 break;
 
             case "create-release" :
-                Service.createReleaseIssues();
+                ReleaseService.createReleaseIssues();
                 break;
 
             case "clone" :
-                Service.cloneIssue(args.issue);
+                ReleaseService.cloneIssue(args.issue);
                 break;
 
             case "link" :
