@@ -1,25 +1,34 @@
-projectKey: SB # ENTSBT
-version: 2.3.0.RELEASE
-date:    September 1st 2020
+projectKey: SB
+version: "2.3.0.RELEASE"
+date:    "September 1st 2020"
 dueDate: "08/18/2020"
-eol:     September 2021
+eol:     "September 2021"
 title:   "New SpringBoot release 2.3.0, waiting your component/starter update !"
+
 components:
- - projectKey: SB #EAPSUP
-   name: Hibernate
-   version: 5.0.15
- - projectKey: SB #EAPSUP
-   name: Tomcat
-   version: 9.0.36
- - projectKey: SB #EAPSUP
-   name: RestEASY
-   isStarter: true
+  # List of JIRA Projects contributing to a Snowdrop release
+  # They will be used to create a component or starter
+  #
+  # https://issues.redhat.com/projects/KEYCLOAK/issues/
+  # https://issues.redhat.com/projects/JWS/issues
+  # https://issues.redhat.com/projects/JDG/issues
+  # https://issues.redhat.com/projects/RESTEASY/issues
+  # https://issues.redhat.com/projects/TRACING/issues
+  # https://issues.redhat.com/projects/EAPSUP/issues
+  # https://issues.redhat.com/projects/ENTMQCL/issues
+  #
+  - projectKey: SB #EAPSUP
+    name: Hibernate
+    version: 5.0.15
+  - projectKey: SB #EAPSUP
+    name: Tomcat
+    version: 9.0.36
+  - projectKey: SB #EAPSUP
+    name: RestEASY
+    isStarter: true
+  # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
 
-
-# https://issues.redhat.com/projects/KEYCLOAK/issues/
-# https://issues.redhat.com/projects/JWS/issues
-# https://issues.redhat.com/projects/JDG/issues
-# https://issues.redhat.com/projects/RESTEASY/issues
-# https://issues.redhat.com/projects/TRACING/issues
-# https://issues.redhat.com/projects/EAPSUP/issues
-# https://issues.redhat.com/projects/ENTMQCL/issues
+cves:
+  # Include here the CVEs tickets to be link to this JIRA ticket release
+  - projectKey: ENTSBT
+    issue: # TO BE DEFINED

@@ -11,6 +11,16 @@ public class Release {
     private String EOL;
     private String title;
     private String dueDate;
+    private List<Component> components;
+    private List<Cve> cves;
+
+    public List<Cve> getCves() {
+        return cves;
+    }
+
+    public void setCves(List<Cve> cves) {
+        this.cves = cves;
+    }
 
     public String getProjectKey() {
         return projectKey;
@@ -27,8 +37,6 @@ public class Release {
     public void setComponents(List<Component> components) {
         this.components = components;
     }
-
-    private List<Component> components;
 
     public String getVersion() {
         return version;
