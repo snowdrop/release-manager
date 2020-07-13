@@ -1,7 +1,5 @@
 # JIRA Tools
 
-This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA tickets as documented under the table of content.
-
 ## Table of Contents
 
   * [Introduction](#introduction)
@@ -20,9 +18,8 @@ This project has been designed to investigate different technology able to manag
 
 ## Introduction
 
-R&D Project to test different JIRA Client tool. They could be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
-
-TODO: Add `New` and `edit` commands
+This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA tickets as documented under the table of content.
+They could be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
 
 ## Clients
 
