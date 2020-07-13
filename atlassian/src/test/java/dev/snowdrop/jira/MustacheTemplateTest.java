@@ -21,15 +21,15 @@ public class MustacheTemplateTest {
 
     private static final String YAML_FILE = "release.yaml";
     private static final String MUSTACHE_FILE = "etc/description.mustache";
-    private String expected = "The snowdrop team is really pleased to contact you as we will release in 12 weeks a new Snowdrop BOM based on the following Spring Boot version: 2.3.0.RELEASE\n" +
+    private String expected = "The snowdrop team is really pleased to contact you as we will release in 12 weeks a new Snowdrop BOM based on the following Spring Boot version: *2.3.0.RELEASE*\n" +
             "\n" +
-            "As product owner of the following component: Hibernate, we would like to know if you plan to release a new component for the version: 5.0.15\n" +
-            "that we will start to test the: 08/18/2020.\n" +
+            "As product owner of the following component: *Hibernate*, we would like to know if you plan to release a new component for the version: *5.0.15*\n" +
+            "that we will start to test the: *08/18/2020*.\n" +
             "\n" +
             "If you don't plan to release a new component, could you please test and control if your component will continue to work with this version of spring boot\n" +
             "We expect, in this case, that you will perform QE test and provide us a signoff !\n" +
             "\n" +
-            "The EOL of this Snowdrop release is scheduled: September 2021\n" +
+            "The EOL of this Snowdrop release is scheduled: *September 2021*.\n" +
             "\n" +
             "We expect to get from you:\n" +
             "\n" +
