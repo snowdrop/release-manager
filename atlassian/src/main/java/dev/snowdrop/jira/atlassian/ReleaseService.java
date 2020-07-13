@@ -11,6 +11,8 @@ import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
+import java.util.stream.StreamSupport;
+
 import static dev.snowdrop.jira.atlassian.Utility.*;
 
 public class ReleaseService extends Service {
@@ -32,22 +34,24 @@ public class ReleaseService extends Service {
 
             // Get the list of the sub-tasks
             Iterable<Subtask> subTasks = issue.getSubtasks();
-            for (Subtask subtask : subTasks) {
-                // Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
-                Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
-                if (fetchSubTask != null) {
-                    // Create a sub-task that we will link to the parent
-                    iib = new IssueInputBuilder();
-                    iib.setProjectKey(issue.getProject().getKey());
-                    iib.setSummary(subtask.getSummary());
-                    iib.setIssueType(subtask.getIssueType());
-                    if (fetchSubTask.getAssignee() != null) {
-                        iib.setAssignee(fetchSubTask.getAssignee());
+            if (CollectionSize(subTasks) > 0) {
+                for (Subtask subtask : subTasks) {
+                    // Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
+                    Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
+                    if (fetchSubTask != null) {
+                        // Create a sub-task that we will link to the parent
+                        iib = new IssueInputBuilder();
+                        iib.setProjectKey(issue.getProject().getKey());
+                        iib.setSummary(subtask.getSummary());
+                        iib.setIssueType(subtask.getIssueType());
+                        if (fetchSubTask.getAssignee() != null) {
+                            iib.setAssignee(fetchSubTask.getAssignee());
+                        }
+                        iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", issueCloned.getKey()));
+                        ii = iib.build();
+                        BasicIssue subTaskIssue = cl.createIssue(ii).claim();
+                        LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
                     }
-                    iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", issueCloned.getKey()));
-                    ii = iib.build();
-                    BasicIssue subTaskIssue = cl.createIssue(ii).claim();
-                    LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
                 }
             }
 
@@ -82,6 +86,10 @@ public class ReleaseService extends Service {
             BasicIssue issueObj = cl.createIssue(issue).claim();
             LOG.infof("Issue %s created successfully", issueObj.getKey());
         }
+    }
+
+    private static long CollectionSize(Iterable<Subtask> data) {
+        return StreamSupport.stream(data.spliterator(), false).count();
     }
 
 }
