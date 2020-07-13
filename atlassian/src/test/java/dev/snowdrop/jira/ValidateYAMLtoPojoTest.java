@@ -27,17 +27,6 @@ public class ValidateYAMLtoPojoTest {
         assertEquals(release.getArtifacts().get(0).getVersion(),"5.0.15");
     }
 
-/*    @Test
-    public void snakeYamlToObjectTest() {
-        Constructor constructor = new Constructor(Release.class);//Release.class is root
-        TypeDescription componentDescription = new TypeDescription(Release.class);
-        componentDescription.putListPropertyType("components", Component.class);
-        constructor.addTypeDescription(componentDescription);
-        Yaml yaml = new Yaml(constructor);
-        Release release = yaml.load(YAML);
-        assertNotNull(release);
-    }*/
-
     static class Release {
         private String version;
         private List<Artifact> artifacts;
