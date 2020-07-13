@@ -4,17 +4,17 @@
 
   * [Introduction](#introduction)
   * [Clients](#clients)
-     * [Java Aphrodite client](#java-aphrodite-client)
-     * [Java Atlassian Jira client](#java-atlassian-jira-client)
-        * [Create an issue](#create-an-issue)
-        * [Get an issue](#get-an-issue)
-        * [Delete an issue](#delete-an-issue)
-        * [Delete bulk issues](#delete-bulk-issues)
-        * [Additional operations needed for to release](#additional-operations-needed-for-to-release)
-     * [Nodejs client](#nodejs-client)
-     * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
-        * [Get](#get)
-        * [Post](#post)
+  * [Java Atlassian Jira client](#java-atlassian-jira-client)
+     * [Create an issue](#create-an-issue)
+     * [Get an issue](#get-an-issue)
+     * [Delete an issue](#delete-an-issue)
+     * [Delete bulk issues](#delete-bulk-issues)
+     * [Additional operations needed for to release](#additional-operations-needed-for-to-release)
+  * [Java Aphrodite client](#java-aphrodite-client)
+  * [Nodejs client](#nodejs-client)
+  * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
+     * [Get](#get)
+     * [Post](#post)
 
 ## Introduction
 
@@ -23,30 +23,9 @@ They could be used to automate Job's action or for your own personal needs to ge
 
 ## Clients
 
-### Java Aphrodite client
-
-See the Set Aphrodite project for more [information](https://github.com/jboss-set/aphrodite)
-
-- Move to the `aphrodite` folder and compile the java client
-```bash
-cd aphrodite
-mvn clean compile 
-```
-
-- Create the `aphrodite.json` file containing your [jira credentials](https://github.com/jboss-set/aphrodite/blob/master/aphrodite.properties.json.example)
-```bash
-mkdir etc && touch etc/aphrodite.json
-```
-- Launch it to get JIRA issues
-```bash
-mvn clean package 
-java -jar target/uber-aphrodite-1.0-SNAPSHOT.jar \
-            -cfg ./etc/aphrodite.json \
-            -url https://issues.redhat.com \
-            -issue ENTSBT-343
-```
-
 ### Java Atlassian Jira client
+
+**REMARK**: The `Aphrodite project` don t manage all the CRUD operations but a few and don`t support to create or clone an issue !
 
 References:
 
@@ -135,6 +114,28 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -cfg etc/release.yaml \
     -action clone \
     -issue ENTSBT-ddd
+```
+### Java Aphrodite client
+
+See the Set Aphrodite project for more [information](https://github.com/jboss-set/aphrodite)
+
+- Move to the `aphrodite` folder and compile the java client
+```bash
+cd aphrodite
+mvn clean compile 
+```
+
+- Create the `aphrodite.json` file containing your [jira credentials](https://github.com/jboss-set/aphrodite/blob/master/aphrodite.properties.json.example)
+```bash
+mkdir etc && touch etc/aphrodite.json
+```
+- Launch it to get JIRA issues
+```bash
+mvn clean package 
+java -jar target/uber-aphrodite-1.0-SNAPSHOT.jar \
+            -cfg ./etc/aphrodite.json \
+            -url https://issues.redhat.com \
+            -issue ENTSBT-343
 ```
 
 ### Nodejs client
