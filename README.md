@@ -1,15 +1,23 @@
-# R&D : JIRA Tools
+# JIRA Tools
 
-## Table Of Contents
+This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA tickets as documented under the table of content.
 
-    * [Introduction](#introduction)
-    * [Clients](#clients)
-      * [Nodejs client](#nodejs-client)
-      * [Java Jira client](#java-jira-client)
-      * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
-         * [Get](#get)
-         * [Post](#post)
-       
+## Table of Contents
+
+  * [Introduction](#introduction)
+  * [Clients](#clients)
+     * [Java Aphrodite client](#java-aphrodite-client)
+     * [Java Atlassian Jira client](#java-atlassian-jira-client)
+        * [Create an issue](#create-an-issue)
+        * [Get an issue](#get-an-issue)
+        * [Delete an issue](#delete-an-issue)
+        * [Delete bulk issues](#delete-bulk-issues)
+        * [Additional operations needed for to release](#additional-operations-needed-for-to-release)
+     * [Nodejs client](#nodejs-client)
+     * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
+        * [Get](#get)
+        * [Post](#post)
+
 ## Introduction
 
 R&D Project to test different JIRA Client tool. They could be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
@@ -57,7 +65,7 @@ cd atlassian
 mvn clean package 
 ```
 
-- To create an issue
+#### Create an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -66,7 +74,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -action create \
     -url https://issues.redhat.com
 ```
-- To get an issue
+#### Get an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -76,7 +84,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -action get \
     -issue ENTSBT-xxx
 ```
-- To delete an issue
+#### Delete an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -87,7 +95,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -issue ENTSBT-xxx
 ```
 
-- To delete several issues
+#### Delete bulk issues
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -98,7 +106,7 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -issue ENTSBT-xxx ENTSBT-yyy ENTSBT-zzz
 ```
 
-Release:
+#### Additional operations needed for to release
 
 - To create as a bulk of issues/tasks related to a parent issue, use this command and next link the issues blocking the release
 ```bash
@@ -131,7 +139,6 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -action clone \
     -issue ENTSBT-ddd
 ```
-
 
 ### Nodejs client
 
