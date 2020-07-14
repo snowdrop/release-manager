@@ -12,16 +12,13 @@ version:         2.4.0.RELEASE
 longVersionName: "[Spring Boot 2.4.0] Release steps CR [Q1-2121]"
 
 # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
-date:            September 1st 2020
+releaseDate:            September 1st 2020
 
 # Due date for the component/starter owner to release their new components, QE signoff it
 dueDate:         2020-08-18
 
-# EOL of the Snowdrop release component
+# EOL of the Snowdrop release
 eol:             September 2021
-
-# Component title used to create the Jira stakeholder issue
-title:           "New SpringBoot release 2.3.0, waiting your component/starter update !"
 
 components:
   # List of JIRA Projects contributing to a Snowdrop release
@@ -36,13 +33,17 @@ components:
   # https://issues.redhat.com/projects/ENTMQCL/issues
   #
   - jiraProject: SB
+    jiraTitle: "New Hibernate release needed for SB 2.3"
     name: Hibernate
     version: 5.0.15
   - jiraProject: SB
+    jiraTitle: "New Tomcat embedded release needed for SB 2.3"
     name: Tomcat
     version: 9.0.36
+
   - jiraProject: SB
-    name: RestEASY
+    jiraTitle: "New RESTEasy release needed for SB 2.3"
+    name: RESTEasy
     isStarter: true
   # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
 

@@ -8,14 +8,12 @@ public class Release {
     private String version;
     private String longVersionName;
     private String fixVersion;
-    private String date;
     private String EOL;
-    private String title;
+    private String releaseDate;
     private String dueDate;
     private String dueDateFormatted;
     private List<Component> components;
     private List<Cve> cves;
-
 
     public String getLongVersionName() {
         return longVersionName;
@@ -65,12 +63,12 @@ public class Release {
         this.fixVersion = fixVersion;
     }
 
-    public String getDate() {
-        return date;
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
     }
 
     public String getEOL() {
@@ -79,14 +77,6 @@ public class Release {
 
     public void setEOL(String EOL) {
         this.EOL = EOL;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 
     public String getDueDate() {

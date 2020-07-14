@@ -2,9 +2,19 @@ package dev.snowdrop.jira.atlassian.model;
 
 public class Component {
     private String jiraProject;
+    private String jiraTitle;
     private String name;
     private String version;
     private String isStarter;
+
+    public String getJiraTitle() {
+        return jiraTitle;
+    }
+
+    public void setJiraTitle(String jiraTitle) {
+        this.jiraTitle = jiraTitle;
+    }
+
     public String getJiraProject() {
         return jiraProject;
     }
