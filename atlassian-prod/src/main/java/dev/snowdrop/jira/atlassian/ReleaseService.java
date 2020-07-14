@@ -8,6 +8,7 @@ import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldVal
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import dev.snowdrop.jira.atlassian.model.Component;
+import dev.snowdrop.jira.atlassian.model.Cve;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
@@ -18,6 +19,13 @@ import static dev.snowdrop.jira.atlassian.Utility.*;
 public class ReleaseService extends Service {
     private static final Logger LOG = Logger.getLogger(ReleaseService.class);
 
+    /*
+     * Clone an existing JIRA issue to create the Release issue
+     * If subtasks exist, then the corresponding issues will be created and linked to the release issue
+     *
+     * If CVEs have been defined within the Release YAML, then we will link them also as blocking links to the release issue
+     *
+     */
     public static void cloneIssue(String issueToClone) {
         final IssueRestClient cl = restClient.getIssueClient();
         Issue issue = cl.getIssue(issueToClone).claim();
@@ -31,6 +39,12 @@ public class ReleaseService extends Service {
             IssueInput ii = iib.build();
             BasicIssue issueCloned = cl.createIssue(ii).claim();
             LOG.infof("Issue cloned: %s", issueCloned.getKey());
+
+            // Check if CVEs exist within the Release and link them to the new release ticket created
+            Release release = (Release) pojo;
+            for(Cve cve : release.getCves()){
+                linkIssues(issueCloned.getKey(),cve.getIssue());
+            }
 
             // Get the list of the sub-tasks
             Iterable<Subtask> subTasks = issue.getSubtasks();
@@ -88,8 +102,8 @@ public class ReleaseService extends Service {
             LOG.infof("Issue %s created successfully", newIssue.getKey());
 
             /*
-             * If the Release jira key field is not null, then we will link the newly created Issue to the
-             * release parent issue
+             * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
+             * release issue
              */
             if (release.getJiraKey() != null) {
                 linkIssues(release.getJiraKey(),newIssue.getKey());
