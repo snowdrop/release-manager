@@ -95,7 +95,7 @@ mvn clean package
 
 ### Create JIRA "Component/starter" issues
 
-To create as a bulk of issues/tasks related to a parent issue, use this command and next link the issues blocking the release
+To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command: 
 ```bash
 java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -105,9 +105,11 @@ java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -url https://issues.redhat.com
 ```
 
+**REMARK**: Next link the issues created to block the JIRA release issue !
+
 ### Link JIRA issues to a parent
 
-To Link issues using as Type `Is Blocked By`. The `to_issue` represents the `to` or `target` issue that we would like to use as the issue blocking the current `issue`. 
+To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:  
 ```bash
 java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -118,6 +120,8 @@ java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -issue ENTSBT-xxx \
     -to_issue EAP-yyy 
 ```
+
+The `to_issue` parameter represents the issue which currently blocks the release issue referenced by the parameter `issue`.
 
 ### Clone a JIRA Release issue and their subtasks
 
