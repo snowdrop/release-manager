@@ -57,7 +57,7 @@ public class MustacheTemplateTest {
         Component c = release.getComponents().get(0);
         scopes.put("component", c);
 
-        if (c.getIsStarter() == null) {
+        if (! c.getIsStarter()) {
             scopes.put("isComponent",true);
             scopes.put("type","component");
         } else {

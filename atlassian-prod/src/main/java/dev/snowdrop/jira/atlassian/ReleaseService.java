@@ -42,8 +42,8 @@ public class ReleaseService extends Service {
             LOG.infof("Issue cloned: %s", issueCloned.getKey());
 
             // Check if CVEs exist within the Release and link them to the new release ticket created
-            for(Cve cve : release.getCves()){
-                linkIssues(issueCloned.getKey(),cve.getJiraProject() + "-" + cve.getIssue());
+            for (Cve cve : release.getCves()) {
+                linkIssues(issueCloned.getKey(), cve.getJiraProject() + "-" + cve.getIssue());
             }
 
             // Get the list of the sub-tasks
@@ -79,34 +79,36 @@ public class ReleaseService extends Service {
         Release release = (Release) pojo;
 
         for (Component component : release.getComponents()) {
-            IssueInputBuilder iib = new IssueInputBuilder();
-            iib.setProjectKey(component.getJiraProject());
-            iib.setSummary(component.getJiraTitle());
-            iib.setDescription(generateIssueDescription(release, component));
-            iib.setIssueType(TASK_TYPE());
-            iib.setDueDate(toDateTime(release.getDueDate()));
-            /*
-             TODO: To be investigated
+            if (!component.getSkipCreation()) {
+                IssueInputBuilder iib = new IssueInputBuilder();
+                iib.setProjectKey(component.getJiraProject());
+                iib.setSummary(component.getJiraTitle());
+                iib.setDescription(generateIssueDescription(release, component));
+                iib.setIssueType(TASK_TYPE());
+                iib.setDueDate(toDateTime(release.getDueDate()));
+                /*
+                 TODO: To be investigated
 
-             snowdrop-bot user cannot set the following field
-             iib.setDueDate(formatDueDate(release.getDueDate()));
+                 snowdrop-bot user cannot set the following field
+                 iib.setDueDate(formatDueDate(release.getDueDate()));
 
-             See: https://github.com/snowdrop/jira-tool/issues/7
+                 See: https://github.com/snowdrop/jira-tool/issues/7
 
-             IF we know the custom_field value, then we can fill the following field
-             iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
-            */
+                 IF we know the custom_field value, then we can fill the following field
+                 iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
+                */
 
-            IssueInput issue = iib.build();
-            BasicIssue newIssue = cl.createIssue(issue).claim();
-            LOG.infof("Issue %s created successfully", newIssue.getKey());
+                IssueInput issue = iib.build();
+                BasicIssue newIssue = cl.createIssue(issue).claim();
+                LOG.infof("Issue %s created successfully", newIssue.getKey());
 
-            /*
-             * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
-             * release issue
-             */
-            if (release.getJiraKey() != null) {
-                linkIssues(release.getJiraKey(),newIssue.getKey());
+                /*
+                 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
+                 * release issue
+                 */
+                if (release.getJiraKey() != null) {
+                    linkIssues(release.getJiraKey(), newIssue.getKey());
+                }
             }
         }
     }

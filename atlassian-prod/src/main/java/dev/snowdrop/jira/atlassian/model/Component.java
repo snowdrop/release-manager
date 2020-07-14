@@ -1,11 +1,23 @@
 package dev.snowdrop.jira.atlassian.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+
 public class Component {
     private String jiraProject;
     private String jiraTitle;
     private String name;
     private String version;
-    private String isStarter;
+    private Boolean isStarter = false;
+    private Boolean skipCreation;
+
+    public Boolean getSkipCreation() {
+        return skipCreation;
+    }
+
+    public void setSkipCreation(Boolean skipCreation) {
+        this.skipCreation = skipCreation;
+    }
 
     public String getJiraTitle() {
         return jiraTitle;
@@ -39,11 +51,13 @@ public class Component {
         this.version = version;
     }
 
-    public String getIsStarter() {
+    public Boolean getIsStarter() {
         return isStarter;
     }
 
-    public void setIsStarter(String isStarter) {
-        this.isStarter = isStarter;
+    public void setIsStarter(Boolean isStarter) {
+        if (isStarter != null) {
+            this.isStarter = isStarter;
+        }
     }
 }

@@ -14,11 +14,17 @@ public class ValidateYAMLtoPojoTest {
             "version: 2.3.0.RELEASE\n" +
             "components:\n" +
             " - jiraProject: EAPSUP\n" +
+            "   jiraTitle: Hibernate version to use for SB 2.3\n" +
             "   name: hibernate\n" +
+            "   skipCreation: true\n" +
             "   version: 5.0.15\n" +
+            "\n" +
             " - jiraProject: RESTEASY\n" +
+            "   jiraTitle: New RESTEasy starter to use for SB 2.3\n" +
+            "   skipCreation: false\n" +
             "   name: RESTEasy\n" +
             "   isStarter: true\n" +
+            "\n" +
             "cves:\n" +
             "  - jiraProject: ENTSBT\n" +
             "    issue: 1010\n" +
@@ -44,7 +50,17 @@ public class ValidateYAMLtoPojoTest {
         assertNotNull(release);
         assertEquals(release.getComponents().get(1).getJiraProject(),"RESTEASY");
         assertEquals(release.getComponents().get(1).getName(),"RESTEasy");
-        assertEquals(release.getComponents().get(1).getIsStarter(),"true");
+        assertEquals(release.getComponents().get(1).getIsStarter(),true);
+    }
+
+    @Test
+    public void checkSkipCreationTest() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        Release release = mapper.readValue(YAML, Release.class);
+
+        assertNotNull(release);
+        assertEquals(release.getComponents().get(0).getSkipCreation(),true);
+        assertEquals(release.getComponents().get(1).getSkipCreation(),false);
     }
 
     @Test

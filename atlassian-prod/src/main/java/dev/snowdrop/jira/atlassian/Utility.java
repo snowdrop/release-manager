@@ -114,7 +114,7 @@ public class Utility {
         scopes.put("release", r);
         scopes.put("component", c);
 
-        if (c.getIsStarter() == null) {
+        if (!c.getIsStarter()) {
             scopes.put("isComponent",true);
             scopes.put("type","component");
         } else {
