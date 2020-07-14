@@ -17,13 +17,13 @@ components:
   # https://issues.redhat.com/projects/EAPSUP/issues
   # https://issues.redhat.com/projects/ENTMQCL/issues
   #
-  - projectKey: SB #EAPSUP
+  - projectKey: SB
     name: Hibernate
     version: 5.0.15
-  - projectKey: SB #EAPSUP
+  - projectKey: SB
     name: Tomcat
     version: 9.0.36
-  - projectKey: SB #EAPSUP
+  - projectKey: SB
     name: RestEASY
     isStarter: true
   # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
