@@ -104,11 +104,6 @@ public class Utility {
         }
     }
 
-    public static DateTime formatDueDate(String dueDate) {
-        DateTimeFormatter formatter = DateTimeFormat.forPattern("MM/dd/yyyy");
-        return formatter.parseDateTime(dueDate);
-    }
-
     public static String generateIssueDescription(Release r, Component c) {
         StringWriter writer = new StringWriter();
 
