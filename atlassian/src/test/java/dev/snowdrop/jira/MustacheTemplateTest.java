@@ -5,8 +5,8 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
-import dev.snowdrop.jira.atlassian.model.product.Component;
-import dev.snowdrop.jira.atlassian.model.product.Release;
+import dev.snowdrop.jira.atlassian.productization.model.Component;
+import dev.snowdrop.jira.atlassian.productization.model.Release;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

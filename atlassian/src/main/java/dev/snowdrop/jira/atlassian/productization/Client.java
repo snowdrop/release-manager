@@ -1,13 +1,14 @@
-package dev.snowdrop.jira.atlassian;
+package dev.snowdrop.jira.atlassian.productization;
 
 import com.beust.jcommander.JCommander;
-
+import dev.snowdrop.jira.atlassian.Args;
+import dev.snowdrop.jira.atlassian.Service;
 import dev.snowdrop.jira.atlassian.model.Issue;
 import dev.snowdrop.jira.atlassian.productization.model.Release;
-import dev.snowdrop.jira.atlassian.productization.ReleaseService;
 import org.jboss.logging.Logger;
 
-import static dev.snowdrop.jira.atlassian.Utility.*;
+import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
+import static dev.snowdrop.jira.atlassian.Utility.readYaml;
 
 public class Client {
     private static final Logger LOG = Logger.getLogger(Client.class);
@@ -33,6 +34,14 @@ public class Client {
                 Service.createIssue();
                 break;
 
+            case "create-release" :
+                ReleaseService.createReleaseIssues();
+                break;
+
+            case "clone" :
+                ReleaseService.cloneIssue(args.issue);
+                break;
+
             case "link" :
                 Service.linkIssues(args.issue,args.toIssue);
                 break;
@@ -49,7 +58,13 @@ public class Client {
 
     private void init() {
         try {
-            readYaml(args.cfg, Issue.class);
+            // Parse YAML config
+            if(args.cfg.contains("issue.yaml")) {
+                readYaml(args.cfg, Issue.class);
+            } else {
+                // We assume that we want to generate the issues for a release
+                readYaml(args.cfg, Release.class);
+            }
 
             // Create JIRA authenticated client
             initRestClient(args.jiraServerUri,args.user,args.password);
@@ -57,5 +72,9 @@ public class Client {
         } catch (Exception e) {
             LOG.error(e);
         }
+    }
+
+    private void println(Object o) {
+        System.out.println(o);
     }
 }

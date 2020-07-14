@@ -3,7 +3,7 @@ package dev.snowdrop.jira;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import dev.snowdrop.jira.atlassian.model.product.Release;
+import dev.snowdrop.jira.atlassian.productization.model.Release;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
