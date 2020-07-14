@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian.productization;
+package dev.snowdrop.jira.atlassian;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
@@ -7,9 +7,8 @@ import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
-import dev.snowdrop.jira.atlassian.Service;
-import dev.snowdrop.jira.atlassian.productization.model.Component;
-import dev.snowdrop.jira.atlassian.productization.model.Release;
+import dev.snowdrop.jira.atlassian.model.Component;
+import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
 import java.util.stream.StreamSupport;

@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian.productization.model;
+package dev.snowdrop.jira.atlassian.model;
 
 public class Component {
 

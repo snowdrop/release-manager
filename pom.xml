@@ -11,6 +11,7 @@
     <modules>
         <module>aphrodite</module>
         <module>atlassian</module>
+        <module>atlassian-prod</module>
     </modules>
 
     <build>

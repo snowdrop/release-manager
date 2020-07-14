@@ -8,7 +8,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>atlassian</artifactId>
+    <artifactId>atlassian-prod</artifactId>
 
     <properties>
         <jira-rest-java-atlassian.version>5.2.1</jira-rest-java-atlassian.version>
@@ -72,6 +72,13 @@
             <groupId>org.jboss.logging</groupId>
             <artifactId>jboss-logging</artifactId>
             <version>3.3.3.Final</version>
+        </dependency>
+
+        <!-- Templating -->
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+            <version>0.9.6</version>
         </dependency>
 
         <!-- Testing -->

@@ -1,11 +1,9 @@
-package dev.snowdrop.jira.atlassian.productization;
+package dev.snowdrop.jira.atlassian;
 
 import com.beust.jcommander.JCommander;
-import dev.snowdrop.jira.atlassian.Args;
-import dev.snowdrop.jira.atlassian.Service;
-import dev.snowdrop.jira.atlassian.model.Issue;
-import dev.snowdrop.jira.atlassian.productization.model.Release;
 import org.jboss.logging.Logger;
+
+import dev.snowdrop.jira.atlassian.model.Release;
 
 import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
 import static dev.snowdrop.jira.atlassian.Utility.readYaml;
@@ -28,10 +26,6 @@ public class Client {
         switch(args.action) {
             case "get" :
                 Service.getIssue(args.issue);
-                break;
-
-            case "create" :
-                Service.createIssue();
                 break;
 
             case "create-release" :
@@ -58,13 +52,8 @@ public class Client {
 
     private void init() {
         try {
-            // Parse YAML config
-            if(args.cfg.contains("issue.yaml")) {
-                readYaml(args.cfg, Issue.class);
-            } else {
-                // We assume that we want to generate the issues for a release
-                readYaml(args.cfg, Release.class);
-            }
+            // Parse the Release YAML config
+            readYaml(args.cfg, Release.class);
 
             // Create JIRA authenticated client
             initRestClient(args.jiraServerUri,args.user,args.password);

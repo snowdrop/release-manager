@@ -3,27 +3,28 @@
 ## Table of Contents
 
   * [Introduction](#introduction)
-  * [Clients](#clients)
   * [Java Atlassian Jira client](#java-atlassian-jira-client)
      * [Create an issue](#create-an-issue)
      * [Get an issue](#get-an-issue)
      * [Delete an issue](#delete-an-issue)
      * [Delete bulk issues](#delete-bulk-issues)
-     * [Additional operations needed for to release](#additional-operations-needed-for-to-release)
+  * [Java Prod client](#java-prod-client)
+     * [Create JIRA "Component/starter" issues](#create-jira-componentstarter-issues)
+     * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
+     * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
   * [Java Aphrodite client](#java-aphrodite-client)
   * [Nodejs client](#nodejs-client)
   * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
      * [Get](#get)
      * [Post](#post)
 
+
 ## Introduction
 
 This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA tickets as documented under the table of content.
 They could be used to automate Job's action or for your own personal needs to get a Jira issue, change the status, ...
 
-## Clients
-
-### Java Atlassian Jira client
+## Java Atlassian Jira client
 
 **REMARK**: The `Aphrodite project` don t manage all the CRUD operations but a few and don`t support to create or clone an issue !
 
@@ -41,52 +42,62 @@ cd atlassian
 mvn clean package 
 ```
 
-#### Create an issue
+### Create an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
+    -user JIRA_USER \
+    -password JIRA_PWD \
     -cfg etc/release.yaml \
     -action create \
     -url https://issues.redhat.com
 ```
-#### Get an issue
+### Get an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
+    -user JIRA_USER \
+    -password JIRA_PWD \
     -url https://issues.redhat.com \
     -cfg etc/release.yaml \
     -action get \
     -issue ENTSBT-xxx
 ```
-#### Delete an issue
+### Delete an issue
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
+    -user JIRA_USER \
+    -password JIRA_PWD \
     -url https://issues.redhat.com \
     -cfg etc/release.yaml \
     -action delete \
     -issue ENTSBT-xxx
 ```
 
-#### Delete bulk issues
+### Delete bulk issues
 ```bash
 java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
+    -user JIRA_USER \
+    -password JIRA_PWD \
     -url https://issues.redhat.com \
     -cfg etc/release.yaml \
     -action delete-bulk \
     -issue ENTSBT-xxx ENTSBT-yyy ENTSBT-zzz
 ```
 
-#### Additional operations needed for to release
+## Java Prod client
 
-- To create as a bulk of issues/tasks related to a parent issue, use this command and next link the issues blocking the release
+Instructions:
+
+- Move to the atlassian folder and compile the java client
 ```bash
-java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+cd atlassian-prod
+mvn clean package 
+```
+
+### Create JIRA "Component/starter" issues
+
+To create as a bulk of issues/tasks related to a parent issue, use this command and next link the issues blocking the release
+```bash
+java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -cfg etc/release.yaml \
@@ -94,9 +105,11 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -url https://issues.redhat.com
 ```
 
-- To Link issues using as Type `Is Blocked By`. The `to_issue` represents the `to` or `target` issue that we would like to use as the issue blocking the current `issue`. 
+### Link JIRA issues to a parent
+
+To Link issues using as Type `Is Blocked By`. The `to_issue` represents the `to` or `target` issue that we would like to use as the issue blocking the current `issue`. 
 ```bash
-java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -url https://issues.redhat.com \
@@ -105,9 +118,12 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -issue ENTSBT-xxx \
     -to_issue EAP-yyy 
 ```
-- To clone a Release issue and their sub-tasks
+
+### Clone a JIRA Release issue and their subtasks
+
+To clone a Release issue and their sub-tasks
 ```bash
- java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
+ java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -url https://issues.redhat.com \
@@ -115,7 +131,8 @@ java -jar target/uber-atlassian-1.0-SNAPSHOT.jar \
     -action clone \
     -issue ENTSBT-ddd
 ```
-### Java Aphrodite client
+
+## Java Aphrodite client
 
 See the Set Aphrodite project for more [information](https://github.com/jboss-set/aphrodite)
 
@@ -138,7 +155,7 @@ java -jar target/uber-aphrodite-1.0-SNAPSHOT.jar \
             -issue ENTSBT-343
 ```
 
-### Nodejs client
+## Nodejs client
 
 - Create a `~/.jiracli.yml` file with the following information
 
@@ -185,17 +202,17 @@ jira update SB-869 InProgress
 jira update SB-869 ResolveIssue|CloseIssue
 ```
  
-### HTTP Request to get or create JIRA tickets
+## HTTP Request to get or create JIRA tickets
 
 Atlassian REST API v2 doc: https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/
 
-#### Get
+### Get
 
 ```bash
 http --verify=no --follow --auth user:pwd https://issues.jboss.org/rest/api/2/issue/SB-889
 ```
 
-#### Post
+### Post
 
 ```bash
 http --verify=no --follow  --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
