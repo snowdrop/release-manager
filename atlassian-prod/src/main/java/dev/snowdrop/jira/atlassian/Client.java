@@ -28,8 +28,8 @@ public class Client {
                 Service.getIssue(args.issue);
                 break;
 
-            case "create-release" :
-                ReleaseService.createReleaseIssues();
+            case "create-component" :
+                ReleaseService.createComponentIssues();
                 break;
 
             case "clone" :

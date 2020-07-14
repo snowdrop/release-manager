@@ -101,7 +101,7 @@ java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
     -password JBOSS_JIRA_PWD \
     -cfg etc/release.yaml \
-    -action create-release \
+    -action create-component \
     -url https://issues.redhat.com
 ```
 

@@ -60,7 +60,7 @@ public class ReleaseService extends Service {
         }
     }
 
-    public static void createReleaseIssues() {
+    public static void createComponentIssues() {
         final IssueRestClient cl = restClient.getIssueClient();
         Release release = (Release) pojo;
 
