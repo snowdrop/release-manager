@@ -3,7 +3,7 @@ package dev.snowdrop.jira.atlassian;
 import com.beust.jcommander.JCommander;
 
 import dev.snowdrop.jira.atlassian.model.Issue;
-import dev.snowdrop.jira.atlassian.model.Release;
+import dev.snowdrop.jira.atlassian.model.product.Release;
 import org.jboss.logging.Logger;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;

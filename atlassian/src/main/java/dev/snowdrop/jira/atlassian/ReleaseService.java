@@ -7,8 +7,8 @@ import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
-import dev.snowdrop.jira.atlassian.model.Component;
-import dev.snowdrop.jira.atlassian.model.Release;
+import dev.snowdrop.jira.atlassian.model.product.Component;
+import dev.snowdrop.jira.atlassian.model.product.Release;
 import org.jboss.logging.Logger;
 
 import java.util.stream.StreamSupport;

@@ -1,8 +1,9 @@
-package dev.snowdrop.jira.atlassian.model;
+package dev.snowdrop.jira.atlassian.model.product;
 
 public class Cve {
-    String projectKey;
-    String issue;
+
+    private String projectKey;
+    private String issue;
 
     public String getProjectKey() {
         return projectKey;

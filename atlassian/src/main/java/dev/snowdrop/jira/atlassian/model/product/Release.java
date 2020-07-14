@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian.model;
+package dev.snowdrop.jira.atlassian.model.product;
 
 import java.util.List;
 
