@@ -33,16 +33,16 @@ components:
   # https://issues.redhat.com/projects/ENTMQCL/issues
   #
   - jiraProject: SB
-    jiraTitle: "New Hibernate release needed for SB 2.3"
+    jiraTitle: "Hibernate version to use for SB 2.3"
     name: Hibernate
     version: 5.0.15
   - jiraProject: SB
-    jiraTitle: "New Tomcat embedded release needed for SB 2.3"
+    jiraTitle: "Tomcat embedded version to use for SB 2.3"
     name: Tomcat
     version: 9.0.36
 
   - jiraProject: SB
-    jiraTitle: "New RESTEasy release needed for SB 2.3"
+    jiraTitle: "New RESTEasy starter for SB 2.3"
     name: RESTEasy
     isStarter: true
   # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
