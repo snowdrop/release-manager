@@ -1,26 +1,16 @@
 package dev.snowdrop.jira.atlassian.model;
 
 public class Component {
-
-    private String projectKey;
+    private String jiraProject;
     private String name;
     private String version;
     private String isStarter;
-
-    public String getIsStarter() {
-        return isStarter;
+    public String getJiraProject() {
+        return jiraProject;
     }
 
-    public void setIsStarter(String isStarter) {
-        this.isStarter = isStarter;
-    }
-
-    public String getProjectKey() {
-        return projectKey;
-    }
-
-    public void setProjectKey(String projectKey) {
-        this.projectKey = projectKey;
+    public void setJiraProject(String jiraProject) {
+        this.jiraProject = jiraProject;
     }
 
     public String getName() {
@@ -37,5 +27,13 @@ public class Component {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getIsStarter() {
+        return isStarter;
+    }
+
+    public void setIsStarter(String isStarter) {
+        this.isStarter = isStarter;
     }
 }

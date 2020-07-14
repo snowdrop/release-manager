@@ -11,6 +11,8 @@ import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.StreamSupport;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;
@@ -66,7 +68,7 @@ public class ReleaseService extends Service {
 
         for (Component component : release.getComponents()) {
             IssueInputBuilder iib = new IssueInputBuilder();
-            iib.setProjectKey(component.getProjectKey());
+            iib.setProjectKey(component.getJiraProject());
             iib.setSummary(release.getTitle());
             iib.setDescription(generateIssueDescription(release, component));
             iib.setIssueType(TASK_TYPE());
@@ -84,8 +86,16 @@ public class ReleaseService extends Service {
             */
 
             IssueInput issue = iib.build();
-            BasicIssue issueObj = cl.createIssue(issue).claim();
-            LOG.infof("Issue %s created successfully", issueObj.getKey());
+            BasicIssue newIssue = cl.createIssue(issue).claim();
+            LOG.infof("Issue %s created successfully", newIssue.getKey());
+
+            /*
+             * If the Release jira key field is not null, then we will link the newly created Issue to the
+             * release parent issue
+             */
+            if (release.getJiraKey() != null) {
+                linkIssues(release.getJiraKey(),newIssue.getKey());
+            }
         }
     }
 

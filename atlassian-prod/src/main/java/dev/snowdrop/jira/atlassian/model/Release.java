@@ -3,8 +3,8 @@ package dev.snowdrop.jira.atlassian.model;
 import java.util.List;
 
 public class Release {
-
-    private String projectKey;
+    private String jiraProject;
+    private String jiraKey;
     private String version;
     private String fixVersion;
     private String date;
@@ -14,28 +14,20 @@ public class Release {
     private List<Component> components;
     private List<Cve> cves;
 
-    public List<Cve> getCves() {
-        return cves;
+    public String getJiraKey() {
+        return jiraKey;
     }
 
-    public void setCves(List<Cve> cves) {
-        this.cves = cves;
+    public void setJiraKey(String jiraKey) {
+        this.jiraKey = jiraKey;
     }
 
-    public String getProjectKey() {
-        return projectKey;
+    public String getJiraProject() {
+        return jiraProject;
     }
 
-    public void setProjectKey(String projectKey) {
-        this.projectKey = projectKey;
-    }
-
-    public List<Component> getComponents() {
-        return components;
-    }
-
-    public void setComponents(List<Component> components) {
-        this.components = components;
+    public void setJiraProject(String jiraProject) {
+        this.jiraProject = jiraProject;
     }
 
     public String getVersion() {
@@ -44,6 +36,14 @@ public class Release {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getFixVersion() {
+        return fixVersion;
+    }
+
+    public void setFixVersion(String fixVersion) {
+        this.fixVersion = fixVersion;
     }
 
     public String getDate() {
@@ -78,11 +78,19 @@ public class Release {
         this.dueDate = dueDate;
     }
 
-    public String getFixVersion() {
-        return fixVersion;
+    public List<Component> getComponents() {
+        return components;
     }
 
-    public void setFixVersion(String fixVersion) {
-        this.fixVersion = fixVersion;
+    public void setComponents(List<Component> components) {
+        this.components = components;
+    }
+
+    public List<Cve> getCves() {
+        return cves;
+    }
+
+    public void setCves(List<Cve> cves) {
+        this.cves = cves;
     }
 }

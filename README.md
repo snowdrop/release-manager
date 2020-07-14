@@ -105,7 +105,7 @@ java -jar target/uber-atlassian-prod-1.0-SNAPSHOT.jar \
     -url https://issues.redhat.com
 ```
 
-**REMARK**: Next link the issues created to block the JIRA release issue !
+**IMPORTANT**: If the `release.yaml` includes a `jiraKey` field, then the newly component issue created will be linked to the Release Issue !
 
 ### Link JIRA issues to a parent
 

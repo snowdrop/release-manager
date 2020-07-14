@@ -13,16 +13,16 @@ public class ValidateYAMLtoPojoTest {
     private static String YAML =
             "version: 2.3.0.RELEASE\n" +
             "components:\n" +
-            " - projectKey: EAPSUP\n" +
+            " - jiraProject: EAPSUP\n" +
             "   name: hibernate\n" +
             "   version: 5.0.15\n" +
-            " - projectKey: RESTEASY\n" +
+            " - jiraProject: RESTEASY\n" +
             "   name: RESTEasy\n" +
             "   isStarter: true\n" +
             "cves:\n" +
-            "  - projectKey: ENTSBT\n" +
+            "  - jiraProject: ENTSBT\n" +
             "    issue: 1010\n" +
-            "  - projectKey: ENTSBT\n" +
+            "  - jiraProject: ENTSBT\n" +
             "    issue: 1020";
 
     @Test
@@ -32,7 +32,7 @@ public class ValidateYAMLtoPojoTest {
 
         assertNotNull(release);
         assertEquals(release.getComponents().get(0).getVersion(),"5.0.15");
-        assertEquals(release.getComponents().get(0).getProjectKey(),"EAPSUP");
+        assertEquals(release.getComponents().get(0).getJiraProject(),"EAPSUP");
         assertEquals(release.getComponents().get(0).getName(),"hibernate");
     }
 
@@ -42,7 +42,7 @@ public class ValidateYAMLtoPojoTest {
         Release release = mapper.readValue(YAML, Release.class);
 
         assertNotNull(release);
-        assertEquals(release.getComponents().get(1).getProjectKey(),"RESTEASY");
+        assertEquals(release.getComponents().get(1).getJiraProject(),"RESTEASY");
         assertEquals(release.getComponents().get(1).getName(),"RESTEasy");
         assertEquals(release.getComponents().get(1).getIsStarter(),"true");
     }
@@ -53,10 +53,10 @@ public class ValidateYAMLtoPojoTest {
         Release release = mapper.readValue(YAML, Release.class);
 
         assertNotNull(release);
-        assertEquals(release.getCves().get(0).getProjectKey(),"ENTSBT");
+        assertEquals(release.getCves().get(0).getJiraProject(),"ENTSBT");
         assertEquals(release.getCves().get(0).getIssue(),"1010");
 
-        assertEquals(release.getCves().get(1).getProjectKey(),"ENTSBT");
+        assertEquals(release.getCves().get(1).getJiraProject(),"ENTSBT");
         assertEquals(release.getCves().get(1).getIssue(),"1020");
     }
 
