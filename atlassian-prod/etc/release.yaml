@@ -1,10 +1,26 @@
+# JIRA Project code where the release issue should be created
 jiraProject:     SB
-jiraKey:         SB-1475
+
+# If already created, provide the issue number of the Release, otherwise keep it empty.
+# It will be used by the command create-component to link the stakeholder issues
+jiraKey:         # SB-1484
+
+# Version to be released. This version will be used to populate the description to be created for each Jira stakeholder: component or starter owner
 version:         2.4.0.RELEASE
+
+# Long version name used to create the title of the release issue
 longVersionName: "[Spring Boot 2.4.0] Release steps CR [Q1-2121]"
+
+# Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
 date:            September 1st 2020
+
+# Due date for the component/starter owner to release their new components, QE signoff it
 dueDate:         2020-08-18
+
+# EOL of the Snowdrop release component
 eol:             September 2021
+
+# Component title used to create the Jira stakeholder issue
 title:           "New SpringBoot release 2.3.0, waiting your component/starter update !"
 
 components:
