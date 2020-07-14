@@ -6,7 +6,7 @@ jiraProject:     SB
 jiraKey:         # SB-1484
 
 # Version to be released. This version will be used to populate the description to be created for each Jira stakeholder: component or starter owner
-version:         2.2.8.RELEASE
+version:
 
 # Long version name used to create the title of the release issue
 longVersionName: "[Spring Boot 2.2.8] Release steps CR [Q3-2020]"
@@ -24,31 +24,25 @@ components:
   # List of JIRA Projects contributing to a Snowdrop release
   # They will be used to create a component or starter
   #
-  # https://issues.redhat.com/projects/KEYCLOAK/issues/
-  # https://issues.redhat.com/projects/JWS/issues
-  # https://issues.redhat.com/projects/JDG/issues
-  # https://issues.redhat.com/projects/RESTEASY/issues
-  # https://issues.redhat.com/projects/TRACING/issues
-  # https://issues.redhat.com/projects/EAPSUP/issues
-  # https://issues.redhat.com/projects/ENTMQCL/issues
-  #
   - jiraProject: SB
     jiraTitle: "Hibernate version to use for SB 2.3"
+    skipCreation:
     name: Hibernate
-    version: 5.0.15
+    version:
 
   - jiraProject: SB
     jiraTitle: "Tomcat embedded version to use for SB 2.3"
+    skipCreation:
     name: Tomcat
-    version: 9.0.36
+    version:
 
   - jiraProject: SB
     jiraTitle: "New RESTEasy starter for SB 2.3"
+    skipCreation: false
     name: RESTEasy
-    isStarter: true
-  # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
+    # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
 
 cves:
   # Include here the CVEs tickets to be link to this JIRA ticket release
-  - jiraProject: SB
-    issue: 1433
+  - jiraProject:
+    issue:
