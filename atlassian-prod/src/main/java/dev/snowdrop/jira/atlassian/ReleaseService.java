@@ -29,21 +29,21 @@ public class ReleaseService extends Service {
     public static void cloneIssue(String issueToClone) {
         final IssueRestClient cl = restClient.getIssueClient();
         Issue issue = cl.getIssue(issueToClone).claim();
+        Release release = (Release) pojo;
         if (issueToClone != null) {
             // Create the cloned task
             IssueInputBuilder iib = new IssueInputBuilder();
             iib.setProjectKey(issue.getProject().getKey());
             iib.setDescription(issue.getDescription());
-            iib.setSummary("[Spring Boot 2.4] Release steps CR [Q1-2121]");
+            iib.setSummary(release.getLongVersionName());
             iib.setIssueType(TASK_TYPE());
             IssueInput ii = iib.build();
             BasicIssue issueCloned = cl.createIssue(ii).claim();
             LOG.infof("Issue cloned: %s", issueCloned.getKey());
 
             // Check if CVEs exist within the Release and link them to the new release ticket created
-            Release release = (Release) pojo;
             for(Cve cve : release.getCves()){
-                linkIssues(issueCloned.getKey(),cve.getIssue());
+                linkIssues(issueCloned.getKey(),cve.getJiraProject() + "-" + cve.getIssue());
             }
 
             // Get the list of the sub-tasks

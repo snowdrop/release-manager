@@ -1,10 +1,11 @@
-jiraProject: SB
-jiraKey: SB-1468
-version: 2.3.0.RELEASE
-date:    September 1st 2020
-dueDate: 2020-08-18
-eol:     September 2021
-title:   "New SpringBoot release 2.3.0, waiting your component/starter update !"
+jiraProject:     SB
+jiraKey:         SB-1475
+version:         2.4.0.RELEASE
+longVersionName: "[Spring Boot 2.4.0] Release steps CR [Q1-2121]"
+date:            September 1st 2020
+dueDate:         2020-08-18
+eol:             September 2021
+title:           "New SpringBoot release 2.3.0, waiting your component/starter update !"
 
 components:
   # List of JIRA Projects contributing to a Snowdrop release
@@ -31,5 +32,5 @@ components:
 
 cves:
   # Include here the CVEs tickets to be link to this JIRA ticket release
-  - jiraProject: ENTSBT
-    issue: # TO BE DEFINED
+  - jiraProject: SB
+    issue: 1433

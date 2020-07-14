@@ -6,6 +6,7 @@ public class Release {
     private String jiraProject;
     private String jiraKey;
     private String version;
+    private String longVersionName;
     private String fixVersion;
     private String date;
     private String EOL;
@@ -14,6 +15,15 @@ public class Release {
     private String dueDateFormatted;
     private List<Component> components;
     private List<Cve> cves;
+
+
+    public String getLongVersionName() {
+        return longVersionName;
+    }
+
+    public void setLongVersionName(String longVersionName) {
+        this.longVersionName = longVersionName;
+    }
 
     public String getDueDateFormatted() {
         return dueDateFormatted;
