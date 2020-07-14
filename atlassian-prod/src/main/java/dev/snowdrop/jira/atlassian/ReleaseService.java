@@ -70,7 +70,7 @@ public class ReleaseService extends Service {
             iib.setSummary(release.getTitle());
             iib.setDescription(generateIssueDescription(release, component));
             iib.setIssueType(TASK_TYPE());
-            iib.setDueDate(toDateTime(release.getDate()));
+            iib.setDueDate(toDateTime(release.getDueDate()));
             /*
              TODO: To be investigated
 

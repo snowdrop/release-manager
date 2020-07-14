@@ -1,7 +1,7 @@
 projectKey: SB
 version: "2.3.0.RELEASE"
 date:    "September 1st 2020"
-dueDate: "08/18/2020"
+dueDate: "2020-08-18"
 eol:     "September 2021"
 title:   "New SpringBoot release 2.3.0, waiting your component/starter update !"
 
@@ -20,12 +20,12 @@ components:
   - projectKey: SB
     name: Hibernate
     version: 5.0.15
-  - projectKey: SB
-    name: Tomcat
-    version: 9.0.36
-  - projectKey: SB
-    name: RestEASY
-    isStarter: true
+  # - projectKey: SB
+  #   name: Tomcat
+  #   version: 9.0.36
+  # - projectKey: SB
+  #   name: RestEASY
+  #   isStarter: true
   # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
 
 cves:
