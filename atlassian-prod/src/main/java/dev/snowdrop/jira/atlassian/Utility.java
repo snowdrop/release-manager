@@ -107,6 +107,9 @@ public class Utility {
     public static String generateIssueDescription(Release r, Component c) {
         StringWriter writer = new StringWriter();
 
+        // Calculate additional fields such as DueDate
+        r.setDueDateFormatted(toDateTime(r.getDueDate()).toString("dd MMM YYYY"));
+
         HashMap<String, Object> scopes = new HashMap<String, Object>();
         scopes.put("release", r);
         scopes.put("component", c);

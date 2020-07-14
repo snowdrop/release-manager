@@ -11,8 +11,6 @@ import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.StreamSupport;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;

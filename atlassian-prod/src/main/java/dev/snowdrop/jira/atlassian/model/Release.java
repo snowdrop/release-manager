@@ -11,8 +11,17 @@ public class Release {
     private String EOL;
     private String title;
     private String dueDate;
+    private String dueDateFormatted;
     private List<Component> components;
     private List<Cve> cves;
+
+    public String getDueDateFormatted() {
+        return dueDateFormatted;
+    }
+
+    public void setDueDateFormatted(String dueDateFormatted) {
+        this.dueDateFormatted = dueDateFormatted;
+    }
 
     public String getJiraKey() {
         return jiraKey;
