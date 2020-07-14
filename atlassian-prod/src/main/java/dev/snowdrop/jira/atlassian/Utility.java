@@ -15,6 +15,7 @@ import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.*;
 import java.net.URI;
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 public class Utility {
     private static final Logger LOG = Logger.getLogger(Service.class);
     private static final String MUSTACHE_PATH = "etc/description.mustache";
+    private static DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser();
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static Object pojo;
     public static JiraRestClient restClient;
@@ -164,5 +166,9 @@ public class Utility {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static DateTime toDateTime(String dateTimeSt) {
+        return dateTimeParser.parseDateTime(dateTimeSt);
     }
 }
