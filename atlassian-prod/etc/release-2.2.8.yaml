@@ -26,19 +26,19 @@ components:
   #
   - jiraProject: SB
     jiraTitle: "Hibernate version to use for SB 2.3"
-    skipCreation:
+    skipCreation: true
     name: Hibernate
     version:
 
   - jiraProject: SB
     jiraTitle: "Tomcat embedded version to use for SB 2.3"
-    skipCreation:
+    skipCreation: true
     name: Tomcat
     version:
 
   - jiraProject: SB
     jiraTitle: "New RESTEasy starter for SB 2.3"
-    skipCreation: false
+    skipCreation: true
     name: RESTEasy
     # TO BE CONTINUED TO INCLUDE ALL THE COMPONENTS/STARTERS
 

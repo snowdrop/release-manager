@@ -9,14 +9,16 @@ public class Component {
     private String name;
     private String version;
     private Boolean isStarter = false;
-    private Boolean skipCreation;
+    private Boolean skipCreation = false;
 
     public Boolean getSkipCreation() {
         return skipCreation;
     }
 
     public void setSkipCreation(Boolean skipCreation) {
-        this.skipCreation = skipCreation;
+        if (skipCreation != null) {
+            this.skipCreation = skipCreation;
+        }
     }
 
     public String getJiraTitle() {
