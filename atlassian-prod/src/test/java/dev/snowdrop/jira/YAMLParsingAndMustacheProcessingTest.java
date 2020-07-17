@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class YAMLParsingAndMustacheProcessingTest {
 
     private static final String YAML_FILE = "release.yaml";
-    private static final String MUSTACHE_FILE = "etc/description.mustache";
+    private static final String MUSTACHE_FILE = "jira_description.mustache";
     private static Release release;
     private static Mustache m;
 
