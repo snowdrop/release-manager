@@ -7,19 +7,19 @@ dueDate:         2020-08-18
 eol:             September 2021
 
 components:
-  - jiraProject: SB
-    jiraTitle:
+  - jiraProject: EAPSUP
+    jiraTitle: Hibernate version to use for SB 2.3
     name: Hibernate
     version: 5.0.15
-  - jiraProject: SB
-    jiraTitle:
-    name: Tomcat
-    version: 9.0.36
-  - jiraProject: SB
-    jiraTitle:
-    name: RestEASY
+
+  - jiraProject: RESTEASY
+    jiraTitle: New RESTEasy starter to use for SB 2.3
+    skipCreation: true
+    name: RESTEasy
     isStarter: true
 
 cves:
-  - jiraProject: SB
-    issue: 1433
+  - jiraProject: ENTSBT
+    issue: 1010
+  - jiraProject: ENTSBT
+    issue: 1020

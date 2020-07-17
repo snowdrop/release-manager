@@ -4,49 +4,36 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import dev.snowdrop.jira.atlassian.model.Release;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class ValidateYAMLtoPojoTest {
-    private static String YAML =
-            "version: 2.3.0.RELEASE\n" +
-            "components:\n" +
-            " - jiraProject: EAPSUP\n" +
-            "   jiraTitle: Hibernate version to use for SB 2.3\n" +
-            "   name: hibernate\n" +
-            "   skipCreation: true\n" +
-            "   version: 5.0.15\n" +
-            "\n" +
-            " - jiraProject: RESTEASY\n" +
-            "   jiraTitle: New RESTEasy starter to use for SB 2.3\n" +
-            "   skipCreation: false\n" +
-            "   name: RESTEasy\n" +
-            "   isStarter: true\n" +
-            "\n" +
-            "cves:\n" +
-            "  - jiraProject: ENTSBT\n" +
-            "    issue: 1010\n" +
-            "  - jiraProject: ENTSBT\n" +
-            "    issue: 1020";
+
+    private static Release release;
+
+    @BeforeAll
+    public static void init() throws IOException {
+        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+        release = mapper.readValue(getFileFromResources("release.yaml"), Release.class);
+    }
 
     @Test
-    public void checkDataOfAComponentTest() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Release release = mapper.readValue(YAML, Release.class);
-
+    public void checkDataOfAComponentTest() {
         assertNotNull(release);
         assertEquals(release.getComponents().get(0).getVersion(),"5.0.15");
         assertEquals(release.getComponents().get(0).getJiraProject(),"EAPSUP");
-        assertEquals(release.getComponents().get(0).getName(),"hibernate");
+        assertEquals(release.getComponents().get(0).getName(),"Hibernate");
     }
 
     @Test
     public void checkIsAStarterTest() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Release release = mapper.readValue(YAML, Release.class);
-
         assertNotNull(release);
         assertEquals(release.getComponents().get(1).getJiraProject(),"RESTEASY");
         assertEquals(release.getComponents().get(1).getName(),"RESTEasy");
@@ -55,19 +42,13 @@ public class ValidateYAMLtoPojoTest {
 
     @Test
     public void checkSkipCreationTest() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Release release = mapper.readValue(YAML, Release.class);
-
         assertNotNull(release);
-        assertEquals(release.getComponents().get(0).getSkipCreation(),true);
-        assertEquals(release.getComponents().get(1).getSkipCreation(),false);
+        assertEquals(release.getComponents().get(0).getSkipCreation(),false);
+        assertEquals(release.getComponents().get(1).getSkipCreation(),true);
     }
 
     @Test
     public void checkCVEsTest() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
-        Release release = mapper.readValue(YAML, Release.class);
-
         assertNotNull(release);
         assertEquals(release.getCves().get(0).getJiraProject(),"ENTSBT");
         assertEquals(release.getCves().get(0).getIssue(),"1010");
@@ -76,6 +57,15 @@ public class ValidateYAMLtoPojoTest {
         assertEquals(release.getCves().get(1).getIssue(),"1020");
     }
 
+    // Get file from classpath, resources folder
+    private static File getFileFromResources(String fileName) {
+        ClassLoader classLoader = ValidateYAMLtoPojoTest.class.getClassLoader();
 
-
+        URL resource = classLoader.getResource(fileName);
+        if (resource == null) {
+            throw new IllegalArgumentException("file is not found!");
+        } else {
+            return new File(resource.getFile());
+        }
+    }
 }
