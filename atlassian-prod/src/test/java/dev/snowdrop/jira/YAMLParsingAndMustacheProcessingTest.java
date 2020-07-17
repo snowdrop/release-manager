@@ -33,18 +33,17 @@ public class YAMLParsingAndMustacheProcessingTest {
     private static void init() throws IOException {
         ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
         release = mapper.readValue(getFileFromResources(YAML_FILE), Release.class);
+        // Calculate additional fields such as DueDateFormatted
+        release.setDueDateFormatted(toDateTime(release.getDueDate()).toString("dd MMM YYYY"));
 
         MustacheFactory mf = new DefaultMustacheFactory();
         m = mf.compile(MUSTACHE_FILE);
     }
     @Test
-    public void issueDescriptionTest() throws URISyntaxException, IOException {
+    public void componentWithVersionDescriptionTest() throws URISyntaxException, IOException {
         // Fetch the expected response
         URL resource = YAMLParsingAndMustacheProcessingTest.class.getResource("/component_description.txt");
         String expected = Files.readString(Path.of(resource.toURI()));
-
-        // Calculate additional fields such as DueDateFormatted
-        release.setDueDateFormatted(toDateTime(release.getDueDate()).toString("dd MMM YYYY"));
 
         HashMap<String, Object> scopes = new HashMap<String, Object>();
         scopes.put("release", release);
@@ -52,12 +51,38 @@ public class YAMLParsingAndMustacheProcessingTest {
         Component c = release.getComponents().get(0);
         scopes.put("component", c);
 
-        if (! c.getIsStarter()) {
-            scopes.put("isComponent",true);
-            scopes.put("type","component");
-        } else {
+        if (c.getIsStarter()) {
             scopes.put("isStarter",true);
             scopes.put("type","starter");
+        } else {
+            scopes.put("isComponent",true);
+            scopes.put("type","component");
+        }
+
+        StringWriter writer = new StringWriter();
+        m.execute(writer, scopes).flush();
+        assertEquals(expected,writer.toString());
+    }
+
+    @Test
+    public void starterDescriptionTest() throws URISyntaxException, IOException {
+        // Fetch the expected response
+        URL resource = YAMLParsingAndMustacheProcessingTest.class.getResource("/starter_description.txt");
+        String expected = Files.readString(Path.of(resource.toURI()));
+
+        HashMap<String, Object> scopes = new HashMap<String, Object>();
+        scopes.put("release", release);
+
+        // Check release.yaml component list
+        Component c = release.getComponents().get(2);
+        scopes.put("component", c);
+
+        if (c.getIsStarter()) {
+            scopes.put("isStarter",true);
+            scopes.put("type","starter");
+        } else {
+            scopes.put("isComponent",true);
+            scopes.put("type","component");
         }
 
         StringWriter writer = new StringWriter();

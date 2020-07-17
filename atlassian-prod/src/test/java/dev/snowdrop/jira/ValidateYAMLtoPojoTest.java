@@ -35,9 +35,9 @@ public class ValidateYAMLtoPojoTest {
     @Test
     public void checkIsAStarterTest() throws JsonProcessingException {
         assertNotNull(release);
-        assertEquals(release.getComponents().get(1).getJiraProject(),"RESTEASY");
-        assertEquals(release.getComponents().get(1).getName(),"RESTEasy");
-        assertEquals(release.getComponents().get(1).getIsStarter(),true);
+        assertEquals(release.getComponents().get(2).getJiraProject(),"RESTEASY");
+        assertEquals(release.getComponents().get(2).getName(),"RESTEasy");
+        assertEquals(release.getComponents().get(2).getIsStarter(),true);
     }
 
     @Test

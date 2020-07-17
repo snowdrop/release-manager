@@ -7,14 +7,21 @@ dueDate:         2020-08-18
 eol:             September 2021
 
 components:
-  - jiraProject: EAPSUP
+  - # A versioned component
+    jiraProject: EAPSUP
     jiraTitle: Hibernate version to use for SB 2.3
     name: Hibernate
     version: 5.0.15
 
-  - jiraProject: RESTEASY
+  - # A component which should not be created
+    jiraProject: RESTEASY
     jiraTitle: New RESTEasy starter to use for SB 2.3
     skipCreation: true
+    name: RESTEasy
+
+  - # A non versioned starter
+    jiraProject: RESTEASY
+    jiraTitle: New RESTEasy starter to use for SB 2.3
     name: RESTEasy
     isStarter: true
 
