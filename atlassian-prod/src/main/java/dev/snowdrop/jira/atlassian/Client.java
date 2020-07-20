@@ -46,6 +46,8 @@ public class Client {
             case "delete-bulk" :
                 Service.deleteIssues(args.issues);
                 break;
+            default:
+                throw new RuntimeException("Unknown action: " + args.action);
         }
     }
 
