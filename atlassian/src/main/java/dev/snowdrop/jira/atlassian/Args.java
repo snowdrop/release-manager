@@ -12,7 +12,7 @@ public class Args {
     @Parameter(names = "-cfg", description = "YAML file path")
     public String cfg;
 
-    @Parameter(names = "-action", description = "Action to be performed: search, create, delete")
+    @Parameter(names = "-action", description = "Action to be performed: search, create, delete", required = true)
     public String action;
 
     @Parameter(names = "-issue", description = "JIRA Issue")
