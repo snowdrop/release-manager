@@ -9,18 +9,17 @@ import static dev.snowdrop.jira.atlassian.Utility.*;
 
 public class Client {
     private static final Logger LOG = Logger.getLogger(Client.class);
-    private static Args args;
 
     public static void main(String[] argv) {
         Client client = new Client();
-        args = new Args();
+        final Args args = new Args();
 
         JCommander.newBuilder()
                 .addObject(args)
                 .build()
                 .parse(argv);
 
-        client.init();
+        client.init(args);
 
         switch(args.action) {
             case "get" :
@@ -45,7 +44,7 @@ public class Client {
         }
     }
 
-    private void init() {
+    private void init(Args args) {
         try {
             readYaml(args.cfg, Issue.class);
 
