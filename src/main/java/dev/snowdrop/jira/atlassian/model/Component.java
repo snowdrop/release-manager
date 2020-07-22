@@ -17,9 +17,20 @@ public class Component {
     @JsonIgnore
     private List<Artifact> artifacts;
 
-    public String getTitle() {
-        return "TODO: Component title";
-    }
+	@JsonIgnore
+	private Release parent;
+
+	public Release getParent() {
+		return parent;
+	}
+
+	public void setParent(Release release) {
+		this.parent = release;
+	}
+
+	public String getTitle() {
+		return "TODO: Component title";
+	}
 
     public Issue getIssue() {
         return issue;
