@@ -106,20 +106,9 @@ public class Utility {
     public static String generateIssueDescription(Release r, Component c) {
         StringWriter writer = new StringWriter();
 
-        // Calculate additional fields such as DueDate
-        r.setDueDateFormatted(toDateTime(r.getDueDate()).toString("dd MMM YYYY"));
-
         HashMap<String, Object> scopes = new HashMap<String, Object>();
         scopes.put("release", r);
         scopes.put("component", c);
-
-        if (!c.getIsStarter()) {
-            scopes.put("isComponent", true);
-            scopes.put("type", "component");
-        } else {
-            scopes.put("isStarter", true);
-            scopes.put("type", "starter");
-        }
 
         try {
             m.execute(writer, scopes).flush();
@@ -167,5 +156,10 @@ public class Utility {
 
     public static DateTime toDateTime(String dateTimeSt) {
         return dateTimeParser.parseDateTime(dateTimeSt);
+    }
+
+    public static String getFormatted(String dateTimeSt) {
+        final DateTime jodaDate = toDateTime(dateTimeSt);
+        return jodaDate.toString("dd MMM YYYY");
     }
 }
