@@ -25,7 +25,7 @@ public class Args {
     public String toIssue;
 
     @Parameter(names = "-url", description = "URL of the JIRA server")
-    public String jiraServerUri;
+    public String jiraServerUri = "https://issues.redhat.com";
 
     @Parameter(names = "-user", description = "JIRA User", required = true)
     public String user;
