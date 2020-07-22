@@ -1,50 +1,28 @@
 package dev.snowdrop.jira.atlassian.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class Release {
-	private String jiraProject;
-	private String jiraKey;
-	private String version;
-	private String longVersionName;
-	private String fixVersion;
-	private String EOL;
-	private String releaseDate;
-	private String dueDate;
-	private String dueDateFormatted;
+	@JsonProperty
+	private Issue issue;
+	@JsonProperty
+	private Schedule schedule;
+	@JsonProperty
 	private List<Component> components;
+	@JsonProperty
 	private List<Cve> cves;
+	@JsonIgnore
+	private String version;
 
 	public String getLongVersionName() {
-		return longVersionName;
-	}
-
-	public void setLongVersionName(String longVersionName) {
-		this.longVersionName = longVersionName;
-	}
-
-	public String getDueDateFormatted() {
-		return dueDateFormatted;
-	}
-
-	public void setDueDateFormatted(String dueDateFormatted) {
-		this.dueDateFormatted = dueDateFormatted;
+		return "[Spring Boot " + version + "] Release steps CR [" + schedule.getFormattedReleaseDate() + "]";
 	}
 
 	public String getJiraKey() {
-		return jiraKey;
-	}
-
-	public void setJiraKey(String jiraKey) {
-		this.jiraKey = jiraKey;
-	}
-
-	public String getJiraProject() {
-		return jiraProject;
-	}
-
-	public void setJiraProject(String jiraProject) {
-		this.jiraProject = jiraProject;
+		return issue.getKey();
 	}
 
 	public String getVersion() {
@@ -55,51 +33,15 @@ public class Release {
 		this.version = version;
 	}
 
-	public String getFixVersion() {
-		return fixVersion;
-	}
-
-	public void setFixVersion(String fixVersion) {
-		this.fixVersion = fixVersion;
-	}
-
-	public String getReleaseDate() {
-		return releaseDate;
-	}
-
-	public void setReleaseDate(String releaseDate) {
-		this.releaseDate = releaseDate;
-	}
-
-	public String getEOL() {
-		return EOL;
-	}
-
-	public void setEOL(String EOL) {
-		this.EOL = EOL;
-	}
-
-	public String getDueDate() {
-		return dueDate;
-	}
-
-	public void setDueDate(String dueDate) {
-		this.dueDate = dueDate;
-	}
-
 	public List<Component> getComponents() {
 		return components;
-	}
-
-	public void setComponents(List<Component> components) {
-		this.components = components;
 	}
 
 	public List<Cve> getCves() {
 		return cves;
 	}
 
-	public void setCves(List<Cve> cves) {
-		this.cves = cves;
+	public Schedule getSchedule() {
+		return schedule;
 	}
 }

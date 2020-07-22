@@ -1,62 +1,35 @@
 package dev.snowdrop.jira.atlassian.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.jira.atlassian.POMParser;
+
+import java.util.LinkedList;
+import java.util.List;
+
 public class Component {
-    private String jiraProject;
-    private String jiraTitle;
-    private String name;
-    private String version;
-    private Boolean isStarter = false;
-    private Boolean skipCreation = false;
+    @JsonProperty
+    private Issue issue;
 
-    public Boolean getSkipCreation() {
-        return skipCreation;
+    @JsonProperty
+    private List<String> properties;
+
+    @JsonIgnore
+    private List<Artifact> artifacts;
+
+    public String getTitle() {
+        return "TODO: Component title";
     }
 
-    public void setSkipCreation(Boolean skipCreation) {
-        if (skipCreation != null) {
-            this.skipCreation = skipCreation;
+    public Issue getIssue() {
+        return issue;
+    }
+
+    public List<Artifact> getArtifacts() {
+        artifacts = new LinkedList<>();
+        for (String property : properties) {
+            artifacts.addAll(POMParser.getArtifactsWith(property));
         }
-    }
-
-    public String getJiraTitle() {
-        return jiraTitle;
-    }
-
-    public void setJiraTitle(String jiraTitle) {
-        this.jiraTitle = jiraTitle;
-    }
-
-    public String getJiraProject() {
-        return jiraProject;
-    }
-
-    public void setJiraProject(String jiraProject) {
-        this.jiraProject = jiraProject;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public Boolean getIsStarter() {
-        return isStarter;
-    }
-
-    public void setIsStarter(Boolean isStarter) {
-        if (isStarter != null) {
-            this.isStarter = isStarter;
-        }
+        return artifacts;
     }
 }

@@ -3,6 +3,8 @@ package dev.snowdrop.jira;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import dev.snowdrop.jira.atlassian.model.Artifact;
+import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -27,25 +30,28 @@ public class ValidateYAMLtoPojoTest {
 	@Test
 	public void checkDataOfAComponentTest() {
 		assertNotNull(release);
-		assertEquals(release.getComponents().get(0).getVersion(), "5.0.15");
-		assertEquals(release.getComponents().get(0).getJiraProject(), "EAPSUP");
-		assertEquals(release.getComponents().get(0).getName(), "Hibernate");
+		final Component component = release.getComponents().get(0);
+		/*
+		org.hibernate:hibernate-core:5.4.14.Final
+		org.hibernate:hibernate-entitymanager:5.4.14.Final
+		 org.hibernate.validator:hibernate-validator:6.0.18.Final
+		 */
+
+		final List<Artifact> artifacts = component.getArtifacts();
+		assertEquals(3, artifacts.size());
+
+		final String hibernateVersion = "5.4.14.Final";
+		checkArtifact(artifacts, 0, "org.hibernate:hibernate-core", hibernateVersion);
+		checkArtifact(artifacts, 1, "org.hibernate:hibernate-entitymanager", hibernateVersion);
+		checkArtifact(artifacts, 2, "org.hibernate.validator:hibernate-validator", "6.0.18.Final");
 	}
 
-	@Test
-	public void checkIsAStarterTest() throws JsonProcessingException {
-		assertNotNull(release);
-		assertEquals(release.getComponents().get(2).getJiraProject(), "RESTEASY");
-		assertEquals(release.getComponents().get(2).getName(), "RESTEasy");
-		assertEquals(release.getComponents().get(2).getIsStarter(), true);
+	private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {
+		final Artifact artifact = artifacts.get(index);
+		assertEquals(expectedName, artifact.getName());
+		assertEquals(expectedVersion, artifact.getVersion());
 	}
 
-	@Test
-	public void checkSkipCreationTest() throws JsonProcessingException {
-		assertNotNull(release);
-		assertEquals(release.getComponents().get(0).getSkipCreation(), false);
-		assertEquals(release.getComponents().get(1).getSkipCreation(), true);
-	}
 
 	@Test
 	public void checkCVEsTest() throws JsonProcessingException {

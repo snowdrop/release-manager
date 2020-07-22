@@ -1,29 +1,40 @@
-jiraProject:     SB
-jiraKey:         # SB-1484
-version:         2.3.0.RELEASE
-longVersionName: "[Spring Boot 2.4.0] Release steps CR [Q1-2121]"
-releaseDate:     September 1st 2020
-dueDate:         2020-08-18
-eol:             September 2021
+# JIRA Project code where the release issue should be created
+issue:
+  project: SB
+
+
+# If already created, provide the issue number of the Release, otherwise keep it empty.
+# It will be used by the command create-component to link the stakeholder issues
+#key:         # SB-1484
+
+# Long version name used to create the title of the release issue
+# longVersionName: "[Spring Boot 2.3.0] Release steps CR [Q3-2020]"
+
+schedule:
+  # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
+  release: 2020-09-14
+  # Due date for the component/starter owner to release their new components, QE signoff it
+  due: 2020-08-18
+  # EOL of the Snowdrop release
+  eol: 2021-09-30
 
 components:
-  - # A versioned component
-    jiraProject: EAPSUP
-    jiraTitle: Hibernate version to use for SB 2.3
-    name: Hibernate
-    version: 5.0.15
-
-  - # A component which should not be created
-    jiraProject: RESTEASY
-    jiraTitle: New RESTEasy starter to use for SB 2.3
-    skipCreation: true
-    name: RESTEasy
-
-  - # A non versioned starter
-    jiraProject: RESTEASY
-    jiraTitle: New RESTEasy starter to use for SB 2.3
-    name: RESTEasy
-    isStarter: true
+  # List of JIRA Projects contributing to a Snowdrop release
+  # They will be used to create a component or starter
+  #
+  # https://issues.redhat.com/projects/KEYCLOAK/issues/
+  # https://issues.redhat.com/projects/JWS/issues
+  # https://issues.redhat.com/projects/JDG/issues
+  # https://issues.redhat.com/projects/RESTEASY/issues
+  # https://issues.redhat.com/projects/TRACING/issues
+  # https://issues.redhat.com/projects/EAPSUP/issues
+  # https://issues.redhat.com/projects/ENTMQCL/issues
+  #
+  - issue:
+      project: SB
+    properties:
+      - hibernate
+      - hibernate-validator
 
 cves:
   - jiraProject: ENTSBT

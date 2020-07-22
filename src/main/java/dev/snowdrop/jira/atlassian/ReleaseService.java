@@ -79,13 +79,12 @@ public class ReleaseService extends Service {
 		Release release = (Release) pojo;
 
 		for (Component component : release.getComponents()) {
-			if (!component.getSkipCreation()) {
-				IssueInputBuilder iib = new IssueInputBuilder();
-				iib.setProjectKey(component.getJiraProject());
-				iib.setSummary(component.getJiraTitle());
-				iib.setDescription(generateIssueDescription(release, component));
-				iib.setIssueType(TASK_TYPE());
-				iib.setDueDate(toDateTime(release.getDueDate()));
+			IssueInputBuilder iib = new IssueInputBuilder();
+			iib.setProjectKey(component.getIssue().getProject());
+			iib.setSummary(component.getTitle());
+			iib.setDescription(generateIssueDescription(release, component));
+			iib.setIssueType(TASK_TYPE());
+			iib.setDueDate(toDateTime(release.getSchedule().getDueDate()));
                 /*
                  TODO: To be investigated
 
@@ -98,17 +97,16 @@ public class ReleaseService extends Service {
                  iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
                 */
 
-				IssueInput issue = iib.build();
-				BasicIssue newIssue = cl.createIssue(issue).claim();
-				LOG.infof("Issue %s created successfully", newIssue.getKey());
+			IssueInput issue = iib.build();
+			BasicIssue newIssue = cl.createIssue(issue).claim();
+			LOG.infof("Issue %s created successfully", newIssue.getKey());
 
-				/*
-				 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
-				 * release issue
-				 */
-				if (release.getJiraKey() != null) {
-					linkIssues(release.getJiraKey(), newIssue.getKey());
-				}
+			/*
+			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
+			 * release issue
+			 */
+			if (release.getJiraKey() != null) {
+				linkIssues(release.getJiraKey(), newIssue.getKey());
 			}
 		}
 	}
