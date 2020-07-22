@@ -2,7 +2,6 @@ package dev.snowdrop.jira.atlassian.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.snowdrop.jira.atlassian.POMParser;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -40,7 +39,7 @@ public class Component {
 
 	public List<Artifact> getArtifacts() {
 		this.artifacts = new LinkedList<>();
-		final Map<String, List<Artifact>> artifacts = POMParser.getArtifacts();
+		final Map<String, List<Artifact>> artifacts = parent.getPOM().getArtifacts();
 		for (String property : properties) {
 			this.artifacts.addAll(artifacts.getOrDefault(property, Collections.emptyList()));
 		}

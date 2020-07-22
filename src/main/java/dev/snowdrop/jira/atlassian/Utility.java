@@ -41,6 +41,9 @@ public class Utility {
         }
     }
 
+    // jackson databind
+    public static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
+
     public static void initRestClient(String jiraServerUri, String user, String password) {
         AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
         restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(jiraServerUri), user, password);
@@ -94,9 +97,8 @@ public class Utility {
     }
 
     public static void readYaml(String path, Class<?> clazz) {
-        ObjectMapper mapper = new ObjectMapper(new YAMLFactory()); // jackson databind
         try {
-            pojo = mapper.readValue(new File(path), clazz);
+            pojo = MAPPER.readValue(new File(path), clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }

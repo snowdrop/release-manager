@@ -3,7 +3,12 @@ package dev.snowdrop.jira.atlassian.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.List;
+
+import static dev.snowdrop.jira.atlassian.Utility.MAPPER;
 
 public class Release {
 	@JsonProperty
@@ -15,10 +20,30 @@ public class Release {
 	@JsonProperty
 	private List<Cve> cves;
 	@JsonIgnore
-	private String version;
+	private String gitRef;
+	@JsonIgnore
+	private POM pom;
+
+	/**
+	 * @param gitRef a GitHub reference in the form org/project/reference e.g. metacosm/spring-boot-bom/release-integration
+	 * @return
+	 * @throws Exception
+	 */
+	public static Release createFromGitRef(String gitRef) throws Exception {
+		try (InputStream inputStream = getStreamFromGitRef(gitRef, "release.yml")) {
+			final Release release = MAPPER.readValue(inputStream, Release.class);
+			release.setGitRef(gitRef);
+			return release;
+		}
+	}
+
+	private static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
+		URI uri = URI.create("https://raw.githubusercontent.com/" + gitRef + "/" + relativePath);
+		return uri.toURL().openStream();
+	}
 
 	public String getLongVersionName() {
-		return "[Spring Boot " + version + "] Release steps CR [" + schedule.getFormattedReleaseDate() + "]";
+		return "[Spring Boot " + getVersion() + "] Release steps CR [" + schedule.getFormattedReleaseDate() + "]";
 	}
 
 	public String getJiraKey() {
@@ -26,11 +51,7 @@ public class Release {
 	}
 
 	public String getVersion() {
-		return version;
-	}
-
-	public void setVersion(String version) {
-		this.version = version;
+		return getPOM().getVersion();
 	}
 
 	public List<Component> getComponents() {
@@ -45,5 +66,24 @@ public class Release {
 
 	public Schedule getSchedule() {
 		return schedule;
+	}
+
+	public String getGitRef() {
+		return gitRef;
+	}
+
+	private void setGitRef(String gitRef) {
+		this.gitRef = gitRef;
+	}
+
+	public POM getPOM() {
+		if (pom == null) {
+			try (InputStream is = getStreamFromGitRef(gitRef, "pom.xml")) {
+				this.pom = POM.createFrom(is);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return pom;
 	}
 }
