@@ -31,6 +31,8 @@ public class ValidateYAMLtoPojoTest {
 	public void checkDataOfAComponentTest() {
 		assertNotNull(release);
 		final Component component = release.getComponents().get(0);
+
+		assertNotNull(component.getParent());
 		/*
 		org.hibernate:hibernate-core:5.4.14.Final
 		org.hibernate:hibernate-entitymanager:5.4.14.Final

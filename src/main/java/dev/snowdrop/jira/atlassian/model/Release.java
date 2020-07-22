@@ -34,6 +34,8 @@ public class Release {
 	}
 
 	public List<Component> getComponents() {
+		// make sure that the parent is properly set, could probably be optimized if needed
+		components.forEach(c -> c.setParent(this));
 		return components;
 	}
 
