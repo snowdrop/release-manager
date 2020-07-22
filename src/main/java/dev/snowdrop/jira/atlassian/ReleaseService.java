@@ -26,57 +26,54 @@ public class ReleaseService extends Service {
 	 * If CVEs have been defined within the Release YAML, then we will link them also as blocking links to the release issue
 	 *
 	 */
-	public static void cloneIssue(String issueToClone) {
+	public static void cloneIssue(Args args) {
 		final IssueRestClient cl = restClient.getIssueClient();
-		Issue issue = cl.getIssue(issueToClone).claim();
-		Release release = (Release) pojo;
-		if (issueToClone != null) {
-			// Create the cloned task
-			IssueInputBuilder iib = new IssueInputBuilder();
-			iib.setProjectKey(issue.getProject().getKey());
-			iib.setDescription(issue.getDescription());
-			iib.setSummary(release.getLongVersionName());
-			iib.setIssueType(TASK_TYPE());
-			IssueInput ii = iib.build();
-			BasicIssue issueCloned = cl.createIssue(ii).claim();
-			LOG.infof("Issue cloned: %s", issueCloned.getKey());
+		Issue issue = cl.getIssue(args.issue).claim();
+		Release release = Release.createFromGitRef(args.gitRef);
+		// Create the cloned task
+		IssueInputBuilder iib = new IssueInputBuilder();
+		iib.setProjectKey(issue.getProject().getKey());
+		iib.setDescription(issue.getDescription());
+		iib.setSummary(release.getLongVersionName());
+		iib.setIssueType(TASK_TYPE());
+		IssueInput ii = iib.build();
+		BasicIssue issueCloned = cl.createIssue(ii).claim();
+		LOG.infof("Issue cloned: %s", issueCloned.getKey());
 
-			// Check if CVEs exist within the Release and link them to the new release ticket created
-			for (Cve cve : release.getCves()) {
-				linkIssues(issueCloned.getKey(), cve.getJiraProject() + "-" + cve.getIssue());
-			}
+		// Check if CVEs exist within the Release and link them to the new release ticket created
+		for (Cve cve : release.getCves()) {
+			linkIssues(issueCloned.getKey(), cve.getJiraProject() + "-" + cve.getIssue());
+		}
 
-			// Get the list of the sub-tasks
-			Iterable<Subtask> subTasks = issue.getSubtasks();
-			if (CollectionSize(subTasks) > 0) {
-				for (Subtask subtask : subTasks) {
-					// Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
-					Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
-					if (fetchSubTask != null) {
-						// Create a sub-task that we will link to the parent
-						iib = new IssueInputBuilder();
-						iib.setProjectKey(issue.getProject().getKey());
-						iib.setSummary(subtask.getSummary());
-						iib.setIssueType(subtask.getIssueType());
-						if (fetchSubTask.getAssignee() != null) {
-							iib.setAssignee(fetchSubTask.getAssignee());
-						}
-						iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", issueCloned.getKey()));
-						ii = iib.build();
-						BasicIssue subTaskIssue = cl.createIssue(ii).claim();
-						LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
+		// Get the list of the sub-tasks
+		Iterable<Subtask> subTasks = issue.getSubtasks();
+		if (CollectionSize(subTasks) > 0) {
+			for (Subtask subtask : subTasks) {
+				// Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
+				Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
+				if (fetchSubTask != null) {
+					// Create a sub-task that we will link to the parent
+					iib = new IssueInputBuilder();
+					iib.setProjectKey(issue.getProject().getKey());
+					iib.setSummary(subtask.getSummary());
+					iib.setIssueType(subtask.getIssueType());
+					if (fetchSubTask.getAssignee() != null) {
+						iib.setAssignee(fetchSubTask.getAssignee());
 					}
+					iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", issueCloned.getKey()));
+					ii = iib.build();
+					BasicIssue subTaskIssue = cl.createIssue(ii).claim();
+					LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
 				}
 			}
-
-		} else {
-			LOG.warnf("Issue to be cloned not found : %s !", issueToClone);
 		}
+
 	}
 
-	public static void createComponentIssues() {
+	public static void createComponentIssues(Args args) {
 		final IssueRestClient cl = restClient.getIssueClient();
-		Release release = (Release) pojo;
+
+		final Release release = Release.createFromGitRef(args.gitRef);
 
 		for (Component component : release.getComponents()) {
 			IssueInputBuilder iib = new IssueInputBuilder();

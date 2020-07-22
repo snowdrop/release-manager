@@ -25,11 +25,11 @@ public class Client {
                 break;
 
             case "create-component":
-                ReleaseService.createComponentIssues();
+                ReleaseService.createComponentIssues(args);
                 break;
 
             case "clone":
-                ReleaseService.cloneIssue(args.issue);
+                ReleaseService.cloneIssue(args);
                 break;
 
             case "link":
