@@ -14,36 +14,43 @@
 package dev.snowdrop.jira.atlassian;
 
 import dev.snowdrop.jira.atlassian.model.Artifact;
+import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class POMParser {
-	public static List<Artifact> getArtifactsWith(String property) {
+	public static Map<String, List<Artifact>> getArtifacts() {
 		try {
 			MavenXpp3Reader mavenreader = new MavenXpp3Reader();
 			final URL resource = POMParser.class.getClassLoader().getResource("pom.xml");
 			final InputStream inputStream = resource.openStream();
 			Model model = mavenreader.read(inputStream);
 
-			final String versionProp = property + ".version";
-			final String version = model.getProperties().get(versionProp).toString();
+			final Properties properties = model.getProperties();
+			final List<Dependency> dependencies = model.getDependencyManagement().getDependencies();
+			final Map<String, List<Artifact>> result = new HashMap<>(dependencies.size());
+			for (Map.Entry<Object, Object> prop : properties.entrySet()) {
+				final String key = prop.getKey().toString();
+				final String version = prop.getValue().toString();
+				final List<Artifact> artifacts = dependencies.stream()
+						.filter(d -> d.getVersion().contains(key))
+						.map(d -> new Artifact(d.getGroupId(), d.getArtifactId(), version))
+						.collect(Collectors.toList());
+				result.put(key.substring(0, key.indexOf(".version")), artifacts);
+			}
 
-			return model.getDependencyManagement().getDependencies().stream()
-					.filter(d -> d.getVersion().contains(versionProp))
-					.map(d -> new Artifact(d.getGroupId(), d.getArtifactId(), version))
-					.collect(Collectors.toList());
+			return result;
 
 		} catch (Exception e) {
-			return Collections.emptyList();
+			return Collections.emptyMap();
 		}
 	}
 }
