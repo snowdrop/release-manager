@@ -29,8 +29,14 @@ public class Component {
 		this.parent = release;
 	}
 
+	public String getName() {
+		// TODO: fix me
+		final String s = properties.get(0);
+		return s.substring(0, 1).toUpperCase() + s.substring(1);
+	}
+
 	public String getTitle() {
-		return "TODO: Component title";
+		return getName() + " compatibility information for Spring Boot " + parent.getVersion();
 	}
 
 	public Issue getIssue() {

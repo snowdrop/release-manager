@@ -39,4 +39,8 @@ public class Schedule {
 	public String getDueDate() {
 		return due;
 	}
+
+	public String getFormattedEOL() {
+		return getFormatted(eol);
+	}
 }

@@ -1,20 +1,24 @@
-The Snowdrop team is really pleased to inform you that we're planning to release a new Snowdrop BOM on {{release.date}} based on Spring Boot *{{release.version}}*.
+The Snowdrop team is really pleased to inform you that we're planning to release a new Snowdrop BOM on {{release
+.schedule.release}} based on Spring Boot *{{release.version}}*.
 
 We, however, cannot release a new version without your support as Red Hat's Spring Boot stack relies on supported versions for the following artifact(s)
 that are currently owned by your project:
-* {{component.name}}
-* artifact 2 TODO
-* ...
+{{#component.artifacts}}
+    * {{name}} (upstream version is {{version}})
+{{/component.artifacts}}
 
-We expect to start testing our new release based on Spring Boot {{release.version}} on *{{release.dueDateFormatted}}*. We will support this new release until
-{{release.EOL}} and therefore require compatibility and support statement from your team for this Spring Boot version in the form of the following information:
+
+We expect to start testing our new release based on Spring Boot {{release.version}} on *{{release.schedule.formattedDueDate}}*.
+
+We will support this new release until *{{release.schedule.formattedEOL}}* and therefore require compatibility and support
+statement from your team for this Spring Boot version in the form of the following information:
 - Product name and version (e.g. JWS - 5.3.1)
 - Date of end of support
 - Supported artifact GAV (if changed) or simply version (if name hasn't changed) (e.g. org.apache.tomcat.embed:tomcat-embed-core:9.0.30-redhat-00001)
 - PNC/Indy URL (e.g. [http://indy.psi.redhat.com/browse/maven/]...)
 - MRRC URL, if already released (e.g. [https://maven.repository.redhat.com/ga/]...)
 
-Not that we don't require a new release of your product as long as the artifacts you provide us with are tested and supported on Spring Boot {{release.version}}
-until {{release.EOL}}.
+Not that we don't require a new release of your product as long as the artifacts you provide us with are tested and
+supported on Spring Boot *{{release.version}}* until *{{release.schedule.formattedEOL}}*.
 
 Thank you in advance for your help!
