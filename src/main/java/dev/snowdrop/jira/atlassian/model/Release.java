@@ -29,11 +29,13 @@ public class Release {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Release createFromGitRef(String gitRef) throws Exception {
+	public static Release createFromGitRef(String gitRef) {
 		try (InputStream inputStream = getStreamFromGitRef(gitRef, "release.yml")) {
 			final Release release = MAPPER.readValue(inputStream, Release.class);
 			release.setGitRef(gitRef);
 			return release;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
