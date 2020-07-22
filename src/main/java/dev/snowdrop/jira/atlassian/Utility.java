@@ -15,7 +15,10 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -27,7 +30,6 @@ public class Utility {
     private static final String MUSTACHE_PATH = "etc/description.mustache";
     private static DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser();
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
-    public static Object pojo;
     public static JiraRestClient restClient;
     public static Mustache m;
 
@@ -90,14 +92,6 @@ public class Utility {
             return URI.create(uri);
         } else {
             return URI.create("https://issues.redhat.com/");
-        }
-    }
-
-    public static void readYaml(String path, Class<?> clazz) {
-        try {
-            pojo = MAPPER.readValue(new File(path), clazz);
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 

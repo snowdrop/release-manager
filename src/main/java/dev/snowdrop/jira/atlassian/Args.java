@@ -32,4 +32,7 @@ public class Args {
 
     @Parameter(names = "-password", description = "JIRA password", password = true, required = true)
     public String password;
+
+    @Parameter(names = "-git", description = "GitHub reference")
+    public String gitRef;
 }
