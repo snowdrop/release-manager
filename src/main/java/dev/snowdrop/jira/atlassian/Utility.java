@@ -21,7 +21,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class Utility {
     private static final Logger LOG = Logger.getLogger(Service.class);
@@ -49,10 +48,8 @@ public class Utility {
         restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(jiraServerUri), user, password);
         try {
             restClient.getSessionClient().getCurrentSession().get().getLoginInfo().getFailedLoginCount();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            LOG.error(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

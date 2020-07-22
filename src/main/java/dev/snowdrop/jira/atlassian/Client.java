@@ -1,11 +1,9 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.beust.jcommander.JCommander;
-import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
 import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
-import static dev.snowdrop.jira.atlassian.Utility.readYaml;
 
 public class Client {
     private static final Logger LOG = Logger.getLogger(Client.class);
@@ -52,14 +50,11 @@ public class Client {
 
     private void init(Args args) {
         try {
-            // Parse the Release YAML config
-            readYaml(args.cfg, Release.class);
-
             // Create JIRA authenticated client
             initRestClient(args.jiraServerUri, args.user, args.password);
 
         } catch (Exception e) {
-            LOG.error(e);
+            throw new RuntimeException(e);
         }
     }
 
