@@ -10,7 +10,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import dev.snowdrop.jira.atlassian.model.Component;
-import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -103,11 +102,11 @@ public class Utility {
         }
     }
 
-    public static String generateIssueDescription(Release r, Component c) {
+    public static String generateIssueDescription(Component c) {
         StringWriter writer = new StringWriter();
 
-        HashMap<String, Object> scopes = new HashMap<String, Object>();
-        scopes.put("release", r);
+        HashMap<String, Object> scopes = new HashMap<>();
+        scopes.put("release", c.getParent());
         scopes.put("component", c);
 
         try {
