@@ -26,19 +26,43 @@ Instructions:
 mvn clean package 
 ```
 
-### Create JIRA "Component/starter" issues
+### Release definition
+
+A release metadata is captured in a `release.yml` file. This metadata links the release to the components that
+constitute it. This, in particular, allows for automated creation of stakeholder issue marking the beginning of a
+new release cycle.
+
+The `release.yml` file lives in the `snowdrop/spring-boot-bom` repository right next to the `pom.xml` file so that they
+can evolve concurrently as needed and be kept in sync. This file should be updated each time the team starts working
+ on a new release.
+ 
+An example of such `release.yml` can be found at: https://github.com/metacosm/spring-boot-bom/blob/release-integration/release.yml
+
+### Create JIRA stakeholder request issues
 
 To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command: 
 ```bash
 java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
-    -cfg etc/release.yaml \
+    -password JBOSS_JIRA_PWD 
     -action create-component \
-    -url https://issues.redhat.com
+    -git <github org>/<github repo>/<git reference: branch, tag, hash> 
 ```
 
-**IMPORTANT**: If the `release.yaml` includes a `jiraKey` field, then the newly component issue created will be linked to the Release Issue !
+This will parse the `release.yml` file found at the specified git reference, retrieve all the defined components
+, retrieve their associated version from the Snowdrop `pom.xml` and create a corresponding JIRA issue in the
+ appropriate JIRA project. If `release.yml` includes a `key` field in its main `issue` field, this key is used to
+  identify the main release issue to which the component requests tickets will be linked.
+
+Each component is identified by its associated JIRA project name (which is used to create the corresponding JIRA
+request) and a set of properties used to identify which artifacts are linked to this particular component. The
+name of the component's properties follow the name version properties defined in the POM. For example, for Hibernate,
+the version property is named `hibernate.version` and the associated component property is named `hibernate` 
+(`issues-manager` takes care of matching that property to the one used in the POM). If we also want to associate
+other properties to the same component, we can add more. For example, the Hibernate component is associated with
+the `hibernate-validator` property.
+       
+**IMPORTANT**: 
 
 ### Link JIRA issues to a parent
 
