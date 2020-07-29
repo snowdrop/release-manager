@@ -49,11 +49,16 @@ public class ReleaseTest {
 		checkArtifact(artifacts, 1, "org.hibernate:hibernate-entitymanager", hibernateVersion);
 		checkArtifact(artifacts, 2, "org.hibernate.validator:hibernate-validator", "6.0.18.Final");
 
-		assertEquals(release.getCves().get(0).getJiraProject(), "ENTSBT");
-		assertEquals(release.getCves().get(0).getIssue(), "1010");
+		final List<Issue> cves = release.getCves();
+		assertEquals(4, cves.size());
 
-		assertEquals(release.getCves().get(1).getJiraProject(), "ENTSBT");
-		assertEquals(release.getCves().get(1).getIssue(), "1020");
+		Issue cve = cves.get(0);
+		assertEquals(cve.getProject(), "ENTSBT");
+		assertEquals(cve.getKey(), "360");
+
+		cve = cves.get(1);
+		assertEquals(cve.getProject(), "ENTSBT");
+		assertEquals(cve.getKey(), "316");
 	}
 
 	private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {

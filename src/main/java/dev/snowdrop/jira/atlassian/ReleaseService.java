@@ -9,7 +9,6 @@ import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
 import dev.snowdrop.jira.atlassian.model.Component;
-import dev.snowdrop.jira.atlassian.model.Cve;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
@@ -50,8 +49,8 @@ public class ReleaseService extends Service {
 		}
 
 		// Check if CVEs exist within the Release and link them to the new release ticket created
-		for (Cve cve : release.getCves()) {
-			linkIssues(clonedIssueKey, cve.getJiraProject() + "-" + cve.getIssue());
+		for (dev.snowdrop.jira.atlassian.model.Issue cve : release.getCves()) {
+			linkIssues(clonedIssueKey, cve.getProject() + "-" + cve.getKey());
 		}
 
 		// Get the list of the sub-tasks

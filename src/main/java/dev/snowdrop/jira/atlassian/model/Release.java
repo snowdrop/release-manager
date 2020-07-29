@@ -18,7 +18,7 @@ public class Release {
 	@JsonProperty
 	private List<Component> components;
 	@JsonProperty
-	private List<Cve> cves;
+	private List<Issue> cves;
 	@JsonIgnore
 	private String gitRef;
 	@JsonIgnore
@@ -62,7 +62,7 @@ public class Release {
 		return components;
 	}
 
-	public List<Cve> getCves() {
+	public List<Issue> getCves() {
 		return cves;
 	}
 

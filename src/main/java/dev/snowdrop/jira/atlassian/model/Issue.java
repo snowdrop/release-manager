@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Issue {
+	public static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
 	@JsonProperty
 	private String project;
 	@JsonProperty
@@ -29,6 +30,9 @@ public class Issue {
 	}
 
 	public String getProject() {
+		if (project == null || project.isBlank()) {
+			return DEFAULT_JIRA_PROJECT;
+		}
 		return project;
 	}
 }
