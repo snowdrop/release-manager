@@ -33,7 +33,7 @@ public class Component {
 	}
 
 	public String getName() {
-		if (name == null || "".equals(name)) {
+		if (name == null || name.isBlank()) {
 			// infer name from first listed property
 			final String s = properties.get(0);
 			return s.substring(0, 1).toUpperCase() + s.substring(1);
