@@ -7,6 +7,7 @@ import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
+import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
 import dev.snowdrop.jira.atlassian.model.Component;
 import dev.snowdrop.jira.atlassian.model.Cve;
 import dev.snowdrop.jira.atlassian.model.Release;
@@ -28,7 +29,8 @@ public class ReleaseService extends Service {
 	 */
 	public static void cloneIssue(Args args) {
 		final IssueRestClient cl = restClient.getIssueClient();
-		Issue issue = cl.getIssue(args.issue).claim();
+		final String toCloneFrom = args.issue != null ? args.issue : "ENTSBT-323";
+		Issue issue = cl.getIssue(toCloneFrom).claim();
 		Release release = Release.createFromGitRef(args.gitRef);
 		// Create the cloned task
 		IssueInputBuilder iib = new IssueInputBuilder();
