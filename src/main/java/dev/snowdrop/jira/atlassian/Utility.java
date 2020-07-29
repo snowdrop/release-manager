@@ -10,7 +10,6 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 import dev.snowdrop.jira.atlassian.model.Component;
-import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -26,9 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class Utility {
-    private static final Logger LOG = Logger.getLogger(Service.class);
     private static final String MUSTACHE_PATH = "etc/description.mustache";
-    private static DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser();
+    private static final DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser();
+    public static final String JIRA_SERVER = "https://issues.redhat.com/";
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static JiraRestClient restClient;
     public static Mustache m;
@@ -153,5 +152,9 @@ public class Utility {
     public static String getFormatted(String dateTimeSt) {
         final DateTime jodaDate = toDateTime(dateTimeSt);
         return jodaDate.toString("dd MMM YYYY");
+    }
+
+    public static String getURLFor(String issueKey) {
+        return JIRA_SERVER + "browse/" + issueKey;
     }
 }

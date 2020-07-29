@@ -41,7 +41,7 @@ public class ReleaseService extends Service {
 		IssueInput ii = iib.build();
 		BasicIssue issueCloned = cl.createIssue(ii).claim();
 		final String clonedIssueKey = issueCloned.getKey();
-		LOG.infof("Issue cloned: %s", clonedIssueKey);
+		LOG.infof("Issue cloned: %s", getURLFor(clonedIssueKey));
 
 		try {
 			cl.linkIssue(new LinkIssuesInput(clonedIssueKey, toCloneFrom, "Cloners")).claim();
@@ -105,7 +105,7 @@ public class ReleaseService extends Service {
 
 			IssueInput issue = iib.build();
 			BasicIssue newIssue = cl.createIssue(issue).claim();
-			LOG.infof("Issue %s created successfully", newIssue.getKey());
+			LOG.infof("Issue %s created successfully", getURLFor(newIssue.getKey()));
 
 			/*
 			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the

@@ -7,6 +7,7 @@ import org.jboss.logging.Logger;
 
 import java.util.List;
 
+import static dev.snowdrop.jira.atlassian.Utility.getURLFor;
 import static dev.snowdrop.jira.atlassian.Utility.restClient;
 
 public class Service {
@@ -20,7 +21,7 @@ public class Service {
         } catch (Exception e) {
             LOG.errorf("CVE issue not found: %s", toIssue);
         }
-        LOG.infof("Linked the issue %s with the blocking issue %s", fromIssue, toIssue);
+        LOG.infof("Linked the issue %s with the blocking issue %s", getURLFor(fromIssue), toIssue);
     }
 
     public static void getIssue(String issueNumber) {
