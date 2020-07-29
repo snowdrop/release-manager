@@ -13,6 +13,9 @@ public class Component {
 	private Issue issue;
 
 	@JsonProperty
+	private String name;
+
+	@JsonProperty
 	private List<String> properties;
 
 	@JsonIgnore
@@ -30,9 +33,13 @@ public class Component {
 	}
 
 	public String getName() {
-		// TODO: fix me
-		final String s = properties.get(0);
-		return s.substring(0, 1).toUpperCase() + s.substring(1);
+		if (name == null || "".equals(name)) {
+			// infer name from first listed property
+			final String s = properties.get(0);
+			return s.substring(0, 1).toUpperCase() + s.substring(1);
+		} else {
+			return name;
+		}
 	}
 
 	public String getTitle() {
