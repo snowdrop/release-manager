@@ -38,11 +38,18 @@ public class ReleaseService extends Service {
 		iib.setIssueType(TASK_TYPE());
 		IssueInput ii = iib.build();
 		BasicIssue issueCloned = cl.createIssue(ii).claim();
-		LOG.infof("Issue cloned: %s", issueCloned.getKey());
+		final String clonedIssueKey = issueCloned.getKey();
+		LOG.infof("Issue cloned: %s", clonedIssueKey);
+
+		try {
+			cl.linkIssue(new LinkIssuesInput(clonedIssueKey, toCloneFrom, "Cloners")).claim();
+		} catch (Exception e) {
+			LOG.error("Couldn't link " + clonedIssueKey + " as clone of " + toCloneFrom, e);
+		}
 
 		// Check if CVEs exist within the Release and link them to the new release ticket created
 		for (Cve cve : release.getCves()) {
-			linkIssues(issueCloned.getKey(), cve.getJiraProject() + "-" + cve.getIssue());
+			linkIssues(clonedIssueKey, cve.getJiraProject() + "-" + cve.getIssue());
 		}
 
 		// Get the list of the sub-tasks
@@ -60,7 +67,7 @@ public class ReleaseService extends Service {
 					if (fetchSubTask.getAssignee() != null) {
 						iib.setAssignee(fetchSubTask.getAssignee());
 					}
-					iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", issueCloned.getKey()));
+					iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", clonedIssueKey));
 					ii = iib.build();
 					BasicIssue subTaskIssue = cl.createIssue(ii).claim();
 					LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
