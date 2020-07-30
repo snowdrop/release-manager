@@ -14,6 +14,7 @@
 package dev.snowdrop.jira.atlassian.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.jira.atlassian.Utility;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -30,7 +31,7 @@ public class Issue {
 	}
 
 	public String getProject() {
-		if (project == null || project.isBlank()) {
+		if (Utility.isStringNullOrBlank(project)) {
 			return DEFAULT_JIRA_PROJECT;
 		}
 		return project;

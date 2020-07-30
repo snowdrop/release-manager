@@ -2,6 +2,7 @@ package dev.snowdrop.jira.atlassian.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.jira.atlassian.Utility;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -33,7 +34,7 @@ public class Component {
 	}
 
 	public String getName() {
-		if (name == null || name.isBlank()) {
+		if (Utility.isStringNullOrBlank(name)) {
 			// infer name from first listed property
 			final String s = properties.get(0);
 			return s.substring(0, 1).toUpperCase() + s.substring(1);

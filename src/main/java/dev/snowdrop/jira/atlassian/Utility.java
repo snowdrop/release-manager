@@ -157,4 +157,8 @@ public class Utility {
     public static String getURLFor(String issueKey) {
         return JIRA_SERVER + "browse/" + issueKey;
     }
+
+    public static boolean isStringNullOrBlank(String s) {
+        return s == null || s.isBlank();
+    }
 }
