@@ -40,7 +40,7 @@ public class Schedule {
 		return due;
 	}
 
-	public String getFormattedEOL() {
+	public String getFormattedEOLDate() {
 		return getFormatted(eol);
 	}
 }
