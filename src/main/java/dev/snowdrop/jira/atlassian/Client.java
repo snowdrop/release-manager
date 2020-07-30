@@ -1,13 +1,10 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.beust.jcommander.JCommander;
-import org.jboss.logging.Logger;
 
 import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
 
 public class Client {
-    private static final Logger LOG = Logger.getLogger(Client.class);
-
     public static void main(String[] argv) {
         Client client = new Client();
         final Args args = new Args();
@@ -37,7 +34,7 @@ public class Client {
                 break;
 
             case "link":
-                Service.linkIssues(args.issue, args.toIssue);
+                Service.linkIssue(args.issue, args.toIssue);
                 break;
 
             case "delete":
@@ -60,9 +57,5 @@ public class Client {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void println(Object o) {
-        System.out.println(o);
     }
 }
