@@ -16,7 +16,9 @@ package dev.snowdrop.jira.atlassian.model;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -34,14 +36,22 @@ public class POM {
 		this.model = model;
 	}
 
-	public static POM createFrom(InputStream inputStream) {
+	public static POM createFrom(InputStream inputStream) throws IOException {
+		MavenXpp3Reader reader = new MavenXpp3Reader();
+		final Model model;
 		try {
-			MavenXpp3Reader reader = new MavenXpp3Reader();
-			final Model model = reader.read(inputStream);
-			return new POM(model);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
+			model = reader.read(inputStream);
+		} catch (XmlPullParserException e) {
+			throw new IllegalArgumentException("invalid POM", e);
 		}
+		final String parentVersion = model.getParent().getVersion();
+		final String springBootVersion = model.getProperties().get("spring-boot.version").toString();
+		if (!parentVersion.equals(springBootVersion)) {
+			throw new IllegalArgumentException(
+					String.format("'%s' parent version doesn't match '%s' spring-boot.version",
+							parentVersion, springBootVersion));
+		}
+		return new POM(model);
 	}
 
 	public Map<String, List<Artifact>> getArtifacts() {
