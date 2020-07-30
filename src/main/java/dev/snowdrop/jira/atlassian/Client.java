@@ -13,13 +13,13 @@ public class Client {
         final Args args = new Args();
 
         JCommander.newBuilder()
-                .addObject(args)
-                .build()
-                .parse(argv);
+              .addObject(args)
+              .build()
+              .parse(argv);
 
         client.init(args);
 
-        switch(args.action) {
+        switch (args.action) {
             case "get":
                 Service.getIssue(args.issue);
                 break;
@@ -30,6 +30,10 @@ public class Client {
 
             case "clone":
                 ReleaseService.cloneIssue(args);
+                break;
+
+            case "start-release":
+                ReleaseService.startRelease(args);
                 break;
 
             case "link":

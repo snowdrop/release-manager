@@ -18,6 +18,33 @@ import static dev.snowdrop.jira.atlassian.Utility.*;
 
 public class ReleaseService extends Service {
 	private static final Logger LOG = Logger.getLogger(ReleaseService.class);
+	public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
+
+	public static void startRelease(Args args) {
+		Release release = Release.createFromGitRef(gitRefOrFail(args));
+
+		// first check if we already have a release ticket, in which case we don't need to clone the template
+		final String releaseTicket = release.getJiraKey();
+		if (!Utility.isStringNullOrBlank(releaseTicket)) {
+			final IssueRestClient cl = restClient.getIssueClient();
+			cl.getIssue(releaseTicket)
+					// set the JIRA key of the release if not already set
+					.done(i -> LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket))
+					// if the issue doesn't exist, create it by cloning the template ticket, which should set the JIRA key
+					.fail(e -> clone(release, RELEASE_TICKET_TEMPLATE));
+		} else {
+			// no release ticket was specified, clone
+			clone(release, RELEASE_TICKET_TEMPLATE);
+		}
+		createComponentRequests(release);
+	}
+
+	private static String gitRefOrFail(Args args) {
+		if (args.gitRef == null) {
+			throw new IllegalArgumentException("Must provide a Git reference to retrieve release.yml from");
+		}
+		return args.gitRef;
+	}
 
 	/*
 	 * Clone an existing JIRA issue to create the Release issue
@@ -27,10 +54,15 @@ public class ReleaseService extends Service {
 	 *
 	 */
 	public static void cloneIssue(Args args) {
+		final String toCloneFrom = args.issue != null ? args.issue : RELEASE_TICKET_TEMPLATE;
+		Release release = Release.createFromGitRef(gitRefOrFail(args));
+
+		clone(release, toCloneFrom);
+	}
+
+	private static void clone(Release release, String toCloneFrom) {
 		final IssueRestClient cl = restClient.getIssueClient();
-		final String toCloneFrom = args.issue != null ? args.issue : "ENTSBT-323";
 		Issue issue = cl.getIssue(toCloneFrom).claim();
-		Release release = Release.createFromGitRef(args.gitRef);
 		// Create the cloned task
 		IssueInputBuilder iib = new IssueInputBuilder();
 		iib.setProjectKey(issue.getProject().getKey());
@@ -38,8 +70,8 @@ public class ReleaseService extends Service {
 		iib.setSummary(release.getLongVersionName());
 		iib.setIssueType(TASK_TYPE());
 		IssueInput ii = iib.build();
-		BasicIssue issueCloned = cl.createIssue(ii).claim();
-		final String clonedIssueKey = issueCloned.getKey();
+		BasicIssue clonedIssue = cl.createIssue(ii).claim();
+		final String clonedIssueKey = clonedIssue.getKey();
 		LOG.infof("Issue cloned: %s", getURLFor(clonedIssueKey));
 
 		try {
@@ -55,34 +87,36 @@ public class ReleaseService extends Service {
 
 		// Get the list of the sub-tasks
 		Iterable<Subtask> subTasks = issue.getSubtasks();
-		if (CollectionSize(subTasks) > 0) {
-			for (Subtask subtask : subTasks) {
-				// Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
-				Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
-				if (fetchSubTask != null) {
-					// Create a sub-task that we will link to the parent
-					iib = new IssueInputBuilder();
-					iib.setProjectKey(issue.getProject().getKey());
-					iib.setSummary(subtask.getSummary());
-					iib.setIssueType(subtask.getIssueType());
-					if (fetchSubTask.getAssignee() != null) {
-						iib.setAssignee(fetchSubTask.getAssignee());
-					}
-					iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", clonedIssueKey));
-					ii = iib.build();
-					BasicIssue subTaskIssue = cl.createIssue(ii).claim();
-					LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
+		for (Subtask subtask : subTasks) {
+			// Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
+			Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
+			if (fetchSubTask != null) {
+				// Create a sub-task that we will link to the parent
+				iib = new IssueInputBuilder();
+				iib.setProjectKey(issue.getProject().getKey());
+				iib.setSummary(subtask.getSummary());
+				iib.setIssueType(subtask.getIssueType());
+				if (fetchSubTask.getAssignee() != null) {
+					iib.setAssignee(fetchSubTask.getAssignee());
 				}
+				iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", clonedIssueKey));
+				ii = iib.build();
+				BasicIssue subTaskIssue = cl.createIssue(ii).claim();
+				LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
 			}
 		}
 
+		// set the JIRA key on the release for further processing
+		release.setJiraKey(clonedIssueKey);
 	}
 
 	public static void createComponentIssues(Args args) {
+		final Release release = Release.createFromGitRef(gitRefOrFail(args));
+		createComponentRequests(release);
+	}
+
+	private static void createComponentRequests(Release release) {
 		final IssueRestClient cl = restClient.getIssueClient();
-
-		final Release release = Release.createFromGitRef(args.gitRef);
-
 		for (Component component : release.getComponents()) {
 			IssueInputBuilder iib = new IssueInputBuilder();
 			iib.setProjectKey(component.getIssue().getProject());
@@ -119,5 +153,4 @@ public class ReleaseService extends Service {
 	private static long CollectionSize(Iterable<Subtask> data) {
 		return StreamSupport.stream(data.spliterator(), false).count();
 	}
-
 }

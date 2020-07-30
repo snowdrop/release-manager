@@ -30,6 +30,10 @@ public class Issue {
 		return key;
 	}
 
+	void setKey(String key) {
+		this.key = key;
+	}
+
 	public String getProject() {
 		if (Utility.isStringNullOrBlank(project)) {
 			return DEFAULT_JIRA_PROJECT;

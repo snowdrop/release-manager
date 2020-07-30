@@ -111,6 +111,18 @@ public class Release {
 		return issue.getKey();
 	}
 
+	/**
+	 * Associates this Release to the ticket identified by the specified key. Note that if the JIRA key is already set
+	 * for this Release, this method won't do anything because the source of truth is assumed to be the YAML file.
+	 *
+	 * @param key the ticket identifier to which this Release should be associated
+	 */
+	public void setJiraKey(String key) {
+		if (isStringNullOrBlank(getJiraKey())) {
+			issue.setKey(key);
+		}
+	}
+
 	public String getVersion() {
 		return version;
 	}
