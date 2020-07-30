@@ -2,15 +2,21 @@ package dev.snowdrop.jira.atlassian.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.jira.atlassian.Utility;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.LinkedList;
 import java.util.List;
 
 import static dev.snowdrop.jira.atlassian.Utility.MAPPER;
+import static dev.snowdrop.jira.atlassian.Utility.isStringNullOrBlank;
 
 public class Release {
+	public static final String RELEASE_SUFFIX = ".RELEASE";
+	@JsonProperty
+	private String version;
 	@JsonProperty
 	private Issue issue;
 	@JsonProperty
@@ -30,12 +36,65 @@ public class Release {
 	 * @throws Exception
 	 */
 	public static Release createFromGitRef(String gitRef) {
-		try (InputStream inputStream = getStreamFromGitRef(gitRef, "release.yml")) {
-			final Release release = MAPPER.readValue(inputStream, Release.class);
-			release.setGitRef(gitRef);
-			return release;
+		try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release.yml");
+			  InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
+
+			return createFrom(releaseIS, pomIS);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	static Release createFrom(InputStream releaseIS, InputStream pomIS) throws IOException {
+		final Release release = MAPPER.readValue(releaseIS, Release.class);
+
+		// retrieve associated POM
+		release.pom = POM.createFrom(pomIS);
+
+		// validate release
+		final String pomVersion = release.pom.getVersion();
+		release.validate(pomVersion);
+
+		return release;
+	}
+
+	public void validate(String expectedVersion) throws IllegalArgumentException {
+		List<String> errors = new LinkedList<>();
+		if (Utility.isStringNullOrBlank(version)) {
+			errors.add("missing version");
+		} else {
+			final int suffix = version.indexOf(RELEASE_SUFFIX);
+			final int len = suffix > 0 ? version.length() - suffix : version.length();
+			if (!version.regionMatches(0, expectedVersion, 0, len)) {
+				errors.add(String.format("'%s' release version doesn't match '%s' version in associated POM", version,
+						expectedVersion));
+			}
+		}
+		if (schedule == null) {
+			errors.add("missing schedule");
+		} else {
+			if (isStringNullOrBlank(schedule.getReleaseDate())) {
+				errors.add("missing release date");
+			}
+			try {
+				schedule.getFormattedReleaseDate();
+			} catch (Exception e) {
+				errors.add("invalid release ISO8601 date: " + e.getMessage());
+			}
+
+			if (isStringNullOrBlank(schedule.getEOLDate())) {
+				errors.add("missing EOL date");
+			}
+			try {
+				schedule.getFormattedEOLDate();
+			} catch (Exception e) {
+				errors.add("invalid EOL ISO8601 date: " + e.getMessage());
+			}
+		}
+
+		if (!errors.isEmpty()) {
+			throw new IllegalArgumentException(
+					errors.stream().reduce("Invalid release:\n", (s, s2) -> s + "\t- " + s2 + "\n"));
 		}
 	}
 
@@ -53,7 +112,7 @@ public class Release {
 	}
 
 	public String getVersion() {
-		return getPOM().getVersion();
+		return version;
 	}
 
 	public List<Component> getComponents() {
@@ -79,13 +138,6 @@ public class Release {
 	}
 
 	public POM getPOM() {
-		if (pom == null) {
-			try (InputStream is = getStreamFromGitRef(gitRef, "pom.xml")) {
-				this.pom = POM.createFrom(is);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		}
 		return pom;
 	}
 }

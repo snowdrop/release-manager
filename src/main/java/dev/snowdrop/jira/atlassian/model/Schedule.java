@@ -43,4 +43,12 @@ public class Schedule {
 	public String getFormattedEOLDate() {
 		return getFormatted(eol);
 	}
+
+	public String getReleaseDate() {
+		return release;
+	}
+
+	public String getEOLDate() {
+		return eol;
+	}
 }

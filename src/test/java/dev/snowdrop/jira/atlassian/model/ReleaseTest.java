@@ -15,39 +15,115 @@ package dev.snowdrop.jira.atlassian.model;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class ReleaseTest {
+	private static InputStream getResourceAsStream(String s) {
+		return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
+	}
+
 	@Test
-	public void creatingFromGitRefShouldWork() throws Exception {
-		final String gitRef = "metacosm/spring-boot-bom/release-integration";
-		final Release release = Release.createFromGitRef(gitRef);
+	public void missingVersionShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"));
+			fail("should have failed on missing version");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("missing version"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void mismatchedVersionShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("mismatched-version.yml"), getResourceAsStream("pom.xml"));
+			fail("should have failed on mismatched version");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("release version doesn't match"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void missingScheduleShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"));
+			fail("should have failed on missing schedule");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("missing schedule"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void wrongScheduleShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("invalid-schedule.yml"), getResourceAsStream("pom.xml"));
+			fail("should have failed on invalid schedule");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("invalid release"));
+			assertTrue(e.getMessage().contains("missing EOL"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void mismatchedPOMVersionsShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("mismatched-pom.xml"));
+			fail("should have failed on mismatched POM versions");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("parent version doesn't match"));
+			assertTrue(e.getMessage().contains("spring-boot.version"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void validReleaseShouldWork() throws IOException {
+		final Release release = Release.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
+		validate(release);
+	}
+
+	private void validate(Release release) {
 		assertNotNull(release);
-		assertEquals(gitRef, release.getGitRef());
-		assertEquals("2.3.1.RELEASE", release.getVersion());
+		assertEquals("2.3.2", release.getVersion());
 
-		final Component component = release.getComponents().get(0);
+		final List<Component> components = release.getComponents();
+		assertEquals(10, components.size());
 
+		final Component component = components.get(0);
 		assertNotNull(component.getParent());
-		/*
-		org.hibernate:hibernate-core:5.4.14.Final
-		org.hibernate:hibernate-entitymanager:5.4.14.Final
-		 org.hibernate.validator:hibernate-validator:6.0.18.Final
-		 */
+		assertEquals("Hibernate / Hibernate Validator / Undertow", component.getName());
 
 		final List<Artifact> artifacts = component.getArtifacts();
-		assertEquals(3, artifacts.size());
+		assertEquals(6, artifacts.size());
 
-		final String hibernateVersion = "5.4.14.Final";
+		final String hibernateVersion = "5.4.18.Final";
+		final String undertowVersion = "2.1.3.Final";
 		checkArtifact(artifacts, 0, "org.hibernate:hibernate-core", hibernateVersion);
 		checkArtifact(artifacts, 1, "org.hibernate:hibernate-entitymanager", hibernateVersion);
-		checkArtifact(artifacts, 2, "org.hibernate.validator:hibernate-validator", "6.0.18.Final");
+		checkArtifact(artifacts, 2, "org.hibernate.validator:hibernate-validator", "6.1.5.Final");
+		checkArtifact(artifacts, 3, "io.undertow:undertow-core", undertowVersion);
+		checkArtifact(artifacts, 4, "io.undertow:undertow-servlet", undertowVersion);
+		checkArtifact(artifacts, 5, "io.undertow:undertow-websockets-jsr", undertowVersion);
 
 		final List<Issue> cves = release.getCves();
 		assertEquals(4, cves.size());
@@ -59,6 +135,20 @@ public class ReleaseTest {
 		cve = cves.get(1);
 		assertEquals(cve.getProject(), "ENTSBT");
 		assertEquals(cve.getKey(), "316");
+	}
+
+	@Test
+	public void creatingFromGitBranchShouldWork() throws Exception {
+		final String gitRef = "metacosm/spring-boot-bom/release-integration";
+		final Release release = Release.createFromGitRef(gitRef);
+		validate(release);
+	}
+
+	@Test
+	public void creatingFromGitCommitShouldWork() throws Exception {
+		final String gitRef = "metacosm/spring-boot-bom/8c08557";
+		final Release release = Release.createFromGitRef(gitRef);
+		validate(release);
 	}
 
 	private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {
