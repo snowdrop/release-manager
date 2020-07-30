@@ -26,7 +26,7 @@ import java.util.List;
 
 public class Utility {
     private static final String MUSTACHE_PATH = "etc/description.mustache";
-    private static final DateTimeFormatter dateTimeParser = ISODateTimeFormat.dateTimeParser();
+    private static final DateTimeFormatter dateParser = ISODateTimeFormat.date();
     public static final String JIRA_SERVER = "https://issues.redhat.com/";
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static JiraRestClient restClient;
@@ -146,7 +146,7 @@ public class Utility {
     }
 
     public static DateTime toDateTime(String dateTimeSt) {
-        return dateTimeParser.parseDateTime(dateTimeSt);
+        return dateParser.parseDateTime(dateTimeSt);
     }
 
     public static String getFormatted(String dateTimeSt) {
