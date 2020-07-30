@@ -82,7 +82,7 @@ public class ReleaseService extends Service {
 
 		// Check if CVEs exist within the Release and link them to the new release ticket created
 		for (dev.snowdrop.jira.atlassian.model.Issue cve : release.getCves()) {
-			linkIssues(clonedIssueKey, cve.getProject() + "-" + cve.getKey());
+			linkIssue(clonedIssueKey, cve.getProject() + "-" + cve.getKey());
 		}
 
 		// Get the list of the sub-tasks
@@ -145,7 +145,7 @@ public class ReleaseService extends Service {
 			 * release issue
 			 */
 			if (release.getJiraKey() != null) {
-				linkIssues(release.getJiraKey(), newIssue.getKey());
+				linkIssue(release.getJiraKey(), newIssue.getKey());
 			}
 		}
 	}
