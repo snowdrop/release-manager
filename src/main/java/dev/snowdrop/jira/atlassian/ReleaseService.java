@@ -119,7 +119,7 @@ public class ReleaseService extends Service {
 		final IssueRestClient cl = restClient.getIssueClient();
 		for (Component component : release.getComponents()) {
 			IssueInputBuilder iib = new IssueInputBuilder();
-			iib.setProjectKey(component.getIssue().getProject());
+			iib.setProjectKey(component.getJira());
 			iib.setSummary(component.getTitle());
 			iib.setDescription(generateIssueDescription(component));
 			iib.setIssueType(TASK_TYPE());

@@ -11,7 +11,10 @@ import java.util.Map;
 
 public class Component {
 	@JsonProperty
-	private Issue issue;
+	private String jira;
+
+	@JsonProperty
+	private String product;
 
 	@JsonProperty
 	private String name;
@@ -47,8 +50,12 @@ public class Component {
 		return getName() + " compatibility information for Spring Boot " + parent.getVersion();
 	}
 
-	public Issue getIssue() {
-		return issue;
+	public String getJira() {
+		return jira;
+	}
+
+	public String getProduct() {
+		return product;
 	}
 
 	public List<Artifact> getArtifacts() {

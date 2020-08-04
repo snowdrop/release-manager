@@ -107,7 +107,7 @@ public class ReleaseTest {
 		assertEquals("2.3.2", release.getVersion());
 
 		final List<Component> components = release.getComponents();
-		assertEquals(10, components.size());
+		assertEquals(11, components.size());
 
 		final Component component = components.get(0);
 		assertNotNull(component.getParent());
@@ -146,7 +146,7 @@ public class ReleaseTest {
 
 	@Test
 	public void creatingFromGitCommitShouldWork() throws Exception {
-		final String gitRef = "metacosm/spring-boot-bom/8c08557";
+		final String gitRef = "metacosm/spring-boot-bom/7247d4f";
 		final Release release = Release.createFromGitRef(gitRef);
 		validate(release);
 	}
