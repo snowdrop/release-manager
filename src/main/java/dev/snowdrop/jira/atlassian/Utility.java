@@ -23,6 +23,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class Utility {
     private static final String MUSTACHE_PATH = "etc/description.mustache";
@@ -87,11 +88,7 @@ public class Utility {
     }
 
     public static URI jiraServerUri(String uri) {
-        if (uri != null) {
-            return URI.create(uri);
-        } else {
-            return URI.create("https://issues.redhat.com/");
-        }
+        return URI.create(Objects.requireNonNullElse(uri, "https://issues.redhat.com/"));
     }
 
     public static String generateIssueDescription(Component c) {
