@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class ReleaseTest {
+
 	private static InputStream getResourceAsStream(String s) {
 		return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
 	}
@@ -104,12 +105,13 @@ public class ReleaseTest {
 
 	private void validate(Release release) {
 		assertNotNull(release);
-		assertEquals("2.3.2", release.getVersion());
+		final var expectedSBVersion = "2.3.2";
+		assertEquals(expectedSBVersion, release.getVersion());
 
 		final List<Component> components = release.getComponents();
 		assertEquals(11, components.size());
 
-		final Component component = components.get(0);
+		var component = components.get(0);
 		assertNotNull(component.getParent());
 		assertEquals("Hibernate / Hibernate Validator / Undertow", component.getName());
 
@@ -132,6 +134,16 @@ public class ReleaseTest {
 			assertTrue(description.contains(artifact.getName()));
 			assertTrue(description.contains(artifact.getVersion()));
 		}
+
+		component = components.get(7);
+		assertEquals("Narayana starter", component.getName());
+		final var product = component.getProduct();
+		assertNotNull(product);
+		final var endOfSupportDate = product.getEndOfSupportDate();
+		assertEquals(component.getParent().getSchedule().getFormattedEOLDate(), endOfSupportDate);
+		assertTrue(description.contains(endOfSupportDate));
+		assertTrue(description.contains(expectedSBVersion));
+		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
 
 		final List<Issue> cves = release.getCves();
 		assertEquals(4, cves.size());

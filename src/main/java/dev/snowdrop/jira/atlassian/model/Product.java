@@ -13,10 +13,17 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
+import dev.snowdrop.jira.atlassian.Utility;
+
+import java.io.IOException;
+import java.io.StringWriter;
+
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Product implements IssueSource {
+	private static final String PRODUCT_TEMPLATE = "product.mustache";
+
 	private final Component component;
 
 	public Product(Component component) {
@@ -43,8 +50,30 @@ public class Product implements IssueSource {
 		return component.getProductAsString();
 	}
 
+	public String getReleaseDate() {
+		return component.getParent().getSchedule().getFormattedReleaseDate();
+	}
+
+	public String getEndOfSupportDate() {
+		return component.getParent().getSchedule().getFormattedEOLDate();
+	}
+
+	public String getDueDate() {
+		return component.getParent().getSchedule().getFormattedDueDate();
+	}
+
+	public String getVersion() {
+		return component.getParent().getVersion();
+	}
+
 	@Override
 	public String getDescription() {
-		return null;
+		StringWriter writer = new StringWriter();
+		try {
+			Utility.mf.compile(PRODUCT_TEMPLATE).execute(writer, this).flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return writer.toString();
 	}
 }
