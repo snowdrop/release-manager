@@ -69,7 +69,7 @@ public class ReleaseService extends Service {
 		iib.setProjectKey(issue.getProject().getKey());
 		iib.setDescription(issue.getDescription());
 		iib.setSummary(release.getLongVersionName());
-		iib.setIssueType(TASK_TYPE());
+		iib.setIssueTypeId(issue.getIssueType().getId());
 		IssueInput ii = iib.build();
 		BasicIssue clonedIssue = cl.createIssue(ii).claim();
 		final String clonedIssueKey = clonedIssue.getKey();
@@ -96,7 +96,7 @@ public class ReleaseService extends Service {
 				iib = new IssueInputBuilder();
 				iib.setProjectKey(issue.getProject().getKey());
 				iib.setSummary(subtask.getSummary());
-				iib.setIssueType(subtask.getIssueType());
+				iib.setIssueTypeId(subtask.getIssueType().getId());
 				if (fetchSubTask.getAssignee() != null) {
 					iib.setAssignee(fetchSubTask.getAssignee());
 				}
