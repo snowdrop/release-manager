@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.*;
 
-public class Component {
+public class Component implements IssueSource {
 	private static final String COMPONENT_TEMPLATE = "component.mustache";
 
 	@JsonProperty
@@ -29,6 +29,7 @@ public class Component {
 	@JsonIgnore
 	private Release parent;
 
+	@Override
 	public Release getParent() {
 		return parent;
 	}
@@ -37,6 +38,7 @@ public class Component {
 		this.parent = release;
 	}
 
+	@Override
 	public String getName() {
 		if (Utility.isStringNullOrBlank(name)) {
 			// infer name from first listed property
@@ -47,10 +49,12 @@ public class Component {
 		}
 	}
 
+	@Override
 	public String getTitle() {
 		return getName() + " compatibility information for Spring Boot " + parent.getVersion();
 	}
 
+	@Override
 	public String getJira() {
 		return jira;
 	}
@@ -68,6 +72,7 @@ public class Component {
 		return this.artifacts;
 	}
 
+	@Override
 	public String getDescription() {
 		StringWriter writer = new StringWriter();
 
