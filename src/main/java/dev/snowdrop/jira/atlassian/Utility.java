@@ -8,27 +8,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
-import dev.snowdrop.jira.atlassian.model.Component;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
 public class Utility {
-	private static final String COMPONENT_TEMPLATE = "component.mustache";
 	private static final DateTimeFormatter dateParser = ISODateTimeFormat.date();
 	public static final String JIRA_SERVER = "https://issues.redhat.com/";
 	public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
 	public static JiraRestClient restClient;
-	private static final MustacheFactory mf = new DefaultMustacheFactory();
+	public static final MustacheFactory mf = new DefaultMustacheFactory();
 
 	// jackson databind
 	public static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
@@ -77,21 +72,6 @@ public class Utility {
 
 	public static URI jiraServerUri(String uri) {
 		return URI.create(Objects.requireNonNullElse(uri, "https://issues.redhat.com/"));
-	}
-
-	public static String generateIssueDescription(Component c) {
-		StringWriter writer = new StringWriter();
-
-		HashMap<String, Object> scopes = new HashMap<>();
-		scopes.put("release", c.getParent());
-		scopes.put("component", c);
-
-		try {
-			mf.compile(COMPONENT_TEMPLATE).execute(writer, scopes).flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return writer.toString();
 	}
 
 	public static Iterable<Version> setFixVersion() {

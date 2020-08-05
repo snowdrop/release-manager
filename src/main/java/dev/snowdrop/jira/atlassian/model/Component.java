@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.jira.atlassian.Utility;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.*;
 
 public class Component {
+	private static final String COMPONENT_TEMPLATE = "component.mustache";
+
 	@JsonProperty
 	private String jira;
 
@@ -65,5 +66,20 @@ public class Component {
 			this.artifacts.addAll(artifacts.getOrDefault(property, Collections.emptyList()));
 		}
 		return this.artifacts;
+	}
+
+	public String getDescription() {
+		StringWriter writer = new StringWriter();
+
+		HashMap<String, Object> scopes = new HashMap<>();
+		scopes.put("release", getParent());
+		scopes.put("component", this);
+
+		try {
+			Utility.mf.compile(COMPONENT_TEMPLATE).execute(writer, scopes).flush();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return writer.toString();
 	}
 }

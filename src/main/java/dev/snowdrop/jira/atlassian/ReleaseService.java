@@ -121,7 +121,7 @@ public class ReleaseService extends Service {
 			IssueInputBuilder iib = new IssueInputBuilder();
 			iib.setProjectKey(component.getJira());
 			iib.setSummary(component.getTitle());
-			iib.setDescription(generateIssueDescription(component));
+			iib.setDescription(component.getDescription());
 			iib.setIssueType(TASK_TYPE());
 			iib.setDueDate(toDateTime(release.getSchedule().getDueDate()));
                 /*
