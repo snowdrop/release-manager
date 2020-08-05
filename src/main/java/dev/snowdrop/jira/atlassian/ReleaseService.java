@@ -122,15 +122,27 @@ public class ReleaseService extends Service {
 
 		for (Component component : release.getComponents()) {
 			var issue = getIssueInput(component);
-			BasicIssue newIssue = cl.createIssue(issue).claim();
-			LOG.infof("Issue %s created successfully", getURLFor(newIssue.getKey()));
+			var componentIssue = cl.createIssue(issue).claim();
+			LOG.infof("Issue %s created successfully", getURLFor(componentIssue.getKey()));
 
 			/*
 			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
 			 * release issue
 			 */
 			if (jiraKey != null) {
-				linkIssue(jiraKey, newIssue.getKey());
+				linkIssue(jiraKey, componentIssue.getKey());
+			}
+
+			// if component also defines a product field, then we should create a ticket for the associated product team
+			// and link it to the component request
+			final var product = component.getProduct();
+			if (product != null) {
+				issue = getIssueInput(product);
+				var productIssue = cl.createIssue(issue).claim();
+				LOG.infof("Product Issue %s created successfully for %s component", getURLFor(productIssue.getKey()),
+						component.getName());
+				// link the newly created product issue with our component issue
+				linkIssue(componentIssue.getKey(), productIssue.getKey());
 			}
 		}
 	}
