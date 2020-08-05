@@ -1,5 +1,6 @@
 package dev.snowdrop.jira.atlassian.model;
 
+import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.jira.atlassian.Utility;
@@ -59,7 +60,9 @@ public class Release {
 	}
 
 	public void validate(String expectedVersion) throws IllegalArgumentException {
-		List<String> errors = new LinkedList<>();
+		final List<String> errors = new LinkedList<>();
+
+		// validate version
 		if (Utility.isStringNullOrBlank(version)) {
 			errors.add("missing version");
 		} else {
@@ -70,6 +73,8 @@ public class Release {
 						expectedVersion));
 			}
 		}
+
+		// validate schedule
 		if (schedule == null) {
 			errors.add("missing schedule");
 		} else {
@@ -92,9 +97,38 @@ public class Release {
 			}
 		}
 
+		// validate components
+		if (components != null) {
+			components.parallelStream().forEach(component -> {
+				validateIssue(errors, component, false);
+				validateIssue(errors, component, true);
+			});
+		}
+
 		if (!errors.isEmpty()) {
 			throw new IllegalArgumentException(
 					errors.stream().reduce("Invalid release:\n", (s, s2) -> s + "\t- " + s2 + "\n"));
+		}
+	}
+
+	private void validateIssue(List<String> errors, Component component, boolean isProduct) {
+		var issue = isProduct ? component.getProductIssue() : component.getJira();
+		if (issue != null) {
+			var componentEntryName = isProduct ? "product" : "jira";
+			var project = issue.getProject();
+			var name = component.getName();
+			var issueTypeId = issue.getIssueTypeId();
+			try {
+				var p = Utility.restClient.getProjectClient().getProject(project).claim();
+				for (IssueType issueType : p.getIssueTypes()) {
+					if (issueType.getId().equals(issueTypeId)) {
+						return;
+					}
+				}
+				errors.add(String.format("invalid issue type id '%d' for component '%s'", issueTypeId, name));
+			} catch (Exception e) {
+				errors.add(String.format("invalid %s project '%s' for component '%s'", componentEntryName, project, name));
+			}
 		}
 	}
 

@@ -13,6 +13,7 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
+import dev.snowdrop.jira.atlassian.Utility;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -98,6 +99,33 @@ public class ReleaseTest {
 	}
 
 	@Test
+	public void invalidComponentProjectShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"));
+			fail("should have failed on invalid component project");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("invalid jira project 'FOO'"));
+			assertTrue(e.getMessage().contains("invalid product project 'BAR'"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
+	public void invalidComponentIssueTypeShouldFail() {
+		try {
+			Release.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"));
+			fail("should have failed on invalid component issue type");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("invalid issue type id '1234'"));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+
+	@Test
 	public void validReleaseShouldWork() throws IOException {
 		final Release release = Release.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
 		validate(release);
@@ -158,7 +186,7 @@ public class ReleaseTest {
 		assertEquals(cve.getKey(), "316");
 	}
 
-	@Test
+	/*@Test
 	public void creatingFromGitBranchShouldWork() throws Exception {
 		final String gitRef = "metacosm/spring-boot-bom/release-integration";
 		final Release release = Release.createFromGitRef(gitRef);
@@ -170,11 +198,19 @@ public class ReleaseTest {
 		final String gitRef = "metacosm/spring-boot-bom/7247d4f";
 		final Release release = Release.createFromGitRef(gitRef);
 		validate(release);
-	}
+	}*/
 
 	private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {
 		final Artifact artifact = artifacts.get(index);
 		assertEquals(expectedName, artifact.getName());
 		assertEquals(expectedVersion, artifact.getVersion());
+	}
+
+	static {
+		initMockRestClient();
+	}
+
+	private static void initMockRestClient() {
+		Utility.restClient = new MockJiraRestClient();
 	}
 }
