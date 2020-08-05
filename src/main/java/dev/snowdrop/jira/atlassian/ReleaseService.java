@@ -149,10 +149,11 @@ public class ReleaseService extends Service {
 
 	private static IssueInput getIssueInput(IssueSource source) {
 		IssueInputBuilder iib = new IssueInputBuilder();
-		iib.setProjectKey(source.getJira().getProject());
+		final var jira = source.getJira();
+		iib.setProjectKey(jira.getProject());
 		iib.setSummary(source.getTitle());
 		iib.setDescription(source.getDescription());
-		iib.setIssueType(TASK_TYPE());
+		iib.setIssueTypeId(jira.getIssueTypeId());
 		iib.setDueDate(toDateTime(source.getParent().getSchedule().getDueDate()));
                 /*
                  TODO: To be investigated
