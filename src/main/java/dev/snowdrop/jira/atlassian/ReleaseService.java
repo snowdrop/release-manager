@@ -149,7 +149,7 @@ public class ReleaseService extends Service {
 
 	private static IssueInput getIssueInput(IssueSource source) {
 		IssueInputBuilder iib = new IssueInputBuilder();
-		iib.setProjectKey(source.getJira());
+		iib.setProjectKey(source.getJira().getProject());
 		iib.setSummary(source.getTitle());
 		iib.setDescription(source.getDescription());
 		iib.setIssueType(TASK_TYPE());

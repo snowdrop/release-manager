@@ -23,7 +23,7 @@ public interface IssueSource {
 
 	String getTitle();
 
-	String getJira();
+	Issue getJira();
 
 	String getDescription();
 }

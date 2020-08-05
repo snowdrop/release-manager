@@ -15,10 +15,10 @@ public class Component implements IssueSource {
 	private static final String COMPONENT_TEMPLATE = "component.mustache";
 
 	@JsonProperty
-	private String jira;
+	private Issue jira;
 
 	@JsonProperty
-	private String product;
+	private Issue product;
 
 	@JsonProperty
 	private String name;
@@ -58,11 +58,11 @@ public class Component implements IssueSource {
 	}
 
 	@Override
-	public String getJira() {
+	public Issue getJira() {
 		return jira;
 	}
 
-	public String getProductAsString() {
+	public Issue getProductIssue() {
 		return product;
 	}
 

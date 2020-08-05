@@ -46,8 +46,8 @@ public class Product implements IssueSource {
 	}
 
 	@Override
-	public String getJira() {
-		return component.getProductAsString();
+	public Issue getJira() {
+		return component.getProductIssue();
 	}
 
 	public String getReleaseDate() {
