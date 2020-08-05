@@ -16,15 +16,20 @@ package dev.snowdrop.jira.atlassian.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.jira.atlassian.Utility;
 
+import java.util.Objects;
+
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Issue {
-	public static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
+	private static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
+	private static final Long DEFAULT_ISSUE_TYPE_ID = 3L;
 	@JsonProperty
 	private String project;
 	@JsonProperty
 	private String key;
+	@JsonProperty
+	private Long issueTypeId;
 
 	public String getKey() {
 		return key;
@@ -32,6 +37,10 @@ public class Issue {
 
 	void setKey(String key) {
 		this.key = key;
+	}
+
+	public Long getIssueTypeId() {
+		return Objects.requireNonNullElse(issueTypeId, DEFAULT_ISSUE_TYPE_ID);
 	}
 
 	public String getProject() {
