@@ -125,6 +125,14 @@ public class ReleaseTest {
 		checkArtifact(artifacts, 4, "io.undertow:undertow-servlet", undertowVersion);
 		checkArtifact(artifacts, 5, "io.undertow:undertow-websockets-jsr", undertowVersion);
 
+		final var description = component.getDescription();
+		assertTrue(description.contains(component.getParent().getVersion()));
+		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
+		for (Artifact artifact : artifacts) {
+			assertTrue(description.contains(artifact.getName()));
+			assertTrue(description.contains(artifact.getVersion()));
+		}
+
 		final List<Issue> cves = release.getCves();
 		assertEquals(4, cves.size());
 
