@@ -186,19 +186,19 @@ public class ReleaseTest {
 		assertEquals(cve.getKey(), "316");
 	}
 
-	/*@Test
+	@Test
 	public void creatingFromGitBranchShouldWork() throws Exception {
-		final String gitRef = "metacosm/spring-boot-bom/release-integration";
+		final String gitRef = "snowdrop/spring-boot-bom/sb-2.3.x";
 		final Release release = Release.createFromGitRef(gitRef);
 		validate(release);
 	}
 
 	@Test
 	public void creatingFromGitCommitShouldWork() throws Exception {
-		final String gitRef = "metacosm/spring-boot-bom/7247d4f";
+		final String gitRef = "snowdrop/spring-boot-bom/1c45351";
 		final Release release = Release.createFromGitRef(gitRef);
 		validate(release);
-	}*/
+	}
 
 	private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {
 		final Artifact artifact = artifacts.get(index);
