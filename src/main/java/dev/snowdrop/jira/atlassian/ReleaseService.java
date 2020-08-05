@@ -9,6 +9,7 @@ import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
 import dev.snowdrop.jira.atlassian.model.Component;
+import dev.snowdrop.jira.atlassian.model.IssueSource;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
@@ -117,13 +118,30 @@ public class ReleaseService extends Service {
 
 	private static void createComponentRequests(Release release) {
 		final IssueRestClient cl = restClient.getIssueClient();
+		final String jiraKey = release.getJiraKey();
+
 		for (Component component : release.getComponents()) {
-			IssueInputBuilder iib = new IssueInputBuilder();
-			iib.setProjectKey(component.getJira());
-			iib.setSummary(component.getTitle());
-			iib.setDescription(component.getDescription());
-			iib.setIssueType(TASK_TYPE());
-			iib.setDueDate(toDateTime(release.getSchedule().getDueDate()));
+			var issue = getIssueInput(component);
+			BasicIssue newIssue = cl.createIssue(issue).claim();
+			LOG.infof("Issue %s created successfully", getURLFor(newIssue.getKey()));
+
+			/*
+			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
+			 * release issue
+			 */
+			if (jiraKey != null) {
+				linkIssue(jiraKey, newIssue.getKey());
+			}
+		}
+	}
+
+	private static IssueInput getIssueInput(IssueSource source) {
+		IssueInputBuilder iib = new IssueInputBuilder();
+		iib.setProjectKey(source.getJira());
+		iib.setSummary(source.getTitle());
+		iib.setDescription(source.getDescription());
+		iib.setIssueType(TASK_TYPE());
+		iib.setDueDate(toDateTime(source.getParent().getSchedule().getDueDate()));
                 /*
                  TODO: To be investigated
 
@@ -136,18 +154,7 @@ public class ReleaseService extends Service {
                  iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
                 */
 
-			IssueInput issue = iib.build();
-			BasicIssue newIssue = cl.createIssue(issue).claim();
-			LOG.infof("Issue %s created successfully", getURLFor(newIssue.getKey()));
-
-			/*
-			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
-			 * release issue
-			 */
-			if (release.getJiraKey() != null) {
-				linkIssue(release.getJiraKey(), newIssue.getKey());
-			}
-		}
+		return iib.build();
 	}
 
 	private static long CollectionSize(Iterable<Subtask> data) {
