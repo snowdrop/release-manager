@@ -127,7 +127,7 @@ public class ReleaseTest {
 		checkArtifact(artifacts, 4, "io.undertow:undertow-servlet", undertowVersion);
 		checkArtifact(artifacts, 5, "io.undertow:undertow-websockets-jsr", undertowVersion);
 
-		final var description = component.getDescription();
+		var description = component.getDescription();
 		assertTrue(description.contains(component.getParent().getVersion()));
 		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
 		for (Artifact artifact : artifacts) {
@@ -141,6 +141,7 @@ public class ReleaseTest {
 		assertNotNull(product);
 		final var endOfSupportDate = product.getEndOfSupportDate();
 		assertEquals(component.getParent().getSchedule().getFormattedEOLDate(), endOfSupportDate);
+		description = product.getDescription();
 		assertTrue(description.contains(endOfSupportDate));
 		assertTrue(description.contains(expectedSBVersion));
 		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
