@@ -63,6 +63,13 @@ public class Component implements IssueSource {
 		return product;
 	}
 
+	public Product getProduct() {
+		if (product == null) {
+			return null;
+		}
+		return new Product(this);
+	}
+
 	public List<Artifact> getArtifacts() {
 		this.artifacts = new LinkedList<>();
 		final Map<String, List<Artifact>> artifacts = parent.getPOM().getArtifacts();
