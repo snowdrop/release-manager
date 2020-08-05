@@ -59,7 +59,7 @@ public class Component implements IssueSource {
 		return jira;
 	}
 
-	public String getProduct() {
+	public String getProductAsString() {
 		return product;
 	}
 
