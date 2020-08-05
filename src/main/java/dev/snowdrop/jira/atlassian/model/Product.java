@@ -51,15 +51,19 @@ public class Product implements IssueSource {
 	}
 
 	public String getReleaseDate() {
-		return component.getParent().getSchedule().getFormattedReleaseDate();
+		return getParentSchedule().getFormattedReleaseDate();
+	}
+
+	private Schedule getParentSchedule() {
+		return component.getParent().getSchedule();
 	}
 
 	public String getEndOfSupportDate() {
-		return component.getParent().getSchedule().getFormattedEOLDate();
+		return getParentSchedule().getFormattedEOLDate();
 	}
 
 	public String getDueDate() {
-		return component.getParent().getSchedule().getFormattedDueDate();
+		return getParentSchedule().getFormattedDueDate();
 	}
 
 	public String getVersion() {
