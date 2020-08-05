@@ -6,7 +6,10 @@ import dev.snowdrop.jira.atlassian.Utility;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class Component implements IssueSource {
 	private static final String COMPONENT_TEMPLATE = "component.mustache";
@@ -82,13 +85,8 @@ public class Component implements IssueSource {
 	@Override
 	public String getDescription() {
 		StringWriter writer = new StringWriter();
-
-		HashMap<String, Object> scopes = new HashMap<>();
-		scopes.put("release", getParent());
-		scopes.put("component", this);
-
 		try {
-			Utility.mf.compile(COMPONENT_TEMPLATE).execute(writer, scopes).flush();
+			Utility.mf.compile(COMPONENT_TEMPLATE).execute(writer, this).flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
