@@ -126,4 +126,11 @@ public class Utility {
 	public static boolean isStringNullOrBlank(String s) {
 		return s == null || s.isBlank();
 	}
+
+	static String gitRefOrFail(Args args) {
+		if (args.gitRef == null) {
+			throw new IllegalArgumentException("Must provide a Git reference to retrieve release.yml from");
+		}
+		return args.gitRef;
+	}
 }

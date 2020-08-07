@@ -21,47 +21,7 @@ public class ReleaseService extends Service {
 	private static final Logger LOG = Logger.getLogger(ReleaseService.class);
 	public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
 
-	public static void startRelease(Args args) {
-		Release release = Release.createFromGitRef(gitRefOrFail(args));
-
-		// first check if we already have a release ticket, in which case we don't need to clone the template
-		final String releaseTicket = release.getJiraKey();
-		if (!Utility.isStringNullOrBlank(releaseTicket)) {
-			final IssueRestClient cl = restClient.getIssueClient();
-			cl.getIssue(releaseTicket)
-					// set the JIRA key of the release if not already set
-					.done(i -> LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket))
-					// if the issue doesn't exist, create it by cloning the template ticket, which should set the JIRA key
-					.fail(e -> clone(release, RELEASE_TICKET_TEMPLATE));
-		} else {
-			// no release ticket was specified, clone
-			clone(release, RELEASE_TICKET_TEMPLATE);
-		}
-		createComponentRequests(release);
-	}
-
-	private static String gitRefOrFail(Args args) {
-		if (args.gitRef == null) {
-			throw new IllegalArgumentException("Must provide a Git reference to retrieve release.yml from");
-		}
-		return args.gitRef;
-	}
-
-	/*
-	 * Clone an existing JIRA issue to create the Release issue
-	 * If subtasks exist, then the corresponding issues will be created and linked to the release issue
-	 *
-	 * If CVEs have been defined within the Release YAML, then we will link them also as blocking links to the release issue
-	 *
-	 */
-	public static void cloneIssue(Args args) {
-		final String toCloneFrom = args.issue != null ? args.issue : RELEASE_TICKET_TEMPLATE;
-		Release release = Release.createFromGitRef(gitRefOrFail(args));
-
-		clone(release, toCloneFrom);
-	}
-
-	private static void clone(Release release, String toCloneFrom) {
+	public static BasicIssue clone(Release release, String toCloneFrom) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		Issue issue = cl.getIssue(toCloneFrom).claim();
 		// Create the cloned task
@@ -109,14 +69,10 @@ public class ReleaseService extends Service {
 
 		// set the JIRA key on the release for further processing
 		release.setJiraKey(clonedIssueKey);
+		return clonedIssue;
 	}
 
-	public static void createComponentIssues(Args args) {
-		final Release release = Release.createFromGitRef(gitRefOrFail(args));
-		createComponentRequests(release);
-	}
-
-	private static void createComponentRequests(Release release) {
+	public static void createComponentRequests(Release release) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		final String jiraKey = release.getJiraKey();
 
