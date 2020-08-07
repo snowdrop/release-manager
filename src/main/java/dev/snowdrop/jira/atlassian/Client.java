@@ -1,11 +1,17 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.beust.jcommander.JCommander;
+import dev.snowdrop.jira.atlassian.commands.*;
+import org.jboss.logging.Logger;
 
+import static dev.snowdrop.jira.atlassian.Utility.gitRefOrFail;
 import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
 
 public class Client {
-    public static void main(String[] argv) {
+    private static final Logger LOG = Logger.getLogger(Client.class);
+
+    public static void main(String[] argv) throws Exception {
+
         Client client = new Client();
         final Args args = new Args();
 
@@ -18,32 +24,29 @@ public class Client {
 
         switch (args.action) {
             case "get":
-                Service.getIssue(args.issue);
-                break;
+                final var issue = new GetIssue(args.issue).call();
+                LOG.info(issue);
+                return;
 
             case "create-component":
-                ReleaseService.createComponentIssues(args);
-                break;
+                new CreateComponentIssues(gitRefOrFail(args)).call();
+                return;
 
             case "clone":
-                ReleaseService.cloneIssue(args);
-                break;
+                new CloneIssue(gitRefOrFail(args), args.issue).call();
+                return;
 
             case "start-release":
-                ReleaseService.startRelease(args);
-                break;
+                new StartRelease(gitRefOrFail(args)).call();
+                return;
 
             case "link":
-                Service.linkIssue(args.issue, args.toIssue);
-                break;
+                new LinkIssue(args.issue, args.toIssue).call();
+                return;
 
             case "delete":
-                Service.deleteIssue(args.issue);
-                break;
-
-            case "delete-bulk":
-                Service.deleteIssues(args.issues);
-                break;
+                new DeleteIssues(args.issues).call();
+                return;
             default:
                 throw new RuntimeException("Unknown action: " + args.action);
         }

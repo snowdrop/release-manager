@@ -14,9 +14,9 @@ import static dev.snowdrop.jira.atlassian.Utility.restClient;
 public class Service {
     private static final Logger LOG = Logger.getLogger(Service.class);
     private static final String LINK_TYPE = "Dependency";
+    private static final IssueRestClient cl = restClient.getIssueClient();
 
     public static void linkIssue(String fromIssue, String toIssue) {
-        final IssueRestClient cl = restClient.getIssueClient();
         final Promise<Issue> toPromise = cl.getIssue(toIssue)
               .fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
 
@@ -28,20 +28,13 @@ public class Service {
         LOG.infof("Linked %s with the blocking issue %s: %s", getURLFor(fromIssue), toIssue, to.getSummary());
     }
 
-    public static void getIssue(String issueNumber) {
-        final IssueRestClient cl = restClient.getIssueClient();
+    public static Issue getIssue(String issueNumber) {
         Issue issue = cl.getIssue(issueNumber).claim();
         LOG.info(issue);
-    }
-
-    public static void deleteIssue(String issue) {
-        final IssueRestClient cl = restClient.getIssueClient();
-        cl.deleteIssue(issue, false).claim();
-        LOG.infof("Issue %s deleted", issue);
+        return issue;
     }
 
     public static void deleteIssues(List<String> issues) {
-        final IssueRestClient cl = restClient.getIssueClient();
         for (String issue : issues) {
             cl.deleteIssue(issue, false).claim();
             LOG.infof("Issue %s deleted", issue);
