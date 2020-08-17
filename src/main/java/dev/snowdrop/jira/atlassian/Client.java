@@ -38,7 +38,7 @@ public class Client {
 
 	@CommandLine.Command(name = "get", description = "Retrieve the specified issue")
 	public BasicIssue get(
-			@CommandLine.Option(names = {"-i", "--issue"}, description = "JIRA issue key", required = true) String key
+			@CommandLine.Parameters(description = "JIRA issue key") String key
 	) {
 		initClient();
 		return Service.getIssue(key);
@@ -47,8 +47,11 @@ public class Client {
 	@CommandLine.Command(name = "clone",
 			description = "Clone the specified issue using information from the release associated with the specified git reference")
 	public BasicIssue clone(
-			@CommandLine.Option(names = {"-g", "--git"}) String gitRef,
-			@CommandLine.Option(names = {"-i", "--issue"}, description = "JIRA issue key", defaultValue = ReleaseService.RELEASE_TICKET_TEMPLATE) String toCloneFrom
+			@CommandLine.Option(names = {"-g", "--git"},
+					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
+			@CommandLine.Parameters(description = "JIRA issue key",
+					defaultValue = ReleaseService.RELEASE_TICKET_TEMPLATE,
+					showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
 	) {
 		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
@@ -58,7 +61,8 @@ public class Client {
 	@CommandLine.Command(name = "create-component",
 			description = "Create component requests for the release associated with the specified git reference")
 	public void createComponentRequests(
-			@CommandLine.Option(names = {"-g", "--git"}) String gitRef
+			@CommandLine.Option(names = {"-g", "--git"},
+					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
 		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
@@ -67,8 +71,7 @@ public class Client {
 
 	@CommandLine.Command(name = "delete", description = "Delete the specified comma-separated issues")
 	public void delete(
-			@CommandLine.Option(names = {"-i", "--issue"}, description = "JIRA issue keys", required = true,
-					split = ",") List<String> issues
+			@CommandLine.Parameters(description = "Comma-separated JIRA issue keys", split = ",") List<String> issues
 	) {
 		initClient();
 		Service.deleteIssues(issues);
@@ -77,8 +80,7 @@ public class Client {
 	@CommandLine.Command(name = "link",
 			description = "Link the issue specified by the 'from' option to the issue specified by the 'to' option")
 	public void link(
-			@CommandLine.Option(names = {"-f", "--from"}, description = ("JIRA issue key from which a link should be " +
-					"created"), required = true) String fromIssue,
+			@CommandLine.Parameters(description = ("JIRA issue key from which a link should be created")) String fromIssue,
 			@CommandLine.Option(names = {"-t", "--to"}, description = ("JIRA issue key to link to"), required = true) String toIssue
 	) {
 		initClient();
@@ -88,7 +90,8 @@ public class Client {
 	@CommandLine.Command(name = "start-release",
 			description = "Start the release process for the release associated with the specified git reference")
 	public BasicIssue startRelease(
-			@CommandLine.Option(names = {"-g", "--git"}) String gitRef
+			@CommandLine.Option(names = {"-g", "--git"},
+					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
 		initClient();
 		Release release = Release.createFromGitRef(gitRef);
