@@ -43,10 +43,10 @@ An example of such `release.yml` can be found at: https://github.com/metacosm/sp
 To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command: 
 ```bash
 java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD 
-    -action create-component \
-    -git <github org>/<github repo>/<git reference: branch, tag, hash> 
+    -u JBOSS_JIRA_USER \
+    -p JBOSS_JIRA_PWD 
+    create-component
+    -g <github org>/<github repo>/<git reference: branch, tag, hash> 
 ```
 
 This will parse the `release.yml` file found at the specified git reference, retrieve all the defined components
@@ -69,28 +69,26 @@ the `hibernate-validator` property.
 To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:  
 ```bash
 java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
-    -url https://issues.redhat.com \
-    -cfg etc/release.yaml \
-    -action link \
-    -issue ENTSBT-xxx \
-    -to_issue EAP-yyy 
+    -u JBOSS_JIRA_USER \
+    -p JBOSS_JIRA_PWD \
+    link
+    ENTSBT-xxx \
+    --to EAP-yyy 
 ```
 
-The `to_issue` parameter represents the issue which currently blocks the release issue referenced by the parameter `issue`.
+The `to` option represents the issue which currently blocks the release issue referenced by the `issue` specified as
+ a parameter.
 
 ### Clone a JIRA Release issue and their subtasks
 
 To clone a Release issue and their sub-tasks
 ```bash
  java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
-    -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD \
-    -url https://issues.redhat.com \
-    -cfg etc/release.yaml \
-    -action clone \
-    -issue ENTSBT-ddd
+    -u JBOSS_JIRA_USER \
+    -p JBOSS_JIRA_PWD \
+    clone \
+    ENTSBT-ddd     
+    --git <github org>/<github repo>/<git reference: branch, tag, hash> 
 ```
  
 ## HTTP Request to get or create JIRA tickets
