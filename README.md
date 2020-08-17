@@ -23,7 +23,7 @@ Instructions:
 
 - Build the code
 ```bash
-mvn clean package 
+mvn clean package
 ```
 
 ### Release definition
@@ -35,18 +35,19 @@ new release cycle.
 The `release.yml` file lives in the `snowdrop/spring-boot-bom` repository right next to the `pom.xml` file so that they
 can evolve concurrently as needed and be kept in sync. This file should be updated each time the team starts working
  on a new release.
- 
+
 An example of such `release.yml` can be found at: https://github.com/metacosm/spring-boot-bom/blob/release-integration/release.yml
 
 ### Create JIRA stakeholder request issues
 
-To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command: 
+To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command:
 ```bash
 java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
-    -password JBOSS_JIRA_PWD 
+    -password JBOSS_JIRA_PWD \
     -action create-component \
-    -git <github org>/<github repo>/<git reference: branch, tag, hash> 
+    -watcher_list john,doe \
+    -git <github org>/<github repo>/<git reference: branch, tag, hash>
 ```
 
 This will parse the `release.yml` file found at the specified git reference, retrieve all the defined components
@@ -57,16 +58,16 @@ This will parse the `release.yml` file found at the specified git reference, ret
 Each component is identified by its associated JIRA project name (which is used to create the corresponding JIRA
 request) and a set of properties used to identify which artifacts are linked to this particular component. The
 name of the component's properties follow the name version properties defined in the POM. For example, for Hibernate,
-the version property is named `hibernate.version` and the associated component property is named `hibernate` 
+the version property is named `hibernate.version` and the associated component property is named `hibernate`
 (`issues-manager` takes care of matching that property to the one used in the POM). If we also want to associate
 other properties to the same component, we can add more. For example, the Hibernate component is associated with
 the `hibernate-validator` property.
-       
-**IMPORTANT**: 
+
+**IMPORTANT**:
 
 ### Link JIRA issues to a parent
 
-To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:  
+To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:
 ```bash
 java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
     -user JBOSS_JIRA_USER \
@@ -75,7 +76,7 @@ java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
     -cfg etc/release.yaml \
     -action link \
     -issue ENTSBT-xxx \
-    -to_issue EAP-yyy 
+    -to_issue EAP-yyy
 ```
 
 The `to_issue` parameter represents the issue which currently blocks the release issue referenced by the parameter `issue`.
@@ -92,7 +93,7 @@ To clone a Release issue and their sub-tasks
     -action clone \
     -issue ENTSBT-ddd
 ```
- 
+
 ## HTTP Request to get or create JIRA tickets
 
 Atlassian REST API v2 doc: https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/
