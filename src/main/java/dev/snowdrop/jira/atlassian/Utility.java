@@ -1,7 +1,6 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.atlassian.jira.rest.client.api.domain.Version;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,38 +35,6 @@ public class Utility {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	public static IssueType TASK_TYPE() {
-		try {
-			// TODO: Add a method able to fetch the IssueTypes and selecting `Request`, if not available `Task`
-			return new IssueType(
-					new URI(JIRA_ISSUES_API + "issuetype/3"),
-					Long.valueOf("3"),
-					"A task that needs to be done.",
-					false,
-					"Task",
-					new URI("https://issues.redhat.com/secure/viewavatar?size=xsmall&avatarId=13278&avatarType=issuetype"));
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public static IssueType SUB_TASK_TYPE() {
-		try {
-			// TODO: Add a method able to fetch the IssueTypes and selecting `Request`, if not available `Task`
-			return new IssueType(
-					new URI(JIRA_ISSUES_API + "issuetype/5"),
-					5L,
-					"Sub-task",
-					true,
-					"The sub-task of the issue",
-					new URI("https://issues.redhat.com/secure/viewavatar?size=xsmall&avatarId=13276&avatarType=issuetype"));
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	public static URI jiraServerUri(String uri) {
@@ -125,12 +92,5 @@ public class Utility {
 
 	public static boolean isStringNullOrBlank(String s) {
 		return s == null || s.isBlank();
-	}
-
-	static String gitRefOrFail(Args args) {
-		if (args.gitRef == null) {
-			throw new IllegalArgumentException("Must provide a Git reference to retrieve release.yml from");
-		}
-		return args.gitRef;
 	}
 }
