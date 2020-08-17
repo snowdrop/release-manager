@@ -35,4 +35,7 @@ public class Args {
 
     @Parameter(names = "-git", description = "GitHub reference")
     public String gitRef;
+
+    @Parameter(names = "-watcher_list", description = "JIRA Watcher List CSV")
+    public String watcherList;
 }
