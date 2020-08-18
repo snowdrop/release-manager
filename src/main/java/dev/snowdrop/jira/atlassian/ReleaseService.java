@@ -13,8 +13,6 @@ import dev.snowdrop.jira.atlassian.model.IssueSource;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
-import java.util.stream.StreamSupport;
-
 import static dev.snowdrop.jira.atlassian.Utility.*;
 
 public class ReleaseService extends Service {
@@ -124,9 +122,5 @@ public class ReleaseService extends Service {
                 */
 
 		return iib.build();
-	}
-
-	private static long CollectionSize(Iterable<Subtask> data) {
-		return StreamSupport.stream(data.spliterator(), false).count();
 	}
 }
