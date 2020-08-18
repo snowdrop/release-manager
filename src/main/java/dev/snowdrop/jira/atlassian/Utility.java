@@ -28,7 +28,7 @@ public class Utility {
 	}
 
 	public static URI jiraServerUri(String uri) {
-		return URI.create(Objects.requireNonNullElse(uri, "https://issues.redhat.com/"));
+		return URI.create(Objects.requireNonNullElse(uri, JIRA_SERVER));
 	}
 
 	public static DateTime toDateTime(String dateTimeSt) {
