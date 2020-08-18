@@ -1,6 +1,5 @@
 package dev.snowdrop.jira.atlassian;
 
-import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.jira.atlassian.model.Release;
 import dev.snowdrop.jira.atlassian.model.ReleaseFactory;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import static dev.snowdrop.jira.atlassian.Service.RELEASE_TICKET_TEMPLATE;
 import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
-import static dev.snowdrop.jira.atlassian.Utility.restClient;
 
 @CommandLine.Command(
 		name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0"
@@ -102,9 +100,8 @@ public class Client {
 		// first check if we already have a release ticket, in which case we don't need to clone the template
 		final String releaseTicket = release.getJiraKey();
 		if (!Utility.isStringNullOrBlank(releaseTicket)) {
-			final IssueRestClient cl = restClient.getIssueClient();
 			try {
-				issue = cl.getIssue(releaseTicket).claim();
+				issue = Service.getIssue(releaseTicket);
 				System.out.printf("Release ticket %s already exists, skipping cloning step", releaseTicket);
 			} catch (Exception e) {
 				// if we got an exception, assume that it's because we didn't find the ticket
