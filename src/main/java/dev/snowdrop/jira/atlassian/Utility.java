@@ -30,11 +30,6 @@ public class Utility {
 	public static void initRestClient(String jiraServerUri, String user, String password) {
 		AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
 		restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(jiraServerUri), user, password);
-		try {
-			restClient.getSessionClient().getCurrentSession().get().getLoginInfo().getFailedLoginCount();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public static URI jiraServerUri(String uri) {
