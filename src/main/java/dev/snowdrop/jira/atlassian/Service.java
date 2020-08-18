@@ -29,9 +29,7 @@ public class Service {
 
     public static Issue getIssue(String issueNumber) {
         final var cl = restClient.getIssueClient();
-        Issue issue = cl.getIssue(issueNumber).claim();
-        LOG.info(issue);
-        return issue;
+        return cl.getIssue(issueNumber).claim();
     }
 
     public static void deleteIssues(List<String> issues) {

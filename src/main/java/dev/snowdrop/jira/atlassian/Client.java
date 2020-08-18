@@ -37,16 +37,16 @@ public class Client {
 	}
 
 	@CommandLine.Command(name = "get", description = "Retrieve the specified issue")
-	public BasicIssue get(
+	public void get(
 			@CommandLine.Parameters(description = "JIRA issue key") String key
 	) {
 		initClient();
-		return Service.getIssue(key);
+		System.out.println(Service.getIssue(key));
 	}
 
 	@CommandLine.Command(name = "clone",
 			description = "Clone the specified issue using information from the release associated with the specified git reference")
-	public BasicIssue clone(
+	public void clone(
 			@CommandLine.Option(names = {"-g", "--git"},
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
 			@CommandLine.Parameters(description = "JIRA issue key",
@@ -55,7 +55,7 @@ public class Client {
 	) {
 		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
-		return ReleaseService.clone(release, toCloneFrom);
+		System.out.println(ReleaseService.clone(release, toCloneFrom));
 	}
 
 	@CommandLine.Command(name = "create-component",
@@ -89,7 +89,7 @@ public class Client {
 
 	@CommandLine.Command(name = "start-release",
 			description = "Start the release process for the release associated with the specified git reference")
-	public BasicIssue startRelease(
+	public void startRelease(
 			@CommandLine.Option(names = {"-g", "--git"},
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
@@ -113,6 +113,6 @@ public class Client {
 			issue = ReleaseService.clone(release, RELEASE_TICKET_TEMPLATE);
 		}
 		ReleaseService.createComponentRequests(release);
-		return issue;
+		System.out.println(issue);
 	}
 }
