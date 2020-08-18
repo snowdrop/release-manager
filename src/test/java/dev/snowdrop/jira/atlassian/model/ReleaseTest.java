@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class ReleaseTest {
+	private final ReleaseFactory factory = new ReleaseFactory();
 
 	private static InputStream getResourceAsStream(String s) {
 		return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
@@ -34,7 +35,7 @@ public class ReleaseTest {
 	@Test
 	public void missingVersionShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"));
 			fail("should have failed on missing version");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -47,7 +48,7 @@ public class ReleaseTest {
 	@Test
 	public void mismatchedVersionShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("mismatched-version.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("mismatched-version.yml"), getResourceAsStream("pom.xml"));
 			fail("should have failed on mismatched version");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -60,7 +61,7 @@ public class ReleaseTest {
 	@Test
 	public void missingScheduleShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"));
 			fail("should have failed on missing schedule");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -73,7 +74,7 @@ public class ReleaseTest {
 	@Test
 	public void wrongScheduleShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("invalid-schedule.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("invalid-schedule.yml"), getResourceAsStream("pom.xml"));
 			fail("should have failed on invalid schedule");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -87,7 +88,7 @@ public class ReleaseTest {
 	@Test
 	public void mismatchedPOMVersionsShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("mismatched-pom.xml"));
+			factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("mismatched-pom.xml"));
 			fail("should have failed on mismatched POM versions");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -101,7 +102,7 @@ public class ReleaseTest {
 	@Test
 	public void invalidComponentProjectShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"));
 			fail("should have failed on invalid component project");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -115,7 +116,7 @@ public class ReleaseTest {
 	@Test
 	public void invalidComponentIssueTypeShouldFail() {
 		try {
-			Release.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"));
 			fail("should have failed on invalid component issue type");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -127,7 +128,7 @@ public class ReleaseTest {
 
 	@Test
 	public void validReleaseShouldWork() throws IOException {
-		final Release release = Release.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
+		final Release release = factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
 		validate(release);
 	}
 
@@ -189,14 +190,14 @@ public class ReleaseTest {
 	@Test
 	public void creatingFromGitBranchShouldWork() throws Exception {
 		final String gitRef = "snowdrop/spring-boot-bom/sb-2.3.x";
-		final Release release = Release.createFromGitRef(gitRef);
+		final Release release = factory.createFromGitRef(gitRef);
 		validate(release);
 	}
 
 	@Test
 	public void creatingFromGitCommitShouldWork() throws Exception {
 		final String gitRef = "snowdrop/spring-boot-bom/1c45351";
-		final Release release = Release.createFromGitRef(gitRef);
+		final Release release = factory.createFromGitRef(gitRef);
 		validate(release);
 	}
 
