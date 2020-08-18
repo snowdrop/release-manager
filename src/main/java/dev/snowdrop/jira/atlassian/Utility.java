@@ -16,6 +16,7 @@ import java.util.Objects;
 public class Utility {
 	private static final DateTimeFormatter dateParser = ISODateTimeFormat.date();
 	public static final String JIRA_SERVER = "https://issues.redhat.com/";
+	public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
 	public static JiraRestClient restClient;
 	public static final MustacheFactory mf = new DefaultMustacheFactory();
 

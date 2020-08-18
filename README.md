@@ -36,16 +36,35 @@ The `release.yml` file lives in the `snowdrop/spring-boot-bom` repository right 
 can evolve concurrently as needed and be kept in sync. This file should be updated each time the team starts working
  on a new release.
  
-An example of such `release.yml` can be found at: https://github.com/metacosm/spring-boot-bom/blob/release-integration/release.yml
+An example of such `release.yml` can be found at: https://github.com/snowdrop/spring-boot-bom/blob/sb-3.x/release.yml
+
+### Start a new Snowdrop release
+
+Starting a release means cloning the template issue, creating stakeholder requests, linking them to the master release
+ticket that just got created and linking any CVE associated with the release. This process consumes a `release.yml` file
+associated with the code base that has been updated from upstream Spring Boot, which contains all the metadata for this
+tool to perform the needed operations. This is done by running the following command:
+
+```bash
+java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
+    -u JBOSS_JIRA_USER \
+    -p JBOSS_JIRA_PWD \
+    start-release \
+    -g <github org>/<github repo>/<git reference: branch, tag, hash> \
+    -w john,doe,foo  
+```
+
+The `-w` option allows to optionally add the list of comma-separated JIRA user names to the list of watchers for the 
+issues that have been created.
 
 ### Create JIRA stakeholder request issues
 
 To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command: 
 ```bash
-java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
+java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
     -u JBOSS_JIRA_USER \
-    -p JBOSS_JIRA_PWD 
-    create-component
+    -p JBOSS_JIRA_PWD \
+    create-component \
     -g <github org>/<github repo>/<git reference: branch, tag, hash> 
 ```
 
@@ -68,10 +87,10 @@ the `hibernate-validator` property.
 
 To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:  
 ```bash
-java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
+java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
-    link
+    link \
     ENTSBT-xxx \
     --to EAP-yyy 
 ```
@@ -83,11 +102,11 @@ The `to` option represents the issue which currently blocks the release issue re
 
 To clone a Release issue and their sub-tasks
 ```bash
- java -jar target/uber-issues-manager-1.0-SNAPSHOT.jar \
+ java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     clone \
-    ENTSBT-ddd     
+    ENTSBT-ddd \    
     --git <github org>/<github repo>/<git reference: branch, tag, hash> 
 ```
  

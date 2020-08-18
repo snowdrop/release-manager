@@ -24,6 +24,10 @@ public class Client {
 	@CommandLine.Option(names = "--url", description = "URL of the JIRA server", showDefaultValue =
 			CommandLine.Help.Visibility.ALWAYS, defaultValue = Utility.JIRA_SERVER, scope = CommandLine.ScopeType.INHERIT)
 	private String jiraServerURI;
+	@CommandLine.Option(names = {"-w", "--watchers"},
+			description = "Comma-separated list of user names to add to watchers",
+			scope = CommandLine.ScopeType.INHERIT, split = ",")
+	private List<String> watchers;
 
 	private ReleaseFactory factory = new ReleaseFactory();
 
@@ -55,7 +59,7 @@ public class Client {
 	) {
 		initClient();
 		final Release release = factory.createFromGitRef(gitRef);
-		System.out.println(Service.clone(release, toCloneFrom));
+		System.out.println(Service.clone(release, toCloneFrom, watchers));
 	}
 
 	@CommandLine.Command(name = "create-component",
@@ -66,7 +70,7 @@ public class Client {
 	) {
 		initClient();
 		final Release release = factory.createFromGitRef(gitRef);
-		Service.createComponentRequests(release);
+		Service.createComponentRequests(release, watchers);
 	}
 
 	@CommandLine.Command(name = "delete", description = "Delete the specified comma-separated issues")
@@ -105,13 +109,13 @@ public class Client {
 				System.out.printf("Release ticket %s already exists, skipping cloning step", releaseTicket);
 			} catch (Exception e) {
 				// if we got an exception, assume that it's because we didn't find the ticket
-				issue = Service.clone(release, RELEASE_TICKET_TEMPLATE);
+				issue = Service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
 			}
 		} else {
 			// no release ticket was specified, clone
-			issue = Service.clone(release, RELEASE_TICKET_TEMPLATE);
+			issue = Service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
 		}
-		Service.createComponentRequests(release);
+		Service.createComponentRequests(release, watchers);
 		System.out.println(issue);
 	}
 }

@@ -14,6 +14,8 @@ import dev.snowdrop.jira.atlassian.model.Release;
 import io.atlassian.util.concurrent.Promise;
 import org.jboss.logging.Logger;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import static dev.snowdrop.jira.atlassian.Utility.*;
@@ -49,7 +51,7 @@ public class Service {
 		}
 	}
 
-	public static BasicIssue clone(Release release, String toCloneFrom) {
+	public static BasicIssue clone(Release release, String toCloneFrom, List<String> watchers) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		Issue issue = cl.getIssue(toCloneFrom).claim();
 		// Create the cloned task
@@ -61,6 +63,7 @@ public class Service {
 		IssueInput ii = iib.build();
 		BasicIssue clonedIssue = cl.createIssue(ii).claim();
 		final String clonedIssueKey = clonedIssue.getKey();
+		addWatchers(clonedIssueKey, watchers);
 		LOG.infof("Issue cloned: %s", getURLFor(clonedIssueKey));
 
 		try {
@@ -91,6 +94,7 @@ public class Service {
 				iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", clonedIssueKey));
 				ii = iib.build();
 				BasicIssue subTaskIssue = cl.createIssue(ii).claim();
+				addWatchers(subTaskIssue.getKey(), watchers);
 				LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
 			}
 		}
@@ -100,13 +104,14 @@ public class Service {
 		return clonedIssue;
 	}
 
-	public static void createComponentRequests(Release release) {
+	public static void createComponentRequests(Release release, List<String> watchers) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		final String jiraKey = release.getJiraKey();
 
 		for (Component component : release.getComponents()) {
 			var issue = getIssueInput(component);
 			var componentIssue = cl.createIssue(issue).claim();
+			addWatchers(componentIssue.getKey(), watchers);
 			LOG.infof("Issue %s created successfully", getURLFor(componentIssue.getKey()));
 
 			/*
@@ -123,6 +128,7 @@ public class Service {
 			if (product != null) {
 				issue = getIssueInput(product);
 				var productIssue = cl.createIssue(issue).claim();
+				addWatchers(productIssue.getKey(), watchers);
 				LOG.infof("Product Issue %s created successfully for %s component", getURLFor(productIssue.getKey()),
 						component.getName());
 				// link the newly created product issue with our component issue
@@ -152,5 +158,20 @@ iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
 */
 
 		return iib.build();
+	}
+
+	private static void addWatchers(final String issueKey, final List<String> watchers) {
+		final IssueRestClient cl = restClient.getIssueClient();
+		try {
+			final URI jiraUri = new URI(JIRA_ISSUES_API + "issue/" + issueKey + "/watchers");
+			if (watchers != null && !watchers.isEmpty()) {
+				watchers.forEach(associate -> {
+					LOG.debug("associate: " + associate);
+					cl.addWatcher(jiraUri, associate).claim();
+				});
+			}
+		} catch (URISyntaxException e) {
+			LOG.error("Error adding watcher: " + e.getMessage());
+		}
 	}
 }
