@@ -13,9 +13,11 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
-import dev.snowdrop.jira.atlassian.Utility;
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import org.junit.jupiter.api.Test;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -26,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class ReleaseTest {
-
 	private static InputStream getResourceAsStream(String s) {
 		return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
 	}
@@ -206,11 +207,9 @@ public class ReleaseTest {
 		assertEquals(expectedVersion, artifact.getVersion());
 	}
 
-	static {
-		initMockRestClient();
-	}
-
-	private static void initMockRestClient() {
-		Utility.restClient = new MockJiraRestClient();
+	@Produces
+	@ApplicationScoped
+	JiraRestClient mockClient() {
+		return new MockJiraRestClient();
 	}
 }

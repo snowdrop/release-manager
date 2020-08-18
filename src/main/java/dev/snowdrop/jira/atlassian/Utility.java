@@ -1,8 +1,6 @@
 package dev.snowdrop.jira.atlassian;
 
-import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Version;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.github.mustachejava.DefaultMustacheFactory;
@@ -15,31 +13,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class Utility {
 	private static final DateTimeFormatter dateParser = ISODateTimeFormat.date();
 	public static final String JIRA_SERVER = "https://issues.redhat.com/";
 	public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
-	public static JiraRestClient restClient;
 	public static final MustacheFactory mf = new DefaultMustacheFactory();
 
 	// jackson databind
 	public static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
-
-	public static void initRestClient(String jiraServerUri, String user, String password) {
-		AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-		restClient = factory.createWithBasicHttpAuthentication(jiraServerUri(jiraServerUri), user, password);
-		try {
-			restClient.getSessionClient().getCurrentSession().get().getLoginInfo().getFailedLoginCount();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	public static URI jiraServerUri(String uri) {
-		return URI.create(Objects.requireNonNullElse(uri, "https://issues.redhat.com/"));
-	}
 
 	public static Iterable<Version> setFixVersion() {
 		List<Version> versions = new ArrayList<Version>();

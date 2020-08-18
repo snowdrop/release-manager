@@ -1,6 +1,7 @@
 package dev.snowdrop.jira.atlassian;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
@@ -13,15 +14,24 @@ import dev.snowdrop.jira.atlassian.model.IssueSource;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 
-import java.util.stream.StreamSupport;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 
-import static dev.snowdrop.jira.atlassian.Utility.*;
+import static dev.snowdrop.jira.atlassian.Utility.getURLFor;
+import static dev.snowdrop.jira.atlassian.Utility.toDateTime;
 
-public class ReleaseService extends Service {
+@ApplicationScoped
+public class ReleaseService {
 	private static final Logger LOG = Logger.getLogger(ReleaseService.class);
 	public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
 
-	public static BasicIssue clone(Release release, String toCloneFrom) {
+	@Inject
+	JiraRestClient restClient;
+
+	@Inject
+	Service service;
+
+	public BasicIssue clone(Release release, String toCloneFrom) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		Issue issue = cl.getIssue(toCloneFrom).claim();
 		// Create the cloned task
@@ -43,7 +53,7 @@ public class ReleaseService extends Service {
 
 		// Check if CVEs exist within the Release and link them to the new release ticket created
 		for (dev.snowdrop.jira.atlassian.model.Issue cve : release.getCves()) {
-			linkIssue(clonedIssueKey, cve.getProject() + "-" + cve.getKey());
+			service.linkIssue(clonedIssueKey, cve.getProject() + "-" + cve.getKey());
 		}
 
 		// Get the list of the sub-tasks
@@ -72,7 +82,7 @@ public class ReleaseService extends Service {
 		return clonedIssue;
 	}
 
-	public static void createComponentRequests(Release release) {
+	public void createComponentRequests(Release release) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		final String jiraKey = release.getJiraKey();
 
@@ -86,7 +96,7 @@ public class ReleaseService extends Service {
 			 * release issue
 			 */
 			if (jiraKey != null) {
-				linkIssue(jiraKey, componentIssue.getKey());
+				service.linkIssue(jiraKey, componentIssue.getKey());
 			}
 
 			// if component also defines a product field, then we should create a ticket for the associated product team
@@ -98,12 +108,12 @@ public class ReleaseService extends Service {
 				LOG.infof("Product Issue %s created successfully for %s component", getURLFor(productIssue.getKey()),
 						component.getName());
 				// link the newly created product issue with our component issue
-				linkIssue(componentIssue.getKey(), productIssue.getKey());
+				service.linkIssue(componentIssue.getKey(), productIssue.getKey());
 			}
 		}
 	}
 
-	private static IssueInput getIssueInput(IssueSource source) {
+	private IssueInput getIssueInput(IssueSource source) {
 		IssueInputBuilder iib = new IssueInputBuilder();
 		final var jira = source.getJira();
 		iib.setProjectKey(jira.getProject());
@@ -124,9 +134,5 @@ public class ReleaseService extends Service {
                 */
 
 		return iib.build();
-	}
-
-	private static long CollectionSize(Iterable<Subtask> data) {
-		return StreamSupport.stream(data.spliterator(), false).count();
 	}
 }

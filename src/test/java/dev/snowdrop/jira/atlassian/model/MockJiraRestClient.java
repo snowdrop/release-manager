@@ -14,12 +14,16 @@
 package dev.snowdrop.jira.atlassian.model;
 
 import com.atlassian.jira.rest.client.api.*;
+import io.quarkus.test.Mock;
 
+import javax.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
+@Mock
+@ApplicationScoped
 public class MockJiraRestClient implements JiraRestClient {
 	@Override
 	public IssueRestClient getIssueClient() {

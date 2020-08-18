@@ -1,20 +1,21 @@
 package dev.snowdrop.jira.atlassian;
 
-import com.atlassian.jira.rest.client.api.IssueRestClient;
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.jira.atlassian.model.Release;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.List;
 
 import static dev.snowdrop.jira.atlassian.ReleaseService.RELEASE_TICKET_TEMPLATE;
-import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
-import static dev.snowdrop.jira.atlassian.Utility.restClient;
 
 @CommandLine.Command(
 		name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0"
 )
+@ApplicationScoped
 public class Client {
 	private static final Logger LOG = Logger.getLogger(Client.class);
 
@@ -26,22 +27,25 @@ public class Client {
 			CommandLine.Help.Visibility.ALWAYS, defaultValue = Utility.JIRA_SERVER, scope = CommandLine.ScopeType.INHERIT)
 	private String jiraServerURI;
 
+	@Inject
+	JiraRestClient restClient;
+
+	@Inject
+	Service service;
+
+	@Inject
+	ReleaseService releaseService;
 
 	public static void main(String[] argv) throws Exception {
 		int exitCode = new CommandLine(new Client()).execute(argv);
 		System.exit(exitCode);
 	}
 
-	private void initClient() {
-		initRestClient(jiraServerURI, user, password);
-	}
-
 	@CommandLine.Command(name = "get", description = "Retrieve the specified issue")
 	public BasicIssue get(
 			@CommandLine.Parameters(description = "JIRA issue key") String key
 	) {
-		initClient();
-		return Service.getIssue(key);
+		return service.getIssue(key);
 	}
 
 	@CommandLine.Command(name = "clone",
@@ -53,9 +57,8 @@ public class Client {
 					defaultValue = ReleaseService.RELEASE_TICKET_TEMPLATE,
 					showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
 	) {
-		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
-		return ReleaseService.clone(release, toCloneFrom);
+		return releaseService.clone(release, toCloneFrom);
 	}
 
 	@CommandLine.Command(name = "create-component",
@@ -64,17 +67,15 @@ public class Client {
 			@CommandLine.Option(names = {"-g", "--git"},
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
-		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
-		ReleaseService.createComponentRequests(release);
+		releaseService.createComponentRequests(release);
 	}
 
 	@CommandLine.Command(name = "delete", description = "Delete the specified comma-separated issues")
 	public void delete(
 			@CommandLine.Parameters(description = "Comma-separated JIRA issue keys", split = ",") List<String> issues
 	) {
-		initClient();
-		Service.deleteIssues(issues);
+		service.deleteIssues(issues);
 	}
 
 	@CommandLine.Command(name = "link",
@@ -83,8 +84,7 @@ public class Client {
 			@CommandLine.Parameters(description = ("JIRA issue key from which a link should be created")) String fromIssue,
 			@CommandLine.Option(names = {"-t", "--to"}, description = ("JIRA issue key to link to"), required = true) String toIssue
 	) {
-		initClient();
-		Service.linkIssue(fromIssue, toIssue);
+		service.linkIssue(fromIssue, toIssue);
 	}
 
 	@CommandLine.Command(name = "start-release",
@@ -93,26 +93,24 @@ public class Client {
 			@CommandLine.Option(names = {"-g", "--git"},
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
-		initClient();
 		Release release = Release.createFromGitRef(gitRef);
 
 		BasicIssue issue;
 		// first check if we already have a release ticket, in which case we don't need to clone the template
 		final String releaseTicket = release.getJiraKey();
 		if (!Utility.isStringNullOrBlank(releaseTicket)) {
-			final IssueRestClient cl = restClient.getIssueClient();
 			try {
-				issue = cl.getIssue(releaseTicket).claim();
+				issue = service.getIssue(releaseTicket);
 				System.out.printf("Release ticket %s already exists, skipping cloning step", releaseTicket);
 			} catch (Exception e) {
 				// if we got an exception, assume that it's because we didn't find the ticket
-				issue = ReleaseService.clone(release, RELEASE_TICKET_TEMPLATE);
+				issue = releaseService.clone(release, RELEASE_TICKET_TEMPLATE);
 			}
 		} else {
 			// no release ticket was specified, clone
-			issue = ReleaseService.clone(release, RELEASE_TICKET_TEMPLATE);
+			issue = releaseService.clone(release, RELEASE_TICKET_TEMPLATE);
 		}
-		ReleaseService.createComponentRequests(release);
+		releaseService.createComponentRequests(release);
 		return issue;
 	}
 }

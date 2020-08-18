@@ -1,10 +1,13 @@
 package dev.snowdrop.jira.atlassian.model;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.jira.atlassian.Utility;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -14,6 +17,7 @@ import java.util.List;
 import static dev.snowdrop.jira.atlassian.Utility.MAPPER;
 import static dev.snowdrop.jira.atlassian.Utility.isStringNullOrBlank;
 
+@ApplicationScoped
 public class Release {
 	public static final String RELEASE_SUFFIX = ".RELEASE";
 	@JsonProperty
@@ -30,6 +34,9 @@ public class Release {
 	private String gitRef;
 	@JsonIgnore
 	private POM pom;
+
+	@Inject
+	JiraRestClient restClient;
 
 	/**
 	 * @param gitRef a GitHub reference in the form org/project/reference e.g. metacosm/spring-boot-bom/release-integration
@@ -119,7 +126,7 @@ public class Release {
 			var name = component.getName();
 			var issueTypeId = issue.getIssueTypeId();
 			try {
-				var p = Utility.restClient.getProjectClient().getProject(project).claim();
+				var p = restClient.getProjectClient().getProject(project).claim();
 				for (IssueType issueType : p.getIssueTypes()) {
 					if (issueType.getId().equals(issueTypeId)) {
 						return;
