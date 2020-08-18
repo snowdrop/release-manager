@@ -8,7 +8,7 @@ import picocli.CommandLine;
 
 import java.util.List;
 
-import static dev.snowdrop.jira.atlassian.ReleaseService.RELEASE_TICKET_TEMPLATE;
+import static dev.snowdrop.jira.atlassian.Service.RELEASE_TICKET_TEMPLATE;
 import static dev.snowdrop.jira.atlassian.Utility.initRestClient;
 import static dev.snowdrop.jira.atlassian.Utility.restClient;
 
@@ -50,12 +50,12 @@ public class Client {
 			@CommandLine.Option(names = {"-g", "--git"},
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
 			@CommandLine.Parameters(description = "JIRA issue key",
-					defaultValue = ReleaseService.RELEASE_TICKET_TEMPLATE,
+					defaultValue = Service.RELEASE_TICKET_TEMPLATE,
 					showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
 	) {
 		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
-		System.out.println(ReleaseService.clone(release, toCloneFrom));
+		System.out.println(Service.clone(release, toCloneFrom));
 	}
 
 	@CommandLine.Command(name = "create-component",
@@ -66,7 +66,7 @@ public class Client {
 	) {
 		initClient();
 		final Release release = Release.createFromGitRef(gitRef);
-		ReleaseService.createComponentRequests(release);
+		Service.createComponentRequests(release);
 	}
 
 	@CommandLine.Command(name = "delete", description = "Delete the specified comma-separated issues")
@@ -106,13 +106,13 @@ public class Client {
 				System.out.printf("Release ticket %s already exists, skipping cloning step", releaseTicket);
 			} catch (Exception e) {
 				// if we got an exception, assume that it's because we didn't find the ticket
-				issue = ReleaseService.clone(release, RELEASE_TICKET_TEMPLATE);
+				issue = Service.clone(release, RELEASE_TICKET_TEMPLATE);
 			}
 		} else {
 			// no release ticket was specified, clone
-			issue = ReleaseService.clone(release, RELEASE_TICKET_TEMPLATE);
+			issue = Service.clone(release, RELEASE_TICKET_TEMPLATE);
 		}
-		ReleaseService.createComponentRequests(release);
+		Service.createComponentRequests(release);
 		System.out.println(issue);
 	}
 }
