@@ -7,16 +7,25 @@ import javax.inject.Inject;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.jira.atlassian.model.Release;
 import dev.snowdrop.jira.atlassian.model.ReleaseFactory;
+import io.quarkus.runtime.Quarkus;
+import io.quarkus.runtime.QuarkusApplication;
+import io.quarkus.runtime.annotations.QuarkusMain;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.List;
 
 import static dev.snowdrop.jira.atlassian.Service.RELEASE_TICKET_TEMPLATE;
 
 @CommandLine.Command(
 		name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0"
 )
-public class Client {
-	private static final Logger LOG = Logger.getLogger(Client.class);
+@ApplicationScoped
+@QuarkusMain
+public class Client implements QuarkusApplication {
+	static final Logger LOG = Logger.getLogger(Client.class);
 
 	@CommandLine.Option(names = {"-u", "--user"}, description = "JIRA user", required = true, scope = CommandLine.ScopeType.INHERIT)
 	private String user;
@@ -35,10 +44,17 @@ public class Client {
 	
 	@Inject
 	Service service;
-	
+
+	@Inject
+	CommandLine.IFactory cliFactory;
 	public static void main(String[] argv) throws Exception {
-		int exitCode = new CommandLine(new Client()).execute(argv);
-		System.exit(exitCode);
+		Quarkus.run(Client.class, argv);
+	}
+
+	@Override
+	public int run(String... args) throws Exception {
+		int exitCode = new CommandLine(this, cliFactory).execute(args);
+		return exitCode;
 	}
 	
 	@CommandLine.Command(name = "get", description = "Retrieve the specified issue")
