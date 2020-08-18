@@ -3,6 +3,7 @@ package dev.snowdrop.jira.atlassian;
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.jira.atlassian.model.Release;
+import dev.snowdrop.jira.atlassian.model.ReleaseFactory;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
@@ -26,6 +27,7 @@ public class Client {
 			CommandLine.Help.Visibility.ALWAYS, defaultValue = Utility.JIRA_SERVER, scope = CommandLine.ScopeType.INHERIT)
 	private String jiraServerURI;
 
+	private ReleaseFactory factory = new ReleaseFactory();
 
 	public static void main(String[] argv) throws Exception {
 		int exitCode = new CommandLine(new Client()).execute(argv);
@@ -54,7 +56,7 @@ public class Client {
 					showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
 	) {
 		initClient();
-		final Release release = Release.createFromGitRef(gitRef);
+		final Release release = factory.createFromGitRef(gitRef);
 		System.out.println(Service.clone(release, toCloneFrom));
 	}
 
@@ -65,7 +67,7 @@ public class Client {
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
 		initClient();
-		final Release release = Release.createFromGitRef(gitRef);
+		final Release release = factory.createFromGitRef(gitRef);
 		Service.createComponentRequests(release);
 	}
 
@@ -94,7 +96,7 @@ public class Client {
 					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
 	) {
 		initClient();
-		Release release = Release.createFromGitRef(gitRef);
+		Release release = factory.createFromGitRef(gitRef);
 
 		BasicIssue issue;
 		// first check if we already have a release ticket, in which case we don't need to clone the template
