@@ -4,7 +4,9 @@
 
   * [Introduction](#introduction)
   * [Issues Manager](#issues-manager)
-     * [Create JIRA "Component/starter" issues](#create-jira-componentstarter-issues)
+     * [Release definition](#release-definition)
+     * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
+     * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
      * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
      * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
   * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
@@ -36,7 +38,7 @@ The `release.yml` file lives in the `snowdrop/spring-boot-bom` repository right 
 can evolve concurrently as needed and be kept in sync. This file should be updated each time the team starts working
  on a new release.
  
-An example of such `release.yml` can be found at: https://github.com/snowdrop/spring-boot-bom/blob/sb-3.x/release.yml
+An example of such `release.yml` can be found at: https://github.com/snowdrop/spring-boot-bom/blob/sb-2.3.x/release.yml
 
 ### Start a new Snowdrop release
 
