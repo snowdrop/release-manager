@@ -13,15 +13,18 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
-import com.atlassian.jira.rest.client.api.domain.IssueType;
-import dev.snowdrop.jira.atlassian.Utility;
-
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.IssueType;
+import dev.snowdrop.jira.atlassian.Utility;
 
 import static dev.snowdrop.jira.atlassian.Utility.MAPPER;
 import static dev.snowdrop.jira.atlassian.Utility.isStringNullOrBlank;
@@ -32,6 +35,9 @@ import static dev.snowdrop.jira.atlassian.model.Release.RELEASE_SUFFIX;
  */
 @Singleton
 public class ReleaseFactory {
+	@Inject
+	JiraRestClient restClient;
+	
 	/**
 	 * @param gitRef a GitHub reference in the form org/project/reference e.g. metacosm/spring-boot-bom/release-integration
 	 * @return
@@ -39,7 +45,7 @@ public class ReleaseFactory {
 	 */
 	public Release createFromGitRef(String gitRef) {
 		try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release.yml");
-			  InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
+			 InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
 
 			return createFrom(releaseIS, pomIS);
 		} catch (IOException e) {
@@ -127,7 +133,7 @@ public class ReleaseFactory {
 			var name = component.getName();
 			var issueTypeId = issue.getIssueTypeId();
 			try {
-				var p = Utility.restClient.getProjectClient().getProject(project).claim();
+				var p = restClient.getProjectClient().getProject(project).claim();
 				for (IssueType issueType : p.getIssueTypes()) {
 					if (issueType.getId().equals(issueTypeId)) {
 						return;
