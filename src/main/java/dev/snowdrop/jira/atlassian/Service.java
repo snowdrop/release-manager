@@ -1,6 +1,14 @@
 package dev.snowdrop.jira.atlassian;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+
 import com.atlassian.jira.rest.client.api.IssueRestClient;
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
@@ -14,44 +22,46 @@ import dev.snowdrop.jira.atlassian.model.Release;
 import io.atlassian.util.concurrent.Promise;
 import org.jboss.logging.Logger;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
+import static dev.snowdrop.jira.atlassian.Utility.JIRA_ISSUES_API;
+import static dev.snowdrop.jira.atlassian.Utility.getURLFor;
+import static dev.snowdrop.jira.atlassian.Utility.toDateTime;
 
-import static dev.snowdrop.jira.atlassian.Utility.*;
-
+@ApplicationScoped
 public class Service {
 	public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
 	private static final Logger LOG = Logger.getLogger(Service.class);
 	private static final String LINK_TYPE = "Dependency";
-
-	public static void linkIssue(String fromIssue, String toIssue) {
+	
+	@Inject
+	JiraRestClient restClient;
+	
+	public void linkIssue(String fromIssue, String toIssue) {
 		final var cl = restClient.getIssueClient();
 		final Promise<Issue> toPromise = cl.getIssue(toIssue)
-				.fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
-
+			.fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
+		
 		cl.linkIssue(new LinkIssuesInput(fromIssue, toIssue, LINK_TYPE))
-				.fail(e -> LOG.errorf("Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage()))
-				.claim();
-
+			.fail(e -> LOG.errorf("Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage()))
+			.claim();
+		
 		final Issue to = toPromise.claim();
 		LOG.infof("Linked %s with the blocking issue %s: %s", getURLFor(fromIssue), toIssue, to.getSummary());
 	}
-
-	public static Issue getIssue(String issueNumber) {
+	
+	public Issue getIssue(String issueNumber) {
 		final var cl = restClient.getIssueClient();
 		return cl.getIssue(issueNumber).claim();
 	}
-
-	public static void deleteIssues(List<String> issues) {
+	
+	public void deleteIssues(List<String> issues) {
 		final var cl = restClient.getIssueClient();
 		for (String issue : issues) {
 			cl.deleteIssue(issue, false).claim();
 			LOG.infof("Issue %s deleted", issue);
 		}
 	}
-
-	public static BasicIssue clone(Release release, String toCloneFrom, List<String> watchers) {
+	
+	public BasicIssue clone(Release release, String toCloneFrom, List<String> watchers) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		Issue issue = cl.getIssue(toCloneFrom).claim();
 		// Create the cloned task
@@ -98,22 +108,22 @@ public class Service {
 				LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
 			}
 		}
-
+		
 		// set the JIRA key on the release for further processing
 		release.setJiraKey(clonedIssueKey);
 		return clonedIssue;
 	}
-
-	public static void createComponentRequests(Release release, List<String> watchers) {
+	
+	public void createComponentRequests(Release release, List<String> watchers) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		final String jiraKey = release.getJiraKey();
-
+		
 		for (Component component : release.getComponents()) {
 			var issue = getIssueInput(component);
 			var componentIssue = cl.createIssue(issue).claim();
 			addWatchers(componentIssue.getKey(), watchers);
 			LOG.infof("Issue %s created successfully", getURLFor(componentIssue.getKey()));
-
+			
 			/*
 			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
 			 * release issue
@@ -156,11 +166,11 @@ See: https://github.com/snowdrop/jira-tool/issues/7
 IF we know the custom_field value, then we can fill the following field
 iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
 */
-
+		
 		return iib.build();
 	}
-
-	private static void addWatchers(final String issueKey, final List<String> watchers) {
+	
+	private void addWatchers(final String issueKey, final List<String> watchers) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		try {
 			final URI jiraUri = new URI(JIRA_ISSUES_API + "issue/" + issueKey + "/watchers");

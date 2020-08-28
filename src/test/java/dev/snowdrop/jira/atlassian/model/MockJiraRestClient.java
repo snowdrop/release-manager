@@ -13,13 +13,30 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
-import com.atlassian.jira.rest.client.api.*;
-
 import java.io.IOException;
+
+import javax.inject.Singleton;
+
+import com.atlassian.jira.rest.client.api.AuditRestClient;
+import com.atlassian.jira.rest.client.api.ComponentRestClient;
+import com.atlassian.jira.rest.client.api.GroupRestClient;
+import com.atlassian.jira.rest.client.api.IssueRestClient;
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.MetadataRestClient;
+import com.atlassian.jira.rest.client.api.MyPermissionsRestClient;
+import com.atlassian.jira.rest.client.api.ProjectRestClient;
+import com.atlassian.jira.rest.client.api.ProjectRolesRestClient;
+import com.atlassian.jira.rest.client.api.SearchRestClient;
+import com.atlassian.jira.rest.client.api.SessionRestClient;
+import com.atlassian.jira.rest.client.api.UserRestClient;
+import com.atlassian.jira.rest.client.api.VersionRestClient;
+import io.quarkus.test.Mock;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
+@Mock
+@Singleton
 public class MockJiraRestClient implements JiraRestClient {
 	@Override
 	public IssueRestClient getIssueClient() {

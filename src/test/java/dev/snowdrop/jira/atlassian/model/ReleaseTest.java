@@ -13,25 +13,34 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
-import dev.snowdrop.jira.atlassian.Utility;
-import org.junit.jupiter.api.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import javax.inject.Inject;
+
+import io.quarkus.test.junit.QuarkusTest;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
+@QuarkusTest
 public class ReleaseTest {
-	private final ReleaseFactory factory = new ReleaseFactory();
-
+	
+	@Inject
+	ReleaseFactory factory;
+	
 	private static InputStream getResourceAsStream(String s) {
 		return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
 	}
-
+	
 	@Test
 	public void missingVersionShouldFail() {
 		try {
@@ -205,13 +214,5 @@ public class ReleaseTest {
 		final Artifact artifact = artifacts.get(index);
 		assertEquals(expectedName, artifact.getName());
 		assertEquals(expectedVersion, artifact.getVersion());
-	}
-
-	static {
-		initMockRestClient();
-	}
-
-	private static void initMockRestClient() {
-		Utility.restClient = new MockJiraRestClient();
 	}
 }
