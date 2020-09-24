@@ -59,22 +59,22 @@ public class ReleaseFactory {
 		// retrieve associated POM
 		final var pom = POM.createFrom(pomIS);
 		release.setPom(pom);
-
+		
 		// validate release
 		final String pomVersion = pom.getVersion();
 		validate(release, pomVersion);
-
+		
 		return release;
 	}
-
-	private static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
+	
+	static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
 		URI uri = URI.create("https://raw.githubusercontent.com/" + gitRef + "/" + relativePath);
 		return uri.toURL().openStream();
 	}
-
+	
 	public void validate(Release release, String expectedVersion) throws IllegalArgumentException {
 		final List<String> errors = new LinkedList<>();
-
+		
 		// validate version
 		final var version = release.getVersion();
 		if (Utility.isStringNullOrBlank(version)) {

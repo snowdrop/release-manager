@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -186,28 +187,31 @@ public class ReleaseTest {
 
 		final List<Issue> cves = release.getCves();
 		assertEquals(4, cves.size());
-
+		
 		Issue cve = cves.get(0);
 		assertEquals(cve.getProject(), "ENTSBT");
 		assertEquals(cve.getKey(), "360");
-
+		
 		cve = cves.get(1);
 		assertEquals(cve.getProject(), "ENTSBT");
 		assertEquals(cve.getKey(), "316");
 	}
-
+	
+	@Test
+	public void creatingFromNonExistentGitRefShouldFail() {
+		assertThrows(IOException.class, () -> ReleaseFactory.getStreamFromGitRef("foo/bar", "release.yml"));
+	}
+	
 	@Test
 	public void creatingFromGitBranchShouldWork() throws Exception {
 		final String gitRef = "snowdrop/spring-boot-bom/sb-2.3.x";
-		final Release release = factory.createFromGitRef(gitRef);
-		validate(release);
+		ReleaseFactory.getStreamFromGitRef(gitRef, "release.yml");
 	}
-
+	
 	@Test
 	public void creatingFromGitCommitShouldWork() throws Exception {
 		final String gitRef = "snowdrop/spring-boot-bom/1c45351";
-		final Release release = factory.createFromGitRef(gitRef);
-		validate(release);
+		ReleaseFactory.getStreamFromGitRef(gitRef, "release.yml");
 	}
 
 	private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {
