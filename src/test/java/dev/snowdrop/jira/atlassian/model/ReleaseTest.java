@@ -146,17 +146,18 @@ public class ReleaseTest {
 		assertNotNull(release);
 		final var expectedSBVersion = "2.3.2";
 		assertEquals(expectedSBVersion, release.getVersion());
-
+		
 		final List<Component> components = release.getComponents();
 		assertEquals(11, components.size());
-
+		
 		var component = components.get(0);
 		assertNotNull(component.getParent());
-		assertEquals("Hibernate / Hibernate Validator / Undertow", component.getName());
-
+		assertEquals("Hibernate / Hibernate Validator / Undertow / RESTEasy", component.getName());
+		assertEquals("ivassile", component.getJira().getAssignee().get());
+		
 		final List<Artifact> artifacts = component.getArtifacts();
-		assertEquals(6, artifacts.size());
-
+		assertEquals(7, artifacts.size());
+		
 		final String hibernateVersion = "5.4.18.Final";
 		final String undertowVersion = "2.1.3.Final";
 		checkArtifact(artifacts, 0, "org.hibernate:hibernate-core", hibernateVersion);
@@ -173,18 +174,23 @@ public class ReleaseTest {
 			assertTrue(description.contains(artifact.getName()));
 			assertTrue(description.contains(artifact.getVersion()));
 		}
-
+		
 		component = components.get(7);
 		assertEquals("Narayana starter", component.getName());
 		final var product = component.getProduct();
 		assertNotNull(product);
+		final var jbtmAssignee = product.getJira().getAssignee().get();
+		assertEquals("mmusgrov", jbtmAssignee);
+		assertEquals(jbtmAssignee, component.getProductIssue().getAssignee().get());
+		final var jira = component.getJira();
+		assertEquals("gytis", jira.getAssignee().get());
 		final var endOfSupportDate = product.getEndOfSupportDate();
 		assertEquals(component.getParent().getSchedule().getFormattedEOLDate(), endOfSupportDate);
 		description = product.getDescription();
 		assertTrue(description.contains(endOfSupportDate));
 		assertTrue(description.contains(expectedSBVersion));
 		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
-
+		
 		final List<Issue> cves = release.getCves();
 		assertEquals(4, cves.size());
 		

@@ -151,9 +151,10 @@ public class Service {
 		IssueInputBuilder iib = new IssueInputBuilder();
 		final var jira = source.getJira();
 		iib.setProjectKey(jira.getProject());
+		iib.setIssueTypeId(jira.getIssueTypeId());
+		jira.getAssignee().ifPresent(iib::setAssigneeName);
 		iib.setSummary(source.getTitle());
 		iib.setDescription(source.getDescription());
-		iib.setIssueTypeId(jira.getIssueTypeId());
 		iib.setDueDate(toDateTime(source.getParent().getSchedule().getDueDate()));
 /*
 TODO: To be investigated

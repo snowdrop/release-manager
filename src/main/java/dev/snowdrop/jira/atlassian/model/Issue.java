@@ -13,40 +13,44 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
+import java.util.Objects;
+import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.jira.atlassian.Utility;
-
-import java.util.Objects;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Issue {
-	private static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
-	private static final Long DEFAULT_ISSUE_TYPE_ID = 3L;
-	@JsonProperty
-	private String project;
-	@JsonProperty
-	private String key;
-	@JsonProperty
-	private Long issueTypeId;
-
-	public String getKey() {
-		return key;
-	}
-
-	void setKey(String key) {
-		this.key = key;
-	}
-
-	public Long getIssueTypeId() {
-		return Objects.requireNonNullElse(issueTypeId, DEFAULT_ISSUE_TYPE_ID);
-	}
-
-	public String getProject() {
-		if (Utility.isStringNullOrBlank(project)) {
-			return DEFAULT_JIRA_PROJECT;
-		}
-		return project;
-	}
+    private static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
+    private static final Long DEFAULT_ISSUE_TYPE_ID = 3L;
+    @JsonProperty
+    private String project;
+    @JsonProperty
+    private String key;
+    @JsonProperty
+    private Long issueTypeId;
+    @JsonProperty
+    private String assignee;
+    
+    public String getKey() {
+        return key;
+    }
+    
+    void setKey(String key) {
+        this.key = key;
+    }
+    
+    public Long getIssueTypeId() {
+        return Objects.requireNonNullElse(issueTypeId, DEFAULT_ISSUE_TYPE_ID);
+    }
+    
+    public String getProject() {
+        return Utility.isStringNullOrBlank(project) ? DEFAULT_JIRA_PROJECT : project;
+    }
+    
+    public Optional<String> getAssignee() {
+        return Utility.isStringNullOrBlank(assignee) ? Optional.empty() : Optional.of(assignee);
+    }
 }
