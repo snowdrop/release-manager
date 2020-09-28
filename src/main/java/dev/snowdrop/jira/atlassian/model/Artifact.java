@@ -24,12 +24,17 @@ public class Artifact {
 		this.name = groupId + ":" + artifactId;
 		this.version = version;
 	}
-
+	
 	public String getName() {
 		return name;
 	}
-
+	
 	public String getVersion() {
 		return version;
+	}
+	
+	@Override
+	public String toString() {
+		return name + '@' + version;
 	}
 }
