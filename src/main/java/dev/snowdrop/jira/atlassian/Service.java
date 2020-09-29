@@ -30,7 +30,7 @@ import static dev.snowdrop.jira.atlassian.Utility.toDateTime;
 public class Service {
 	public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
 	private static final Logger LOG = Logger.getLogger(Service.class);
-	private static final String LINK_TYPE = "Dependency";
+	private static final String LINK_TYPE = "Blocks";
 	
 	@Inject
 	JiraRestClient restClient;
