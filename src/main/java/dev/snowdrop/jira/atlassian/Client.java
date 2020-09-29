@@ -2,6 +2,7 @@ package dev.snowdrop.jira.atlassian;
 
 import java.util.List;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
@@ -12,10 +13,6 @@ import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import java.util.List;
 
 import static dev.snowdrop.jira.atlassian.Service.RELEASE_TICKET_TEMPLATE;
 
@@ -106,11 +103,12 @@ public class Client implements QuarkusApplication {
 	@CommandLine.Command(name = "start-release",
 			description = "Start the release process for the release associated with the specified git reference")
 	public void startRelease(
-			@CommandLine.Option(names = {"-g", "--git"},
-					description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
+		@CommandLine.Option(names = {"-g", "--git"},
+			description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
+		@CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests
 	) {
-		Release release = factory.createFromGitRef(gitRef);
-
+		Release release = factory.createFromGitRef(gitRef, skipProductRequests);
+		
 		BasicIssue issue;
 		// first check if we already have a release ticket, in which case we don't need to clone the template
 		final String releaseTicket = release.getJiraKey();
@@ -126,7 +124,9 @@ public class Client implements QuarkusApplication {
 			// no release ticket was specified, clone
 			issue = service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
 		}
-		service.createComponentRequests(release, watchers);
+		if (!skipProductRequests) {
+			service.createComponentRequests(release, watchers);
+		}
 		System.out.println(issue);
 	}
 }

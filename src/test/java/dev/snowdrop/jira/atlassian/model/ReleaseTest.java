@@ -45,7 +45,7 @@ public class ReleaseTest {
 	@Test
 	public void missingVersionShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"), true);
 			fail("should have failed on missing version");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -58,7 +58,7 @@ public class ReleaseTest {
 	@Test
 	public void mismatchedVersionShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("mismatched-version.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("mismatched-version.yml"), getResourceAsStream("pom.xml"), true);
 			fail("should have failed on mismatched version");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -71,7 +71,7 @@ public class ReleaseTest {
 	@Test
 	public void missingScheduleShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"), true);
 			fail("should have failed on missing schedule");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -84,7 +84,7 @@ public class ReleaseTest {
 	@Test
 	public void wrongScheduleShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("invalid-schedule.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("invalid-schedule.yml"), getResourceAsStream("pom.xml"), true);
 			fail("should have failed on invalid schedule");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -98,7 +98,7 @@ public class ReleaseTest {
 	@Test
 	public void mismatchedPOMVersionsShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("mismatched-pom.xml"));
+			factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("mismatched-pom.xml"), true);
 			fail("should have failed on mismatched POM versions");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -112,7 +112,7 @@ public class ReleaseTest {
 	@Test
 	public void invalidComponentProjectShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), false);
 			fail("should have failed on invalid component project");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -122,11 +122,16 @@ public class ReleaseTest {
 			fail(e);
 		}
 	}
-
+	
+	@Test
+	public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws IOException {
+		factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), true);
+	}
+	
 	@Test
 	public void invalidComponentIssueTypeShouldFail() {
 		try {
-			factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"));
+			factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"), false);
 			fail("should have failed on invalid component issue type");
 		} catch (IllegalArgumentException e) {
 			// expected
@@ -135,13 +140,18 @@ public class ReleaseTest {
 			fail(e);
 		}
 	}
-
+	
+	@Test
+	public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws IOException {
+		factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"), true);
+	}
+	
 	@Test
 	public void validReleaseShouldWork() throws IOException {
 		final Release release = factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
 		validate(release);
 	}
-
+	
 	private void validate(Release release) {
 		assertNotNull(release);
 		final var expectedSBVersion = "2.3.2";

@@ -44,25 +44,33 @@ public class ReleaseFactory {
 	 * @throws Exception
 	 */
 	public Release createFromGitRef(String gitRef) {
+		return createFromGitRef(gitRef, false);
+	}
+	
+	public Release createFromGitRef(String gitRef, boolean skipProductRequests) {
 		try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release.yml");
 			 InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
-
-			return createFrom(releaseIS, pomIS);
+			
+			return createFrom(releaseIS, pomIS, skipProductRequests);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
-
+	
 	Release createFrom(InputStream releaseIS, InputStream pomIS) throws IOException {
+		return createFrom(releaseIS, pomIS, false);
+	}
+	
+	Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws IOException {
 		final Release release = MAPPER.readValue(releaseIS, Release.class);
-
+		
 		// retrieve associated POM
 		final var pom = POM.createFrom(pomIS);
 		release.setPom(pom);
 		
 		// validate release
 		final String pomVersion = pom.getVersion();
-		validate(release, pomVersion);
+		validate(release, pomVersion, skipProductRequests);
 		
 		return release;
 	}
@@ -72,7 +80,7 @@ public class ReleaseFactory {
 		return uri.toURL().openStream();
 	}
 	
-	public void validate(Release release, String expectedVersion) throws IllegalArgumentException {
+	public void validate(Release release, String expectedVersion, boolean skipProductRequests) throws IllegalArgumentException {
 		final List<String> errors = new LinkedList<>();
 		
 		// validate version
@@ -111,17 +119,19 @@ public class ReleaseFactory {
 				errors.add("invalid EOL ISO8601 date: " + e.getMessage());
 			}
 		}
-
+		
 		// validate components
-		final var components = release.getComponents();
-		components.parallelStream().forEach(component -> {
-			validateIssue(errors, component, false);
-			validateIssue(errors, component, true);
-		});
-
+		if (!skipProductRequests) {
+			final var components = release.getComponents();
+			components.parallelStream().forEach(component -> {
+				validateIssue(errors, component, false);
+				validateIssue(errors, component, true);
+			});
+		}
+		
 		if (!errors.isEmpty()) {
 			throw new IllegalArgumentException(
-					errors.stream().reduce("Invalid release:\n", (s, s2) -> s + "\t- " + s2 + "\n"));
+				errors.stream().reduce("Invalid release:\n", (s, s2) -> s + "\t- " + s2 + "\n"));
 		}
 	}
 
