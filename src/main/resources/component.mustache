@@ -1,7 +1,7 @@
-The Snowdrop team is really pleased to inform you that we're planning to release a new Snowdrop BOM on *{{parent.schedule.formattedReleaseDate}}*
+The Snowdrop team is pleased to inform you that we're planning to release a new Snowdrop BOM on *{{parent.schedule.formattedReleaseDate}}*
 based on Spring Boot *{{parent.version}}*.
 
-We, however, cannot release a new version without your support as Red Hat's Spring Boot stack relies on supported
+We cannot release a new version without your support as Red Hat's Spring Boot stack relies on supported
 versions for the following artifact(s) that are currently owned by your project:
 {{#artifacts}}
     * {{name}} (upstream version is {{version}})
@@ -14,9 +14,9 @@ We will support this new release until *{{parent.schedule.formattedEOLDate}}* an
 support statement from your team for this Spring Boot version in the form of the following information:
 - Product name and version (e.g. JWS - 5.3.1)
 - Date of end of support
-- Supported artifact GAV (if changed) or simply version (if name hasn't changed) (e.g. org.apache.tomcat.embed:tomcat-embed-core:9.0.30-redhat-00001)
-- PNC/Indy URL (e.g. [http://indy.psi.redhat.com/browse/maven/]...)
-- MRRC URL, if already released (e.g. [https://maven.repository.redhat.com/ga/]...)
+- Supported artifact GAV (if changed) or simply (productized) version (if name hasn't changed) (e.g. org.apache.tomcat.embed:tomcat-embed-core:9.0.30-redhat-00001)
+- (optional) PNC/Indy URL (e.g. [http://indy.psi.redhat.com/browse/maven/]...)
+- (optional) MRRC URL, if already released (e.g. [https://maven.repository.redhat.com/ga/]...)
 
 Note that we don't require a new release of your product as long as the artifacts you provide us with are tested and
 supported on Spring Boot *{{parent.version}}* until *{{parent.schedule.formattedEOLDate}}*.
