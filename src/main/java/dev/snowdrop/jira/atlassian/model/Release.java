@@ -24,7 +24,11 @@ public class Release {
 	private String gitRef;
 	@JsonIgnore
 	private POM pom;
-
+	
+	public String getProjectKey() {
+		return issue.getProject();
+	}
+	
 	public String getLongVersionName() {
 		return "[Spring Boot " + getVersion() + "] Release steps CR [" + schedule.getFormattedReleaseDate() + "]";
 	}

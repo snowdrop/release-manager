@@ -66,7 +66,8 @@ public class Service {
 		Issue issue = cl.getIssue(toCloneFrom).claim();
 		// Create the cloned task
 		IssueInputBuilder iib = new IssueInputBuilder();
-		iib.setProjectKey(issue.getProject().getKey());
+		final var projectKey = release.getProjectKey();
+		iib.setProjectKey(projectKey);
 		iib.setDescription(issue.getDescription());
 		iib.setSummary(release.getLongVersionName());
 		iib.setIssueTypeId(issue.getIssueType().getId());
@@ -75,7 +76,7 @@ public class Service {
 		final String clonedIssueKey = clonedIssue.getKey();
 		addWatchers(clonedIssueKey, watchers);
 		LOG.infof("Issue cloned: %s", getURLFor(clonedIssueKey));
-
+		
 		try {
 			cl.linkIssue(new LinkIssuesInput(clonedIssueKey, toCloneFrom, "Cloners")).claim();
 		} catch (Exception e) {
@@ -95,7 +96,7 @@ public class Service {
 			if (fetchSubTask != null) {
 				// Create a sub-task that we will link to the parent
 				iib = new IssueInputBuilder();
-				iib.setProjectKey(issue.getProject().getKey());
+				iib.setProjectKey(projectKey);
 				iib.setSummary(subtask.getSummary());
 				iib.setIssueTypeId(subtask.getIssueType().getId());
 				if (fetchSubTask.getAssignee() != null) {
@@ -119,10 +120,7 @@ public class Service {
 		final String jiraKey = release.getJiraKey();
 		
 		for (Component component : release.getComponents()) {
-			var issue = getIssueInput(component);
-			var componentIssue = cl.createIssue(issue).claim();
-			addWatchers(componentIssue.getKey(), watchers);
-			LOG.infof("Issue %s created successfully", getURLFor(componentIssue.getKey()));
+			final var componentIssue = createIssue(component, watchers);
 			
 			/*
 			 * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
@@ -131,22 +129,33 @@ public class Service {
 			if (jiraKey != null) {
 				linkIssue(jiraKey, componentIssue.getKey());
 			}
-
+			
 			// if component also defines a product field, then we should create a ticket for the associated product team
 			// and link it to the component request
 			final var product = component.getProduct();
 			if (product != null) {
-				issue = getIssueInput(product);
-				var productIssue = cl.createIssue(issue).claim();
-				addWatchers(productIssue.getKey(), watchers);
-				LOG.infof("Product Issue %s created successfully for %s component", getURLFor(productIssue.getKey()),
-						component.getName());
+				final var productIssue = createIssue(product, watchers);
 				// link the newly created product issue with our component issue
 				linkIssue(componentIssue.getKey(), productIssue.getKey());
 			}
 		}
 	}
-
+	
+	private BasicIssue createIssue(IssueSource source, List<String> watchers) {
+		final IssueRestClient cl = restClient.getIssueClient();
+		var issue = getIssueInput(source);
+		BasicIssue componentIssue;
+		try {
+			componentIssue = cl.createIssue(issue).claim();
+		} catch (Exception e) {
+			LOG.errorf("Couldn't create request for %s", source);
+			throw e;
+		}
+		addWatchers(componentIssue.getKey(), watchers);
+		LOG.infof("Issue %s created successfully for %s component", getURLFor(componentIssue.getKey()), source.getName());
+		return componentIssue;
+	}
+	
 	private static IssueInput getIssueInput(IssueSource source) {
 		IssueInputBuilder iib = new IssueInputBuilder();
 		final var jira = source.getJira();
