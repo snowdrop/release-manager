@@ -53,4 +53,14 @@ public class Issue {
     public Optional<String> getAssignee() {
         return Utility.isStringNullOrBlank(assignee) ? Optional.empty() : Optional.of(assignee);
     }
+    
+    @Override
+    public String toString() {
+        return "{" +
+            "project='" + project + '\'' +
+            ", key='" + key + '\'' +
+            ", issueTypeId=" + issueTypeId +
+            ", assignee='" + assignee + '\'' +
+            '}';
+    }
 }

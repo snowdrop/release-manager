@@ -1,15 +1,15 @@
 package dev.snowdrop.jira.atlassian.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.snowdrop.jira.atlassian.Utility;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.jira.atlassian.Utility;
 
 public class Component implements IssueSource {
 	private static final String COMPONENT_TEMPLATE = "component.mustache";
@@ -81,7 +81,7 @@ public class Component implements IssueSource {
 		}
 		return this.artifacts;
 	}
-
+	
 	@Override
 	public String getDescription() {
 		StringWriter writer = new StringWriter();
@@ -91,5 +91,10 @@ public class Component implements IssueSource {
 			e.printStackTrace();
 		}
 		return writer.toString();
+	}
+	
+	@Override
+	public String toString() {
+		return "Component '" + name + "': project => " + jira + " / product => " + product;
 	}
 }
