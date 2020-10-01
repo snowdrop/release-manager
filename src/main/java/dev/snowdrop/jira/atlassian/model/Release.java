@@ -1,10 +1,10 @@
 package dev.snowdrop.jira.atlassian.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Collections;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import static dev.snowdrop.jira.atlassian.Utility.isStringNullOrBlank;
 
@@ -32,11 +32,11 @@ public class Release {
 	public String getLongVersionName() {
 		return "[Spring Boot " + getVersion() + "] Release steps CR [" + schedule.getFormattedReleaseDate() + "]";
 	}
-
+	
 	public String getJiraKey() {
 		return issue.getKey();
 	}
-
+	
 	/**
 	 * Associates this Release to the ticket identified by the specified key. Note that if the JIRA key is already set
 	 * for this Release, this method won't do anything because the source of truth is assumed to be the YAML file.
@@ -77,12 +77,37 @@ public class Release {
 	private void setGitRef(String gitRef) {
 		this.gitRef = gitRef;
 	}
-
+	
 	public POM getPOM() {
 		return pom;
 	}
-
+	
 	public void setPom(POM pom) {
 		this.pom = pom;
+	}
+	
+	/**
+	 * Changes the release definition to use the {@link Issue#TEST_JIRA_PROJECT} project for all requests instead of the
+	 * specified ones so that we can check a test release without spamming projects.
+	 *
+	 * @param test whether or not the release should be set to test mode
+	 */
+	public void setTest(boolean test) {
+		if (test) {
+			issue.setKey("SB-1611"); // to avoid the cloning process
+			issue.useTestProject();
+			components.forEach(c -> {
+				var issue = c.getJira();
+				if (issue != null) {
+					issue.useDefaultIssueType();
+					issue.useTestProject();
+				}
+				issue = c.getProductIssue();
+				if (issue != null) {
+					issue.useDefaultIssueType();
+					issue.useTestProject();
+				}
+			});
+		}
 	}
 }

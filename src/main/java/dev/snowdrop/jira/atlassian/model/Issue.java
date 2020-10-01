@@ -24,6 +24,7 @@ import dev.snowdrop.jira.atlassian.Utility;
  */
 public class Issue {
     private static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
+    static final String TEST_JIRA_PROJECT = "SB";
     private static final Long DEFAULT_ISSUE_TYPE_ID = 3L;
     @JsonProperty
     private String project;
@@ -46,8 +47,16 @@ public class Issue {
         return Objects.requireNonNullElse(issueTypeId, DEFAULT_ISSUE_TYPE_ID);
     }
     
+    void useDefaultIssueType() {
+        this.issueTypeId = DEFAULT_ISSUE_TYPE_ID;
+    }
+    
     public String getProject() {
         return Utility.isStringNullOrBlank(project) ? DEFAULT_JIRA_PROJECT : project;
+    }
+    
+    void useTestProject() {
+        this.project = Issue.TEST_JIRA_PROJECT;
     }
     
     public Optional<String> getAssignee() {

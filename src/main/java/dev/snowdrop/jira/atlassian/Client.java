@@ -105,9 +105,12 @@ public class Client implements QuarkusApplication {
 	public void startRelease(
 		@CommandLine.Option(names = {"-g", "--git"},
 			description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
-		@CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests
+		@CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests,
+		@CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test
 	) {
 		Release release = factory.createFromGitRef(gitRef, skipProductRequests);
+		
+		release.setTest(test);
 		
 		BasicIssue issue;
 		// first check if we already have a release ticket, in which case we don't need to clone the template

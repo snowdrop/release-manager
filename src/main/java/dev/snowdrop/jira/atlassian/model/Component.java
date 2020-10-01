@@ -40,7 +40,7 @@ public class Component implements IssueSource {
 	public void setParent(Release release) {
 		this.parent = release;
 	}
-
+	
 	@Override
 	public String getName() {
 		if (Utility.isStringNullOrBlank(name)) {
@@ -51,12 +51,16 @@ public class Component implements IssueSource {
 			return name;
 		}
 	}
-
+	
+	void useTestName() {
+		name = "TEST: Please ignore! " + getName();
+	}
+	
 	@Override
 	public String getTitle() {
 		return getName() + " compatibility information for Spring Boot " + parent.getVersion();
 	}
-
+	
 	@Override
 	public Issue getJira() {
 		return jira;
