@@ -118,7 +118,7 @@ public class Client implements QuarkusApplication {
 		if (!Utility.isStringNullOrBlank(releaseTicket)) {
 			try {
 				issue = service.getIssue(releaseTicket);
-				System.out.printf("Release ticket %s already exists, skipping cloning step", releaseTicket);
+				LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket);
 			} catch (Exception e) {
 				// if we got an exception, assume that it's because we didn't find the ticket
 				issue = service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
