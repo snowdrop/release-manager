@@ -40,7 +40,7 @@ public class Service {
 		final Promise<Issue> toPromise = cl.getIssue(toIssue)
 			.fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
 		
-		cl.linkIssue(new LinkIssuesInput(fromIssue, toIssue, LINK_TYPE))
+		cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, LINK_TYPE))
 			.fail(e -> LOG.errorf("Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage()))
 			.claim();
 		
