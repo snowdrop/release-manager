@@ -94,18 +94,16 @@ public class Release {
 	 */
 	public void setTest(boolean test) {
 		if (test) {
-			issue.setKey("SB-1611"); // to avoid the cloning process
-			issue.useTestProject();
+			issue.setKey(Issue.TEST_ISSUE_KEY); // to avoid the cloning process
+			issue.useTestMode();
 			components.forEach(c -> {
 				var issue = c.getJira();
 				if (issue != null) {
-					issue.useDefaultIssueType();
-					issue.useTestProject();
+					issue.useTestMode();
 				}
 				issue = c.getProductIssue();
 				if (issue != null) {
-					issue.useDefaultIssueType();
-					issue.useTestProject();
+					issue.useTestMode();
 				}
 			});
 		}
