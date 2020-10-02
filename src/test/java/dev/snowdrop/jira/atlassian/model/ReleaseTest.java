@@ -147,6 +147,19 @@ public class ReleaseTest {
 	}
 	
 	@Test
+	public void invalidComponentAssigneeShouldFail() {
+		try {
+			factory.createFrom(getResourceAsStream("invalid-component-assignee.yml"), getResourceAsStream("pom.xml"), false);
+			fail("should have failed on invalid component assignee");
+		} catch (IllegalArgumentException e) {
+			// expected
+			assertTrue(e.getMessage().contains("invalid assignee for product project 'ENTSBT': " + MockUserRestClient.NON_EXISTING_USER));
+		} catch (IOException e) {
+			fail(e);
+		}
+	}
+	
+	@Test
 	public void validReleaseShouldWork() throws IOException {
 		final Release release = factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
 		validate(release);

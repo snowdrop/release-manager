@@ -50,7 +50,7 @@ public class MockJiraRestClient implements JiraRestClient {
 
 	@Override
 	public UserRestClient getUserClient() {
-		return null;
+		return new MockUserRestClient();
 	}
 
 	@Override

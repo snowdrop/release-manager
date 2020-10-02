@@ -142,6 +142,15 @@ public class ReleaseFactory {
 			var project = issue.getProject();
 			var name = component.getName();
 			var issueTypeId = issue.getIssueTypeId();
+			issue.getAssignee().ifPresent(assignee ->
+				{
+					try {
+						restClient.getUserClient().getUser(assignee).claim();
+					} catch (Exception e) {
+						errors.add(String.format("invalid assignee for %s project '%s': %s", componentEntryName, project, assignee));
+					}
+				}
+			);
 			try {
 				var p = restClient.getProjectClient().getProject(project).claim();
 				for (IssueType issueType : p.getIssueTypes()) {

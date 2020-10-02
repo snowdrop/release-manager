@@ -13,18 +13,18 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
 import com.atlassian.jira.rest.client.api.OptionalIterable;
 import com.atlassian.jira.rest.client.api.ProjectRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicProject;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.atlassian.jira.rest.client.api.domain.Project;
 import io.atlassian.util.concurrent.Promise;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -33,7 +33,7 @@ public class MockProjectRestClient implements ProjectRestClient {
 	public static final String ENTSBT = "ENTSBT";
 	public static final String EAPSUP = "EAPSUP";
 	private static final Set<String> KNOWN_PROJECTS = Set.of(ENTSBT, EAPSUP, "KEYCLOAK", "RESTEASY", "ENTMQCL", "JWS",
-			"TRACING", "JBTM", "ENTVTX", "JDG");
+		"TRACING", "JBTM", "ENTVTX", "JDG", "SB");
 	private static URI uri;
 
 	static {
