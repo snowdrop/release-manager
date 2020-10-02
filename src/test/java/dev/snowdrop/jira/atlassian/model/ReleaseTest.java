@@ -202,6 +202,8 @@ public class ReleaseTest {
 		assertEquals("Narayana starter", component.getName());
 		final var product = component.getProduct();
 		assertNotNull(product);
+		assertEquals("Narayana", product.getName());
+		assertEquals("Currently supported Narayana version information", product.getTitle());
 		final var jbtmAssignee = product.getJira().getAssignee().get();
 		assertEquals("mmusgrov", jbtmAssignee);
 		assertEquals(jbtmAssignee, component.getProductIssue().getAssignee().get());

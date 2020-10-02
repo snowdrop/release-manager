@@ -116,7 +116,6 @@ public class Service {
 	}
 	
 	public void createComponentRequests(Release release, List<String> watchers) {
-		final IssueRestClient cl = restClient.getIssueClient();
 		final String jiraKey = release.getJiraKey();
 		
 		for (Component component : release.getComponents()) {

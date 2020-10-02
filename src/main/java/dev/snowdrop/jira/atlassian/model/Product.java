@@ -13,10 +13,10 @@
  */
 package dev.snowdrop.jira.atlassian.model;
 
-import dev.snowdrop.jira.atlassian.Utility;
-
 import java.io.IOException;
 import java.io.StringWriter;
+
+import dev.snowdrop.jira.atlassian.Utility;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -37,12 +37,17 @@ public class Product implements IssueSource {
 
 	@Override
 	public String getName() {
-		return component.getName();
+		var name = component.getName();
+		final var suffixIndex = name.indexOf("starter");
+		if (suffixIndex > 0) {
+			name = name.substring(0, suffixIndex).trim();
+		}
+		return name;
 	}
 
 	@Override
 	public String getTitle() {
-		return component.getTitle();
+		return "Currently supported " + getName() + " version information";
 	}
 
 	@Override
