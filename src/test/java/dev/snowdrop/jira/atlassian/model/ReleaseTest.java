@@ -216,7 +216,7 @@ public class ReleaseTest {
 		assertTrue(description.contains(expectedSBVersion));
 		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
 		
-		final List<Issue> cves = release.getCves();
+		final List<Issue> cves = release.getCVEs();
 		assertEquals(4, cves.size());
 		
 		Issue cve = cves.get(0);

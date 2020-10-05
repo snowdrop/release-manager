@@ -127,6 +127,10 @@ public class Client implements QuarkusApplication {
 			// no release ticket was specified, clone
 			issue = service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
 		}
+		
+		// link CVEs
+		service.linkCVEs(release, issue.getKey());
+		
 		if (!skipProductRequests) {
 			service.createComponentRequests(release, watchers);
 		}

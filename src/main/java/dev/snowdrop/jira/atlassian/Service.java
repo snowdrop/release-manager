@@ -61,6 +61,13 @@ public class Service {
 		}
 	}
 	
+	public void linkCVEs(Release release, String issue) {
+		// Check if CVEs exist within the Release and link them to the new release ticket created
+		for (dev.snowdrop.jira.atlassian.model.Issue cve : release.getCVEs()) {
+			linkIssue(issue, cve.getProject() + "-" + cve.getKey());
+		}
+	}
+	
 	public BasicIssue clone(Release release, String toCloneFrom, List<String> watchers) {
 		final IssueRestClient cl = restClient.getIssueClient();
 		Issue issue = cl.getIssue(toCloneFrom).claim();
@@ -71,8 +78,7 @@ public class Service {
 		iib.setDescription(issue.getDescription());
 		iib.setSummary(release.getLongVersionName());
 		iib.setIssueTypeId(issue.getIssueType().getId());
-		IssueInput ii = iib.build();
-		BasicIssue clonedIssue = cl.createIssue(ii).claim();
+		BasicIssue clonedIssue = cl.createIssue(iib.build()).claim();
 		final String clonedIssueKey = clonedIssue.getKey();
 		addWatchers(clonedIssueKey, watchers);
 		LOG.infof("Issue cloned: %s", getURLFor(clonedIssueKey));
@@ -81,11 +87,6 @@ public class Service {
 			cl.linkIssue(new LinkIssuesInput(clonedIssueKey, toCloneFrom, "Cloners")).claim();
 		} catch (Exception e) {
 			LOG.error("Couldn't link " + clonedIssueKey + " as clone of " + toCloneFrom, e);
-		}
-
-		// Check if CVEs exist within the Release and link them to the new release ticket created
-		for (dev.snowdrop.jira.atlassian.model.Issue cve : release.getCves()) {
-			linkIssue(clonedIssueKey, cve.getProject() + "-" + cve.getKey());
 		}
 
 		// Get the list of the sub-tasks
@@ -103,8 +104,7 @@ public class Service {
 					iib.setAssignee(fetchSubTask.getAssignee());
 				}
 				iib.setFieldValue("parent", ComplexIssueInputFieldValue.with("key", clonedIssueKey));
-				ii = iib.build();
-				BasicIssue subTaskIssue = cl.createIssue(ii).claim();
+				BasicIssue subTaskIssue = cl.createIssue(iib.build()).claim();
 				addWatchers(subTaskIssue.getKey(), watchers);
 				LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
 			}

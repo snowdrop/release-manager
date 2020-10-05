@@ -52,7 +52,7 @@ public class Release {
 	public String getVersion() {
 		return version;
 	}
-
+	
 	public List<Component> getComponents() {
 		if (components != null) {
 			// make sure that the parent is properly set, could probably be optimized if needed
@@ -61,15 +61,15 @@ public class Release {
 		}
 		return Collections.emptyList();
 	}
-
-	public List<Issue> getCves() {
+	
+	public List<Issue> getCVEs() {
 		return cves;
 	}
-
+	
 	public Schedule getSchedule() {
 		return schedule;
 	}
-
+	
 	public String getGitRef() {
 		return gitRef;
 	}
