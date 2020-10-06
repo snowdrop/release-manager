@@ -1,24 +1,31 @@
-The Snowdrop team is pleased to inform you that we're planning to release a new Snowdrop BOM on *{{parent.schedule.formattedReleaseDate}}*
-based on Spring Boot *{{parent.version}}*.
+The Snowdrop team is pleased to inform you that we're planning to release a new Snowdrop BOM on *{{releaseDate}}*
+based on Spring Boot *{{version}}*.
 
-We cannot release a new version without your support as Red Hat's Spring Boot stack relies on supported
-versions for the following artifact(s) that are currently owned by your project:
-{{#artifacts}}
-    * {{name}} (upstream version is {{version}})
-{{/artifacts}}
+Some of our artifacts depend on your product and we need to know which product version we should be using for this new
+release.
 
-
-We expect to start testing our new release based on Spring Boot *{{parent.version}}* on *{{parent.schedule.formattedDueDate}}*.
-
-We will support this new release until *{{parent.schedule.formattedEOLDate}}* and therefore require compatibility and
-support statement from your team for this Spring Boot version in the form of the following information:
-- Product name and version (e.g. JWS - 5.3.1)
-- Date of end of support
-- Supported (productized) artifact GAV (e.g. org.apache.tomcat.embed:tomcat-embed-core:9.0.30-redhat-00001)
-- (optional) PNC/Indy URL (e.g. [http://indy.psi.redhat.com/browse/maven/]...)
-- (optional) MRRC URL, if already released (e.g. [https://maven.repository.redhat.com/ga/]...)
-
-Note that we don't require a new release of your product as long as the artifacts you provide us with are tested and
-supported on Spring Boot *{{parent.version}}* until *{{parent.schedule.formattedEOLDate}}*.
++*Notes:*+
+* We will support this new release until *{{endOfSupportDate}}* so it's important that you let us know until when your
+product is supported so that we can plan future releases accordingly.
+* We don't require a new release of your product as long as the artifacts you provide us with are tested and supported
+on Spring Boot *{{version}}*.
+* *{color:red}Please only resolve this issue when all the information is provided below and the associated artifacts are available.{color}*
 
 Thank you in advance for your help!
+
+Please add the required information, *{color:red}without changing the format as it's automatically processed on our side{color}*,
+in the section below before *{{dueDate}}*, date at which we expect to start testing our new release.
+
+===
+
+{{#artifacts}}
+    * +*{{name}} (upstream version is {{version}}):*+
+    - product name:
+    <replace by associated product name e.g. JWS>
+        - product version:
+        <replace by associated project version e.g. 5.3.1>
+            - supported version:
+            <replace by appropriate -redhat version>
+                - end of support:
+                <replace by end of support date in yyyy-mm-dd format>
+{{/artifacts}}

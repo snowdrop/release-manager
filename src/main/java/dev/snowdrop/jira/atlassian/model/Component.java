@@ -93,6 +93,26 @@ public class Component implements IssueSource {
 		return writer.toString();
 	}
 	
+	public String getReleaseDate() {
+		return getParentSchedule().getFormattedReleaseDate();
+	}
+	
+	private Schedule getParentSchedule() {
+		return getParent().getSchedule();
+	}
+	
+	public String getEndOfSupportDate() {
+		return getParentSchedule().getFormattedEOLDate();
+	}
+	
+	public String getDueDate() {
+		return getParentSchedule().getFormattedDueDate();
+	}
+	
+	public String getVersion() {
+		return getParent().getVersion();
+	}
+	
 	@Override
 	public String toString() {
 		return "Component '" + name + "': project => " + jira + " / product => " + product;
