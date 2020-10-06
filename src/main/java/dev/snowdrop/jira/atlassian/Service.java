@@ -25,6 +25,7 @@ import org.jboss.logging.Logger;
 import static dev.snowdrop.jira.atlassian.Utility.JIRA_ISSUES_API;
 import static dev.snowdrop.jira.atlassian.Utility.getURLFor;
 import static dev.snowdrop.jira.atlassian.Utility.toDateTime;
+import static dev.snowdrop.jira.atlassian.model.Issue.DEFAULT_JIRA_PROJECT;
 
 @ApplicationScoped
 public class Service {
@@ -63,8 +64,10 @@ public class Service {
 	
 	public void linkCVEs(Release release, String issue) {
 		// Check if CVEs exist within the Release and link them to the new release ticket created
-		for (dev.snowdrop.jira.atlassian.model.Issue cve : release.getCVEs()) {
-			linkIssue(issue, cve.getProject() + "-" + cve.getKey());
+		final var searchResult = restClient.getSearchClient().searchJql("project = " + DEFAULT_JIRA_PROJECT +
+			" AND text ~ \"cve-*\" AND fixVersion = " + release.getVersion()).claim();
+		for (var cve : searchResult.getIssues()) {
+			linkIssue(issue, cve.getKey());
 		}
 	}
 	

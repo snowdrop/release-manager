@@ -215,17 +215,6 @@ public class ReleaseTest {
 		assertTrue(description.contains(endOfSupportDate));
 		assertTrue(description.contains(expectedSBVersion));
 		assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
-		
-		final List<Issue> cves = release.getCVEs();
-		assertEquals(4, cves.size());
-		
-		Issue cve = cves.get(0);
-		assertEquals(cve.getProject(), "ENTSBT");
-		assertEquals(cve.getKey(), "360");
-		
-		cve = cves.get(1);
-		assertEquals(cve.getProject(), "ENTSBT");
-		assertEquals(cve.getKey(), "316");
 	}
 	
 	@Test

@@ -18,8 +18,6 @@ public class Release {
 	private Schedule schedule;
 	@JsonProperty
 	private List<Component> components;
-	@JsonProperty
-	private List<Issue> cves;
 	@JsonIgnore
 	private String gitRef;
 	@JsonIgnore
@@ -60,10 +58,6 @@ public class Release {
 			return components;
 		}
 		return Collections.emptyList();
-	}
-	
-	public List<Issue> getCVEs() {
-		return cves;
 	}
 	
 	public Schedule getSchedule() {

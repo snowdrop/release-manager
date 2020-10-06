@@ -110,10 +110,3 @@ components:
       assignee: iocanel
     properties:
       - dekorate
-
-cves:
-  # Include here the CVEs tickets to be link to this JIRA ticket release
-  - key: 360
-  - key: 316
-  - key: 566
-  - key: 567

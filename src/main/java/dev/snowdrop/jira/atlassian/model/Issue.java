@@ -23,7 +23,7 @@ import dev.snowdrop.jira.atlassian.Utility;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Issue {
-    private static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
+    public static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
     static final String TEST_JIRA_PROJECT = "SB";
     static final String TEST_ASSIGNEE = "snowdrop-test-user";
     static final String TEST_ISSUE_KEY = "SB-1611";
