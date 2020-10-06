@@ -52,10 +52,6 @@ public class Component implements IssueSource {
 		}
 	}
 	
-	void useTestName() {
-		name = "TEST: Please ignore! " + getName();
-	}
-	
 	@Override
 	public String getTitle() {
 		return getName() + " compatibility information for Spring Boot " + parent.getVersion();
