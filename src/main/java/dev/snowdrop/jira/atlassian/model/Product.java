@@ -22,67 +22,67 @@ import dev.snowdrop.jira.atlassian.Utility;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Product implements IssueSource {
-	private static final String PRODUCT_TEMPLATE = "product.mustache";
-
-	private final Component component;
-
-	public Product(Component component) {
-		this.component = component;
-	}
-
-	@Override
-	public Release getParent() {
-		return component.getParent();
-	}
-
-	@Override
-	public String getName() {
-		var name = component.getName();
-		final var suffixIndex = name.indexOf("starter");
-		if (suffixIndex > 0) {
-			name = name.substring(0, suffixIndex).trim();
-		}
-		return name;
-	}
-
-	@Override
-	public String getTitle() {
-		return "Currently supported " + getName() + " version information";
-	}
-
-	@Override
-	public Issue getJira() {
-		return component.getProductIssue();
-	}
-
-	public String getReleaseDate() {
-		return getParentSchedule().getFormattedReleaseDate();
-	}
-
-	private Schedule getParentSchedule() {
-		return component.getParent().getSchedule();
-	}
-
-	public String getEndOfSupportDate() {
-		return getParentSchedule().getFormattedEOLDate();
-	}
-
-	public String getDueDate() {
-		return getParentSchedule().getFormattedDueDate();
-	}
-
-	public String getVersion() {
-		return component.getParent().getVersion();
-	}
-
-	@Override
-	public String getDescription() {
-		StringWriter writer = new StringWriter();
-		try {
-			Utility.mf.compile(PRODUCT_TEMPLATE).execute(writer, this).flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return writer.toString();
-	}
+    private static final String PRODUCT_TEMPLATE = "product.mustache";
+    
+    private final Component component;
+    
+    public Product(Component component) {
+        this.component = component;
+    }
+    
+    @Override
+    public Release getParent() {
+        return component.getParent();
+    }
+    
+    @Override
+    public String getName() {
+        var name = component.getName();
+        final var suffixIndex = name.indexOf("starter");
+        if (suffixIndex > 0) {
+            name = name.substring(0, suffixIndex).trim();
+        }
+        return name;
+    }
+    
+    @Override
+    public String getTitle() {
+        return "Currently supported " + getName() + " version information";
+    }
+    
+    @Override
+    public Issue getJira() {
+        return component.getProductIssue();
+    }
+    
+    public String getReleaseDate() {
+        return getParentSchedule().getFormattedReleaseDate();
+    }
+    
+    private Schedule getParentSchedule() {
+        return component.getParent().getSchedule();
+    }
+    
+    public String getEndOfSupportDate() {
+        return getParentSchedule().getFormattedEOLDate();
+    }
+    
+    public String getDueDate() {
+        return getParentSchedule().getFormattedDueDate();
+    }
+    
+    public String getVersion() {
+        return component.getParent().getVersion();
+    }
+    
+    @Override
+    public String getDescription() {
+        StringWriter writer = new StringWriter();
+        try {
+            Utility.mf.compile(PRODUCT_TEMPLATE).execute(writer, this).flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return writer.toString();
+    }
 }

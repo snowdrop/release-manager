@@ -17,24 +17,24 @@ package dev.snowdrop.jira.atlassian.model;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Artifact {
-	private String name;
-	private String version;
-
-	public Artifact(String groupId, String artifactId, String version) {
-		this.name = groupId + ":" + artifactId;
-		this.version = version;
-	}
-	
-	public String getName() {
-		return name;
-	}
-	
-	public String getVersion() {
-		return version;
-	}
-	
-	@Override
-	public String toString() {
-		return name + '@' + version;
-	}
+    private String name;
+    private String version;
+    
+    public Artifact(String groupId, String artifactId, String version) {
+        this.name = groupId + ":" + artifactId;
+        this.version = version;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public String getVersion() {
+        return version;
+    }
+    
+    @Override
+    public String toString() {
+        return name + '@' + version;
+    }
 }

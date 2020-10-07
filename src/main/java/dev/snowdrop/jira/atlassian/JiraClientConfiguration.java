@@ -27,15 +27,15 @@ import picocli.CommandLine;
  */
 @ApplicationScoped
 public class JiraClientConfiguration {
-	@Produces
-	@ApplicationScoped
-	public JiraRestClient client(CommandLine.ParseResult parseResult) {
-		final var user = parseResult.commandSpec().findOption('u').getValue().toString();
-		final var password = parseResult.commandSpec().findOption('p').getValue().toString();
-		// url is optional but with a default value, getting it from the command spec gets the resolved default value
-		//if no value was provided. See: https://github.com/remkop/picocli/issues/1148#issuecomment-675753434
-		final var jiraServerUri = parseResult.commandSpec().findOption("url").getValue().toString();
-		AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-		return factory.createWithBasicHttpAuthentication(URI.create(jiraServerUri), user, password);
-	}
+    @Produces
+    @ApplicationScoped
+    public JiraRestClient client(CommandLine.ParseResult parseResult) {
+        final var user = parseResult.commandSpec().findOption('u').getValue().toString();
+        final var password = parseResult.commandSpec().findOption('p').getValue().toString();
+        // url is optional but with a default value, getting it from the command spec gets the resolved default value
+        //if no value was provided. See: https://github.com/remkop/picocli/issues/1148#issuecomment-675753434
+        final var jiraServerUri = parseResult.commandSpec().findOption("url").getValue().toString();
+        AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
+        return factory.createWithBasicHttpAuthentication(URI.create(jiraServerUri), user, password);
+    }
 }

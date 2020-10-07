@@ -30,57 +30,57 @@ import io.atlassian.util.concurrent.Promise;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class MockProjectRestClient implements ProjectRestClient {
-	public static final String ENTSBT = "ENTSBT";
-	public static final String EAPSUP = "EAPSUP";
-	private static final Set<String> KNOWN_PROJECTS = Set.of(ENTSBT, EAPSUP, "KEYCLOAK", "RESTEASY", "ENTMQCL", "JWS",
-		"TRACING", "JBTM", "ENTVTX", "JDG", "SB");
-	private static URI uri;
-
-	static {
-		try {
-			uri = new URI("urn:foo:bar");
-		} catch (URISyntaxException e) {
-			// ignore
-		}
-	}
-
-	private static final List<IssueType> issueTypes = List.of(
-			new IssueType(uri, 1L, "type 1", false, "", uri),
-			new IssueType(uri, 2L, "type 2", false, "", uri),
-			new IssueType(uri, 3L, "type 3", false, "", uri)
-	);
-	public static final Project PROJECT = new Project(Collections.emptyList(), uri, ENTSBT, 123L, ENTSBT,
-			"", null, uri, Collections.emptyList(), Collections.emptyList(),
-			new OptionalIterable<>(issueTypes), Collections.emptyList());
-
-
-	@Override
-	public Promise<Project> getProject(String key) {
-		return new MockPromise<>() {
-			@Override
-			public Project claim() {
-				if (EAPSUP.equals(key)) {
-					return new Project(Collections.emptyList(), uri, EAPSUP, 456L, EAPSUP,
-							"", null, uri, Collections.emptyList(), Collections.emptyList(),
-							new OptionalIterable<>(List.of(new IssueType(uri, 10600L, "Question", false, "", uri))),
-							Collections.emptyList());
-				} else {
-					if (KNOWN_PROJECTS.contains(key)) {
-						return PROJECT;
-					}
-				}
-				throw new RuntimeException("Unknown project " + key);
-			}
-		};
-	}
-
-	@Override
-	public Promise<Project> getProject(URI projectUri) {
-		return null;
-	}
-
-	@Override
-	public Promise<Iterable<BasicProject>> getAllProjects() {
-		return null;
-	}
+    public static final String ENTSBT = "ENTSBT";
+    public static final String EAPSUP = "EAPSUP";
+    private static final Set<String> KNOWN_PROJECTS = Set.of(ENTSBT, EAPSUP, "KEYCLOAK", "RESTEASY", "ENTMQCL", "JWS",
+        "TRACING", "JBTM", "ENTVTX", "JDG", "SB");
+    private static URI uri;
+    
+    static {
+        try {
+            uri = new URI("urn:foo:bar");
+        } catch (URISyntaxException e) {
+            // ignore
+        }
+    }
+    
+    private static final List<IssueType> issueTypes = List.of(
+        new IssueType(uri, 1L, "type 1", false, "", uri),
+        new IssueType(uri, 2L, "type 2", false, "", uri),
+        new IssueType(uri, 3L, "type 3", false, "", uri)
+    );
+    public static final Project PROJECT = new Project(Collections.emptyList(), uri, ENTSBT, 123L, ENTSBT,
+        "", null, uri, Collections.emptyList(), Collections.emptyList(),
+        new OptionalIterable<>(issueTypes), Collections.emptyList());
+    
+    
+    @Override
+    public Promise<Project> getProject(String key) {
+        return new MockPromise<>() {
+            @Override
+            public Project claim() {
+                if (EAPSUP.equals(key)) {
+                    return new Project(Collections.emptyList(), uri, EAPSUP, 456L, EAPSUP,
+                        "", null, uri, Collections.emptyList(), Collections.emptyList(),
+                        new OptionalIterable<>(List.of(new IssueType(uri, 10600L, "Question", false, "", uri))),
+                        Collections.emptyList());
+                } else {
+                    if (KNOWN_PROJECTS.contains(key)) {
+                        return PROJECT;
+                    }
+                }
+                throw new RuntimeException("Unknown project " + key);
+            }
+        };
+    }
+    
+    @Override
+    public Promise<Project> getProject(URI projectUri) {
+        return null;
+    }
+    
+    @Override
+    public Promise<Iterable<BasicProject>> getAllProjects() {
+        return null;
+    }
 }

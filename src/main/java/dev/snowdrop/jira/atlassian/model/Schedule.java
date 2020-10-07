@@ -21,34 +21,34 @@ import static dev.snowdrop.jira.atlassian.Utility.getFormatted;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Schedule {
-	@JsonProperty
-	private String release;
-	@JsonProperty
-	private String due;
-	@JsonProperty
-	private String eol;
-
-	public String getFormattedReleaseDate() {
-		return getFormatted(release);
-	}
-
-	public String getFormattedDueDate() {
-		return getFormatted(due);
-	}
-
-	public String getDueDate() {
-		return due;
-	}
-
-	public String getFormattedEOLDate() {
-		return getFormatted(eol);
-	}
-
-	public String getReleaseDate() {
-		return release;
-	}
-
-	public String getEOLDate() {
-		return eol;
-	}
+    @JsonProperty
+    private String release;
+    @JsonProperty
+    private String due;
+    @JsonProperty
+    private String eol;
+    
+    public String getFormattedReleaseDate() {
+        return getFormatted(release);
+    }
+    
+    public String getFormattedDueDate() {
+        return getFormatted(due);
+    }
+    
+    public String getDueDate() {
+        return due;
+    }
+    
+    public String getFormattedEOLDate() {
+        return getFormatted(eol);
+    }
+    
+    public String getReleaseDate() {
+        return release;
+    }
+    
+    public String getEOLDate() {
+        return eol;
+    }
 }

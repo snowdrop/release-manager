@@ -2,7 +2,7 @@ version: 2.3.2
 
 # JIRA Project where the release issue should be created
 issue:
-  project: ENTSBT
+    project: ENTSBT
 
 
 # If already created, provide the issue number of the Release, otherwise keep it empty.
@@ -10,103 +10,103 @@ issue:
 #key:         # SB-1484
 
 schedule:
-  # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
-  release: 2020-09-14
-  # Due date for the component/starter owner to release their new components, QE signoff it
-  due: 2020-08-18
-  # EOL of the Snowdrop release
-  eol: 2021-09-30
+    # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
+    release: 2020-09-14
+    # Due date for the component/starter owner to release their new components, QE signoff it
+    due: 2020-08-18
+    # EOL of the Snowdrop release
+    eol: 2021-09-30
 
 components:
-  # List of JIRA Projects contributing to a Snowdrop release
-  # They will be used to create a component or starter
-  - name: Hibernate / Hibernate Validator / Undertow / RESTEasy
-    jira:
-      project: EAPSUP
-      issueTypeId: 10600
-      assignee: ivassile
-    properties:
-      - hibernate
-      - hibernate-validator
-      - undertow
-      - resteasy
+    # List of JIRA Projects contributing to a Snowdrop release
+    # They will be used to create a component or starter
+    -   name: Hibernate / Hibernate Validator / Undertow / RESTEasy
+        jira:
+            project: EAPSUP
+            issueTypeId: 10600
+            assignee: ivassile
+        properties:
+            - hibernate
+            - hibernate-validator
+            - undertow
+            - resteasy
 
-  - name: Tomcat
-    jira:
-      project: JWS
-      assignee: csutherl
-    properties:
-      - tomcat
+    -   name: Tomcat
+        jira:
+            project: JWS
+            assignee: csutherl
+        properties:
+            - tomcat
 
-  - name: Keycloak
-    jira:
-      project: KEYCLOAK
-      assignee: bdaw
-    properties:
-      - keycloak
+    -   name: Keycloak
+        jira:
+            project: KEYCLOAK
+            assignee: bdaw
+        properties:
+            - keycloak
 
-  - name: AMQP
-    jira:
-      project: ENTMQCL
-      assignee: justi9
-    properties:
-      - amqp-10-starter
+    -   name: AMQP
+        jira:
+            project: ENTMQCL
+            assignee: justi9
+        properties:
+            - amqp-10-starter
 
-  - name: RESTEasy
-    jira:
-      project: RESTEASY
-      assignee: weinanli
-    properties:
-      - resteasy-spring-boot-starter
+    -   name: RESTEasy
+        jira:
+            project: RESTEASY
+            assignee: weinanli
+        properties:
+            - resteasy-spring-boot-starter
 
-  - name: OpenTracing / Jaeger
-    jira:
-      project: ENTSBT
-      assignee: gandrian
-    product:
-      project: TRACING
-      assignee: objectiser
-    properties:
-      - opentracing-spring-jaeger-web-starter
+    -   name: OpenTracing / Jaeger
+        jira:
+            project: ENTSBT
+            assignee: gandrian
+        product:
+            project: TRACING
+            assignee: objectiser
+        properties:
+            - opentracing-spring-jaeger-web-starter
 
-  - name: Infinispan / DataGrid
-    jira:
-      project: JDG
-      assignee: nadirx
-    properties:
-      - infinispan
-      - infinispan-starter
+    -   name: Infinispan / DataGrid
+        jira:
+            project: JDG
+            assignee: nadirx
+        properties:
+            - infinispan
+            - infinispan-starter
 
-  - name: Narayana starter
-    jira:
-      project: ENTSBT
-      assignee: gytis
-    product:
-      project: JBTM
-      assignee: mmusgrov
-    properties:
-      - narayana-starter
+    -   name: Narayana starter
+        jira:
+            project: ENTSBT
+            assignee: gytis
+        product:
+            project: JBTM
+            assignee: mmusgrov
+        properties:
+            - narayana-starter
 
-  - name: Vert.X starter
-    jira:
-      project: ENTSBT
-      assignee: gytis
-    product:
-      project: ENTVTX
-      assignee: rruss
-    properties:
-      - vertx-spring-boot
+    -   name: Vert.X starter
+        jira:
+            project: ENTSBT
+            assignee: gytis
+        product:
+            project: ENTVTX
+            assignee: rruss
+        properties:
+            - vertx-spring-boot
 
-  - name: Spring Cloud Kubernetes
-    jira:
-      project: ENTSBT
-      assignee: iocanel
-    properties:
-      - spring-cloud-kubernetes
+    -   name: Spring Cloud Kubernetes
+        jira:
+            project: ENTSBT
+            assignee: iocanel
+        properties:
+            - spring-cloud-kubernetes
 
-  - name: Dekorate
-    jira:
-      project: ENTSBT
-      assignee: iocanel
-    properties:
-      - dekorate
+    -   name: Dekorate
+        jira:
+            project: ENTSBT
+            assignee: iocanel
+        properties:
+            - dekorate

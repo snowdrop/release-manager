@@ -38,68 +38,68 @@ import io.quarkus.test.Mock;
 @Mock
 @Singleton
 public class MockJiraRestClient implements JiraRestClient {
-	@Override
-	public IssueRestClient getIssueClient() {
-		return null;
-	}
-
-	@Override
-	public SessionRestClient getSessionClient() {
-		return null;
-	}
-
-	@Override
-	public UserRestClient getUserClient() {
-		return new MockUserRestClient();
-	}
-
-	@Override
-	public GroupRestClient getGroupClient() {
-		return null;
-	}
-
-	@Override
-	public ProjectRestClient getProjectClient() {
-		return new MockProjectRestClient();
-	}
-
-	@Override
-	public ComponentRestClient getComponentClient() {
-		return null;
-	}
-
-	@Override
-	public MetadataRestClient getMetadataClient() {
-		return null;
-	}
-
-	@Override
-	public SearchRestClient getSearchClient() {
-		return null;
-	}
-
-	@Override
-	public VersionRestClient getVersionRestClient() {
-		return null;
-	}
-
-	@Override
-	public ProjectRolesRestClient getProjectRolesRestClient() {
-		return null;
-	}
-
-	@Override
-	public AuditRestClient getAuditRestClient() {
-		return null;
-	}
-
-	@Override
-	public MyPermissionsRestClient getMyPermissionsRestClient() {
-		return null;
-	}
-
-	@Override
-	public void close() throws IOException {
-
-	}
+    @Override
+    public IssueRestClient getIssueClient() {
+        return null;
+    }
+    
+    @Override
+    public SessionRestClient getSessionClient() {
+        return null;
+    }
+    
+    @Override
+    public UserRestClient getUserClient() {
+        return new MockUserRestClient();
+    }
+    
+    @Override
+    public GroupRestClient getGroupClient() {
+        return null;
+    }
+    
+    @Override
+    public ProjectRestClient getProjectClient() {
+        return new MockProjectRestClient();
+    }
+    
+    @Override
+    public ComponentRestClient getComponentClient() {
+        return null;
+    }
+    
+    @Override
+    public MetadataRestClient getMetadataClient() {
+        return null;
+    }
+    
+    @Override
+    public SearchRestClient getSearchClient() {
+        return null;
+    }
+    
+    @Override
+    public VersionRestClient getVersionRestClient() {
+        return null;
+    }
+    
+    @Override
+    public ProjectRolesRestClient getProjectRolesRestClient() {
+        return null;
+    }
+    
+    @Override
+    public AuditRestClient getAuditRestClient() {
+        return null;
+    }
+    
+    @Override
+    public MyPermissionsRestClient getMyPermissionsRestClient() {
+        return null;
+    }
+    
+    @Override
+    public void close() throws IOException {
+    
+    }
 }

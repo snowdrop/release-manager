@@ -17,13 +17,13 @@ package dev.snowdrop.jira.atlassian.model;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public interface IssueSource {
-	Release getParent();
-
-	String getName();
-
-	String getTitle();
-
-	Issue getJira();
-
-	String getDescription();
+    Release getParent();
+    
+    String getName();
+    
+    String getTitle();
+    
+    Issue getJira();
+    
+    String getDescription();
 }
