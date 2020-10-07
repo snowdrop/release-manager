@@ -7,7 +7,7 @@ import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.release.model.Release;
-import dev.snowdrop.release.model.ReleaseFactory;
+import dev.snowdrop.release.services.ReleaseFactory;
 import dev.snowdrop.release.services.Service;
 import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;

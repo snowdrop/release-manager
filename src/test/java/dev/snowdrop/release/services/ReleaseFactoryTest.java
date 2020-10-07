@@ -11,7 +11,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package dev.snowdrop.release.model;
+package dev.snowdrop.release.services;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,6 +19,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import dev.snowdrop.release.model.Artifact;
+import dev.snowdrop.release.model.Component;
+import dev.snowdrop.release.model.Release;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Test;
 
@@ -33,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.fail;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 @QuarkusTest
-public class ReleaseTest {
+public class ReleaseFactoryTest {
     
     @Inject
     ReleaseFactory factory;

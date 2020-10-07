@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package dev.snowdrop.release.model;
+package dev.snowdrop.release.services;
 
 import java.net.URI;
 

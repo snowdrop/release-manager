@@ -11,7 +11,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
-package dev.snowdrop.release.model;
+package dev.snowdrop.release.services;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,9 @@ import javax.inject.Singleton;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
-import dev.snowdrop.release.services.Utility;
+import dev.snowdrop.release.model.Component;
+import dev.snowdrop.release.model.POM;
+import dev.snowdrop.release.model.Release;
 
 import static dev.snowdrop.release.model.Release.RELEASE_SUFFIX;
 import static dev.snowdrop.release.services.Utility.MAPPER;
