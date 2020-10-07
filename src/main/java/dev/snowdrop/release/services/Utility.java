@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian;
+package dev.snowdrop.release.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian;
+package dev.snowdrop.release.services;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,16 +16,16 @@ import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldVal
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
-import dev.snowdrop.jira.atlassian.model.Component;
-import dev.snowdrop.jira.atlassian.model.IssueSource;
-import dev.snowdrop.jira.atlassian.model.Release;
+import dev.snowdrop.release.model.Component;
+import dev.snowdrop.release.model.IssueSource;
+import dev.snowdrop.release.model.Release;
 import io.atlassian.util.concurrent.Promise;
 import org.jboss.logging.Logger;
 
-import static dev.snowdrop.jira.atlassian.Utility.JIRA_ISSUES_API;
-import static dev.snowdrop.jira.atlassian.Utility.getURLFor;
-import static dev.snowdrop.jira.atlassian.Utility.toDateTime;
-import static dev.snowdrop.jira.atlassian.model.Issue.DEFAULT_JIRA_PROJECT;
+import static dev.snowdrop.release.model.Issue.DEFAULT_JIRA_PROJECT;
+import static dev.snowdrop.release.services.Utility.JIRA_ISSUES_API;
+import static dev.snowdrop.release.services.Utility.getURLFor;
+import static dev.snowdrop.release.services.Utility.toDateTime;
 
 @ApplicationScoped
 public class Service {

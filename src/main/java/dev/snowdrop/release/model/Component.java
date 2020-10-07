@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian.model;
+package dev.snowdrop.release.model;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.snowdrop.jira.atlassian.Utility;
+import dev.snowdrop.release.services.Utility;
 
 public class Component implements IssueSource {
     private static final String COMPONENT_TEMPLATE = "component.mustache";

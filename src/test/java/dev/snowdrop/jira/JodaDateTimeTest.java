@@ -3,7 +3,7 @@ package dev.snowdrop.jira;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
-import static dev.snowdrop.jira.atlassian.Utility.toDateTime;
+import static dev.snowdrop.release.services.Utility.toDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class JodaDateTimeTest {

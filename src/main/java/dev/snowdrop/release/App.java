@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian;
+package dev.snowdrop.release;
 
 import java.util.List;
 
@@ -6,23 +6,23 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import dev.snowdrop.jira.atlassian.model.Release;
-import dev.snowdrop.jira.atlassian.model.ReleaseFactory;
+import dev.snowdrop.release.model.Release;
+import dev.snowdrop.release.model.ReleaseFactory;
+import dev.snowdrop.release.services.Service;
+import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
-import static dev.snowdrop.jira.atlassian.Service.RELEASE_TICKET_TEMPLATE;
-
 @CommandLine.Command(
     name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0"
 )
 @ApplicationScoped
 @QuarkusMain
-public class Client implements QuarkusApplication {
-    static final Logger LOG = Logger.getLogger(Client.class);
+public class App implements QuarkusApplication {
+    static final Logger LOG = Logger.getLogger(App.class);
     
     @CommandLine.Option(names = {"-u", "--user"}, description = "JIRA user", required = true, scope = CommandLine.ScopeType.INHERIT)
     private String user;
@@ -46,7 +46,7 @@ public class Client implements QuarkusApplication {
     CommandLine.IFactory cliFactory;
     
     public static void main(String[] argv) throws Exception {
-        Quarkus.run(Client.class, argv);
+        Quarkus.run(App.class, argv);
     }
     
     @Override
@@ -122,11 +122,11 @@ public class Client implements QuarkusApplication {
                 LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket);
             } catch (Exception e) {
                 // if we got an exception, assume that it's because we didn't find the ticket
-                issue = service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
+                issue = service.clone(release, Service.RELEASE_TICKET_TEMPLATE, watchers);
             }
         } else {
             // no release ticket was specified, clone
-            issue = service.clone(release, RELEASE_TICKET_TEMPLATE, watchers);
+            issue = service.clone(release, Service.RELEASE_TICKET_TEMPLATE, watchers);
         }
         
         // link CVEs

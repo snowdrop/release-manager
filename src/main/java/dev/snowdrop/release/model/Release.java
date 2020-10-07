@@ -1,4 +1,4 @@
-package dev.snowdrop.jira.atlassian.model;
+package dev.snowdrop.release.model;
 
 import java.util.Collections;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import static dev.snowdrop.jira.atlassian.Utility.isStringNullOrBlank;
+import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
 public class Release {
     public static final String RELEASE_SUFFIX = ".RELEASE";
