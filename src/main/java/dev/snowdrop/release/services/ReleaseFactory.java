@@ -43,6 +43,9 @@ public class ReleaseFactory {
     @Inject
     JiraRestClient restClient;
     
+    @Inject
+    GitService git;
+    
     private static final YAMLMapper MAPPER = new YAMLMapper();
     
     static {
@@ -75,6 +78,16 @@ public class ReleaseFactory {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public void pushChanges(Release release) throws IOException {
+        final var gitRef = release.getGitRef();
+        if (Utility.isStringNullOrBlank(gitRef)) {
+            throw new IllegalArgumentException("Cannot push changes to Release not associated with a git ref");
+        }
+        final var releaseFile = new File(git.getRepositoryDirectory(), "release.yml");
+        saveTo(release, releaseFile);
+        git.commitAndPush("chore: update release issues' key [issues-manager]", releaseFile);
     }
     
     Release createFrom(InputStream releaseIS, InputStream pomIS) throws IOException {
