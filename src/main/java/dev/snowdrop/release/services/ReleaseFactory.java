@@ -24,12 +24,15 @@ import javax.inject.Singleton;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.IssueType;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.POM;
 import dev.snowdrop.release.model.Release;
 
 import static dev.snowdrop.release.model.Release.RELEASE_SUFFIX;
-import static dev.snowdrop.release.services.Utility.MAPPER;
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
 /**
@@ -39,6 +42,19 @@ import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 public class ReleaseFactory {
     @Inject
     JiraRestClient restClient;
+    
+    private static final YAMLMapper MAPPER = new YAMLMapper();
+    
+    static {
+        MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS,
+            MapperFeature.AUTO_DETECT_FIELDS,
+            MapperFeature.AUTO_DETECT_GETTERS,
+            MapperFeature.AUTO_DETECT_IS_GETTERS);
+        final var factory = MAPPER.getFactory();
+        factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+        factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
     
     /**
      * @param gitRef a GitHub reference in the form org/project/reference e.g. metacosm/spring-boot-bom/release-integration
