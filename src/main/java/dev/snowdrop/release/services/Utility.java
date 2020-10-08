@@ -1,7 +1,9 @@
 package dev.snowdrop.release.services;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import org.joda.time.DateTime;
@@ -15,7 +17,18 @@ public class Utility {
     public static final MustacheFactory mf = new DefaultMustacheFactory();
     
     // jackson databind
-    public static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
+    public static final YAMLMapper MAPPER = new YAMLMapper();
+    
+    static {
+        MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS,
+            MapperFeature.AUTO_DETECT_FIELDS,
+            MapperFeature.AUTO_DETECT_GETTERS,
+            MapperFeature.AUTO_DETECT_IS_GETTERS);
+        final var factory = MAPPER.getFactory();
+        factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+        factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+        MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    }
     
     public static DateTime toDateTime(String dateTimeSt) {
         return dateParser.parseDateTime(dateTimeSt);

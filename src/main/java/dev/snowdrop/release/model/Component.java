@@ -9,8 +9,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import dev.snowdrop.release.services.Utility;
 
+@JsonPropertyOrder({"name", "jira", "product", "properties"})
 public class Component implements IssueSource {
     private static final String COMPONENT_TEMPLATE = "component.mustache";
     

@@ -16,6 +16,7 @@ package dev.snowdrop.release.model;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.snowdrop.release.services.Utility;
 
 /**
@@ -31,6 +32,7 @@ public class Product implements IssueSource {
     }
     
     @Override
+    @JsonIgnore
     public Release getParent() {
         return component.getParent();
     }
