@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -95,17 +96,27 @@ public class ReleaseFactory {
     }
     
     Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws IOException {
-        final Release release = MAPPER.readValue(releaseIS, Release.class);
-    
-        // retrieve associated POM
-        final var pom = POM.createFrom(pomIS);
-        release.setPom(pom);
-    
-        // validate release
-        final String pomVersion = pom.getVersion();
-        validate(release, pomVersion, skipProductRequests);
-    
-        return release;
+        final var release = CompletableFuture.supplyAsync(() -> {
+            try {
+                return MAPPER.readValue(releaseIS, Release.class);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        final var pom = CompletableFuture.supplyAsync(() -> {
+            try {
+                return POM.createFrom(pomIS);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        return pom.thenCombineAsync(release, (p, r) -> {
+            r.setPom(p);
+            // validate release
+            final String pomVersion = p.getVersion();
+            validate(r, pomVersion, skipProductRequests);
+            return r;
+        }).join();
     }
     
     void saveTo(Release release, File to) throws IOException {
