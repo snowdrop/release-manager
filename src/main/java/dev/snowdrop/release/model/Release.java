@@ -68,7 +68,7 @@ public class Release {
         return gitRef;
     }
     
-    private void setGitRef(String gitRef) {
+    public void setGitRef(String gitRef) {
         this.gitRef = gitRef;
     }
     

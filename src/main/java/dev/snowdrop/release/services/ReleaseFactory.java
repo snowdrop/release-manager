@@ -68,8 +68,10 @@ public class ReleaseFactory {
     public Release createFromGitRef(String gitRef, boolean skipProductRequests) {
         try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release.yml");
              InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
-            
-            return createFrom(releaseIS, pomIS, skipProductRequests);
+    
+            final var release = createFrom(releaseIS, pomIS, skipProductRequests);
+            release.setGitRef(gitRef);
+            return release;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -99,8 +101,7 @@ public class ReleaseFactory {
     }
     
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
-        URI uri = URI.create("https://raw.githubusercontent.com/" + gitRef + "/" + relativePath);
-        return uri.toURL().openStream();
+        return GitService.getStreamFrom(gitRef, relativePath);
     }
     
     public void validate(Release release, String expectedVersion, boolean skipProductRequests) throws IllegalArgumentException {
