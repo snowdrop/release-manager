@@ -13,9 +13,9 @@
  */
 package dev.snowdrop.release.services;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -81,16 +81,21 @@ public class ReleaseFactory {
     
     Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws IOException {
         final Release release = MAPPER.readValue(releaseIS, Release.class);
-        
+    
         // retrieve associated POM
         final var pom = POM.createFrom(pomIS);
         release.setPom(pom);
-        
+    
         // validate release
         final String pomVersion = pom.getVersion();
         validate(release, pomVersion, skipProductRequests);
-        
+    
         return release;
+    }
+    
+    void saveTo(Release release, File to) throws IOException {
+        final var writer = MAPPER.writerFor(Release.class);
+        writer.writeValue(to, release);
     }
     
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
