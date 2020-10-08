@@ -1,5 +1,6 @@
 package dev.snowdrop.release;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -7,6 +8,7 @@ import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.release.model.Release;
+import dev.snowdrop.release.services.GitService;
 import dev.snowdrop.release.services.ReleaseFactory;
 import dev.snowdrop.release.services.Service;
 import dev.snowdrop.release.services.Utility;
@@ -44,6 +46,9 @@ public class App implements QuarkusApplication {
     
     @Inject
     CommandLine.IFactory cliFactory;
+    
+    @Inject
+    GitService git;
     
     public static void main(String[] argv) throws Exception {
         Quarkus.run(App.class, argv);
@@ -104,11 +109,11 @@ public class App implements QuarkusApplication {
     @CommandLine.Command(name = "start-release",
         description = "Start the release process for the release associated with the specified git reference")
     public void startRelease(
-        @CommandLine.Option(names = {"-g", "--git"},
-            description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
+        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef,
         @CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests,
-        @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test
-    ) {
+        @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test,
+        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token") String token
+    ) throws IOException {
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
         
         release.setTest(test);
@@ -122,11 +127,12 @@ public class App implements QuarkusApplication {
                 LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket);
             } catch (Exception e) {
                 // if we got an exception, assume that it's because we didn't find the ticket
-                issue = service.clone(release, Service.RELEASE_TICKET_TEMPLATE, watchers);
+                issue = clone(release, token);
             }
         } else {
             // no release ticket was specified, clone
-            issue = service.clone(release, Service.RELEASE_TICKET_TEMPLATE, watchers);
+            issue = clone(release, token);
+            
         }
         
         // link CVEs
@@ -136,5 +142,15 @@ public class App implements QuarkusApplication {
             service.createComponentRequests(release, watchers);
         }
         System.out.println(issue);
+    }
+    
+    private BasicIssue clone(Release release, String token) throws IOException {
+        git.initRepository(release.getGitRef(), token);
+        
+        final var issue = service.clone(release, Service.RELEASE_TICKET_TEMPLATE, watchers);
+        release.setJiraKey(issue.getKey());
+        
+        factory.pushChanges(release);
+        return issue;
     }
 }
