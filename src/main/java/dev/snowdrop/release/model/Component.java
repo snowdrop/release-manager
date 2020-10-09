@@ -6,7 +6,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BinaryOperator;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
@@ -118,5 +120,23 @@ public class Component implements IssueSource {
     @Override
     public String toString() {
         return "Component '" + name + "': project => " + jira + " / product => " + product;
+    }
+    
+    public List<String> validate(JiraRestClient restClient) {
+        final var errors = new LinkedList<String>();
+        final var formatter = Utility.errorsFormatter(2);
+        validateIssue(getJira(), errors, formatter, restClient, "jira");
+        validateIssue(getProductIssue(), errors, formatter, restClient, "product");
+        return errors.isEmpty() ? Collections.emptyList() :
+            Collections.singletonList(errors.stream().reduce("Invalid '" + getName() + "' component:\n", Utility.errorsFormatter(1)));
+    }
+    
+    private void validateIssue(Issue issue, LinkedList<String> errors, BinaryOperator<String> formatter, JiraRestClient restClient, final String issueType) {
+        if (issue != null) {
+            var issueErrors = issue.validate(restClient);
+            if (!issueErrors.isEmpty()) {
+                errors.add(issueErrors.stream().reduce("Invalid " + issueType + ":\n", formatter));
+            }
+        }
     }
 }

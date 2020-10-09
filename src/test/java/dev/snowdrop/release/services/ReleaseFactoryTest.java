@@ -53,7 +53,7 @@ public class ReleaseFactoryTest {
         } catch (IllegalArgumentException e) {
             // expected
             assertTrue(e.getMessage().contains("missing version"));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             fail(e);
         }
     }
@@ -66,7 +66,7 @@ public class ReleaseFactoryTest {
         } catch (IllegalArgumentException e) {
             // expected
             assertTrue(e.getMessage().contains("release version doesn't match"));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             fail(e);
         }
     }
@@ -79,7 +79,7 @@ public class ReleaseFactoryTest {
         } catch (IllegalArgumentException e) {
             // expected
             assertTrue(e.getMessage().contains("missing schedule"));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             fail(e);
         }
     }
@@ -93,7 +93,7 @@ public class ReleaseFactoryTest {
             // expected
             assertTrue(e.getMessage().contains("invalid release"));
             assertTrue(e.getMessage().contains("missing EOL"));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             fail(e);
         }
     }
@@ -107,7 +107,7 @@ public class ReleaseFactoryTest {
             // expected
             assertTrue(e.getMessage().contains("parent version doesn't match"));
             assertTrue(e.getMessage().contains("spring-boot.version"));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             fail(e);
         }
     }
@@ -119,15 +119,18 @@ public class ReleaseFactoryTest {
             fail("should have failed on invalid component project");
         } catch (IllegalArgumentException e) {
             // expected
-            assertTrue(e.getMessage().contains("invalid jira project 'FOO'"));
-            assertTrue(e.getMessage().contains("invalid product project 'BAR'"));
-        } catch (IOException e) {
+            final var message = e.getMessage();
+            assertTrue(message.contains("Invalid product"));
+            assertTrue(message.contains("Invalid jira"));
+            assertTrue(message.contains("invalid project 'FOO'"));
+            assertTrue(message.contains("invalid project 'BAR'"));
+        } catch (Throwable e) {
             fail(e);
         }
     }
     
     @Test
-    public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws IOException {
+    public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws Throwable {
         factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), true);
     }
     
@@ -139,13 +142,13 @@ public class ReleaseFactoryTest {
         } catch (IllegalArgumentException e) {
             // expected
             assertTrue(e.getMessage().contains("invalid issue type id '1234'"));
-        } catch (IOException e) {
+        } catch (Throwable e) {
             fail(e);
         }
     }
     
     @Test
-    public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws IOException {
+    public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws Throwable {
         factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"), true);
     }
     
@@ -156,14 +159,14 @@ public class ReleaseFactoryTest {
             fail("should have failed on invalid component assignee");
         } catch (IllegalArgumentException e) {
             // expected
-            assertTrue(e.getMessage().contains("invalid assignee for product project 'ENTSBT': " + MockUserRestClient.NON_EXISTING_USER));
-        } catch (IOException e) {
+            assertTrue(e.getMessage().contains("invalid assignee for project 'ENTSBT': " + MockUserRestClient.NON_EXISTING_USER));
+        } catch (Throwable e) {
             fail(e);
         }
     }
     
     @Test
-    public void validReleaseShouldWork() throws IOException {
+    public void validReleaseShouldWork() throws Throwable {
         final Release release = factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
         validate(release);
     }

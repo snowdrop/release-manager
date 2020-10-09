@@ -75,7 +75,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Parameters(description = "JIRA issue key",
             defaultValue = Service.RELEASE_TICKET_TEMPLATE,
             showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
-    ) {
+    ) throws Throwable {
         final Release release = factory.createFromGitRef(gitRef);
         System.out.println(service.clone(release, toCloneFrom, watchers));
     }
@@ -85,7 +85,7 @@ public class App implements QuarkusApplication {
     public void createComponentRequests(
         @CommandLine.Option(names = {"-g", "--git"},
             description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
-    ) {
+    ) throws Throwable {
         final Release release = factory.createFromGitRef(gitRef);
         service.createComponentRequests(release, watchers);
     }
@@ -113,7 +113,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests,
         @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token") String token
-    ) throws IOException {
+    ) throws Throwable {
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
         
         release.setTest(test);

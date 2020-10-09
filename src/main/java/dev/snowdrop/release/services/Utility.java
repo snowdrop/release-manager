@@ -1,5 +1,7 @@
 package dev.snowdrop.release.services;
 
+import java.util.function.BinaryOperator;
+
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import org.joda.time.DateTime;
@@ -27,5 +29,13 @@ public class Utility {
     
     public static boolean isStringNullOrBlank(String s) {
         return s == null || s.isBlank();
+    }
+    
+    public static BinaryOperator<String> errorsFormatter(int level) {
+        StringBuilder indent = new StringBuilder(level % 2 == 0 ? "- " : "+ ");
+        while (level-- > 0) {
+            indent.insert(0, "   ");
+        }
+        return (s, s2) -> s + indent + s2 + "\n";
     }
 }

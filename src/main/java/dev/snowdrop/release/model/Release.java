@@ -1,10 +1,13 @@
 package dev.snowdrop.release.model;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.release.services.Utility;
 
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
@@ -101,5 +104,57 @@ public class Release {
                 }
             });
         }
+    }
+    
+    public List<String> validate(JiraRestClient restClient, boolean skipProductRequests) {
+        final List<String> errors = new LinkedList<>();
+        
+        // validate version
+        if (Utility.isStringNullOrBlank(version)) {
+            errors.add("missing version");
+        } else {
+            if (pom == null) {
+                errors.add("no associated POM");
+            } else {
+                final int suffix = version.indexOf(RELEASE_SUFFIX);
+                final int len = suffix > 0 ? version.length() - suffix : version.length();
+                final var expectedVersion = pom.getVersion();
+                if (!this.version.regionMatches(0, expectedVersion, 0, len)) {
+                    errors.add(String.format("'%s' release version doesn't match '%s' version in associated POM", this.version,
+                        expectedVersion));
+                }
+            }
+        }
+        
+        // validate schedule
+        if (schedule == null) {
+            errors.add("missing schedule");
+        } else {
+            if (isStringNullOrBlank(schedule.getReleaseDate())) {
+                errors.add("missing release date");
+            }
+            try {
+                schedule.getFormattedReleaseDate();
+            } catch (Exception e) {
+                errors.add("invalid release ISO8601 date: " + e.getMessage());
+            }
+            
+            if (isStringNullOrBlank(schedule.getEOLDate())) {
+                errors.add("missing EOL date");
+            }
+            try {
+                schedule.getFormattedEOLDate();
+            } catch (Exception e) {
+                errors.add("invalid EOL ISO8601 date: " + e.getMessage());
+            }
+        }
+        
+        // validate components
+        if (!skipProductRequests) {
+            final var components = getComponents();
+            components.parallelStream().forEach(c -> errors.addAll(c.validate(restClient)));
+        }
+        
+        return errors;
     }
 }

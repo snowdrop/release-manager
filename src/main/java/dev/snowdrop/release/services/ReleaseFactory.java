@@ -16,25 +16,19 @@ package dev.snowdrop.release.services;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.POM;
 import dev.snowdrop.release.model.Release;
-
-import static dev.snowdrop.release.model.Release.RELEASE_SUFFIX;
-import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -65,14 +59,14 @@ public class ReleaseFactory {
      * @return
      * @throws Exception
      */
-    public Release createFromGitRef(String gitRef) {
+    public Release createFromGitRef(String gitRef) throws Throwable {
         return createFromGitRef(gitRef, false);
     }
     
-    public Release createFromGitRef(String gitRef, boolean skipProductRequests) {
+    public Release createFromGitRef(String gitRef, boolean skipProductRequests) throws Throwable {
         try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release.yml");
              InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
-    
+            
             final var release = createFrom(releaseIS, pomIS, skipProductRequests);
             release.setGitRef(gitRef);
             return release;
@@ -91,32 +85,39 @@ public class ReleaseFactory {
         git.commitAndPush("chore: update release issues' key [issues-manager]", releaseFile);
     }
     
-    Release createFrom(InputStream releaseIS, InputStream pomIS) throws IOException {
+    Release createFrom(InputStream releaseIS, InputStream pomIS) throws Throwable {
         return createFrom(releaseIS, pomIS, false);
     }
     
-    Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws IOException {
-        final var release = CompletableFuture.supplyAsync(() -> {
-            try {
-                return MAPPER.readValue(releaseIS, Release.class);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        final var pom = CompletableFuture.supplyAsync(() -> {
-            try {
-                return POM.createFrom(pomIS);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
-        return pom.thenCombineAsync(release, (p, r) -> {
-            r.setPom(p);
-            // validate release
-            final String pomVersion = p.getVersion();
-            validate(r, pomVersion, skipProductRequests);
-            return r;
-        }).join();
+    Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws Throwable {
+        try {
+            final var release = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return MAPPER.readValue(releaseIS, Release.class);
+                } catch (IOException e) {
+                    throw new CompletionException(e);
+                }
+            });
+            final var pom = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return POM.createFrom(pomIS);
+                } catch (Exception e) {
+                    throw new CompletionException(e);
+                }
+            });
+            return pom.thenCombineAsync(release, (p, r) -> {
+                r.setPom(p);
+                final var errors = r.validate(restClient, skipProductRequests);
+                if (!errors.isEmpty()) {
+                    throw new IllegalArgumentException(
+                        errors.stream().reduce("Invalid release:\n", Utility.errorsFormatter(0))
+                    );
+                }
+                return r;
+            }).join();
+        } catch (CompletionException e) {
+            throw e.getCause();
+        }
     }
     
     void saveTo(Release release, File to) throws IOException {
@@ -126,90 +127,5 @@ public class ReleaseFactory {
     
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
         return GitService.getStreamFrom(gitRef, relativePath);
-    }
-    
-    public void validate(Release release, String expectedVersion, boolean skipProductRequests) throws IllegalArgumentException {
-        final List<String> errors = new LinkedList<>();
-        
-        // validate version
-        final var version = release.getVersion();
-        if (Utility.isStringNullOrBlank(version)) {
-            errors.add("missing version");
-        } else {
-            final int suffix = version.indexOf(RELEASE_SUFFIX);
-            final int len = suffix > 0 ? version.length() - suffix : version.length();
-            if (!version.regionMatches(0, expectedVersion, 0, len)) {
-                errors.add(String.format("'%s' release version doesn't match '%s' version in associated POM", version,
-                    expectedVersion));
-            }
-        }
-        
-        // validate schedule
-        final var schedule = release.getSchedule();
-        if (schedule == null) {
-            errors.add("missing schedule");
-        } else {
-            if (isStringNullOrBlank(schedule.getReleaseDate())) {
-                errors.add("missing release date");
-            }
-            try {
-                schedule.getFormattedReleaseDate();
-            } catch (Exception e) {
-                errors.add("invalid release ISO8601 date: " + e.getMessage());
-            }
-            
-            if (isStringNullOrBlank(schedule.getEOLDate())) {
-                errors.add("missing EOL date");
-            }
-            try {
-                schedule.getFormattedEOLDate();
-            } catch (Exception e) {
-                errors.add("invalid EOL ISO8601 date: " + e.getMessage());
-            }
-        }
-        
-        // validate components
-        if (!skipProductRequests) {
-            final var components = release.getComponents();
-            components.parallelStream().forEach(component -> {
-                validateIssue(errors, component, false);
-                validateIssue(errors, component, true);
-            });
-        }
-        
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(
-                errors.stream().reduce("Invalid release:\n", (s, s2) -> s + "\t- " + s2 + "\n"));
-        }
-    }
-    
-    private void validateIssue(List<String> errors, Component component, boolean isProduct) {
-        var issue = isProduct ? component.getProductIssue() : component.getJira();
-        if (issue != null) {
-            var componentEntryName = isProduct ? "product" : "jira";
-            var project = issue.getProject();
-            var name = component.getName();
-            var issueTypeId = issue.getIssueTypeId();
-            issue.getAssignee().ifPresent(assignee ->
-                {
-                    try {
-                        restClient.getUserClient().getUser(assignee).claim();
-                    } catch (Exception e) {
-                        errors.add(String.format("invalid assignee for %s project '%s': %s", componentEntryName, project, assignee));
-                    }
-                }
-            );
-            try {
-                var p = restClient.getProjectClient().getProject(project).claim();
-                for (IssueType issueType : p.getIssueTypes()) {
-                    if (issueType.getId().equals(issueTypeId)) {
-                        return;
-                    }
-                }
-                errors.add(String.format("invalid issue type id '%d' for component '%s'", issueTypeId, name));
-            } catch (Exception e) {
-                errors.add(String.format("invalid %s project '%s' for component '%s'", componentEntryName, project, name));
-            }
-        }
     }
 }

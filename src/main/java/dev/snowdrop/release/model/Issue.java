@@ -13,9 +13,13 @@
  */
 package dev.snowdrop.release.model;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.release.services.Utility;
 
@@ -61,6 +65,32 @@ public class Issue {
     
     public Optional<String> getAssignee() {
         return Utility.isStringNullOrBlank(assignee) ? Optional.empty() : Optional.of(assignee);
+    }
+    
+    public List<String> validate(JiraRestClient restClient) {
+        final var errors = new LinkedList<String>();
+        getAssignee().ifPresent(assignee ->
+            {
+                try {
+                    restClient.getUserClient().getUser(assignee).claim();
+                } catch (Exception e) {
+                    errors.add(String.format("invalid assignee for project '%s': %s", project, assignee));
+                }
+            }
+        );
+        try {
+            final var issueTypeId = getIssueTypeId();
+            var p = restClient.getProjectClient().getProject(project).claim();
+            for (IssueType issueType : p.getIssueTypes()) {
+                if (issueType.getId().equals(issueTypeId)) {
+                    return errors;
+                }
+            }
+            errors.add(String.format("invalid issue type id '%d'", issueTypeId));
+        } catch (Exception e) {
+            errors.add(String.format("invalid project '%s': %s", project, e.getLocalizedMessage()));
+        }
+        return errors;
     }
     
     @Override
