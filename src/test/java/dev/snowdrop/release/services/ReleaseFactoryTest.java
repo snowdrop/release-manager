@@ -130,6 +130,22 @@ public class ReleaseFactoryTest {
     }
     
     @Test
+    public void emptyComponentProjectShouldFail() {
+        try {
+            factory.createFrom(getResourceAsStream("invalid-component-empty-project.yml"), getResourceAsStream("pom.xml"), false);
+            fail("should have failed on empty component project");
+        } catch (IllegalArgumentException e) {
+            // expected
+            final var message = e.getMessage();
+            assertFalse(message.contains("Invalid product"));
+            assertTrue(message.contains("Invalid jira"));
+            assertTrue(message.contains("project must be specified"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+    }
+    
+    @Test
     public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws Throwable {
         factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), true);
     }

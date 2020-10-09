@@ -22,8 +22,7 @@ components:
     # They will be used to create a component or starter
     -   name: Hibernate / Hibernate Validator / Undertow
         jira:
-            project: ENTSBT
-            issueTypeId: 1234
+            key: FOO
         properties:
             - hibernate
             - hibernate-validator

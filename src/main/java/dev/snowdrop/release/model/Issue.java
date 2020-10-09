@@ -69,6 +69,9 @@ public class Issue {
     
     public List<String> validate(JiraRestClient restClient) {
         final var errors = new LinkedList<String>();
+        if (Utility.isStringNullOrBlank(project)) {
+            errors.add("project must be specified");
+        }
         getAssignee().ifPresent(assignee ->
             {
                 try {
