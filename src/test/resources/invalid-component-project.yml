@@ -23,8 +23,10 @@ components:
     -   name: Hibernate / Hibernate Validator / Undertow
         jira:
             project: FOO
+            key: ENTSBT-1234
         product:
             project: BAR
+            key: INVALID
         properties:
             - hibernate
             - hibernate-validator

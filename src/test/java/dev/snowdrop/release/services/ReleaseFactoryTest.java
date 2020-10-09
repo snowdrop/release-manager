@@ -124,6 +124,8 @@ public class ReleaseFactoryTest {
             assertTrue(message.contains("Invalid jira"));
             assertTrue(message.contains("invalid project 'FOO'"));
             assertTrue(message.contains("invalid project 'BAR'"));
+            assertTrue(message.contains("invalid issue key: INVALID"));
+            assertTrue(message.contains("invalid issue key: " + MockIssueRestClient.ISSUE_KEY + " doesn't match project FOO"));
         } catch (Throwable e) {
             fail(e);
         }

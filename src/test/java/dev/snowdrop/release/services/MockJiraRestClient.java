@@ -40,7 +40,7 @@ import io.quarkus.test.Mock;
 public class MockJiraRestClient implements JiraRestClient {
     @Override
     public IssueRestClient getIssueClient() {
-        return null;
+        return new MockIssueRestClient();
     }
     
     @Override

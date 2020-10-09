@@ -72,6 +72,16 @@ public class Issue {
         if (Utility.isStringNullOrBlank(project)) {
             errors.add("project must be specified");
         }
+        if (!Utility.isStringNullOrBlank(key)) {
+            try {
+                final var issue = restClient.getIssueClient().getIssue(key).claim();
+                if (!issue.getProject().getKey().equals(project)) {
+                    errors.add(String.format("invalid issue key: %s doesn't match project %s", key, project));
+                }
+            } catch (Exception e) {
+                errors.add(String.format("invalid issue key: %s", key));
+            }
+        }
         getAssignee().ifPresent(assignee ->
             {
                 try {
