@@ -2,6 +2,7 @@ package dev.snowdrop.release;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -134,14 +135,24 @@ public class App implements QuarkusApplication {
             issue = clone(release, token);
             
         }
-        
+    
         // link CVEs
-        service.linkCVEs(release, issue.getKey());
-        
+        service.linkCVEs(release.getVersion(), issue.getKey());
+    
         if (!skipProductRequests) {
             service.createComponentRequests(release, watchers);
         }
         System.out.println(issue);
+    }
+    
+    
+    @CommandLine.Command(name = "list-cves", description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
+    public void listCVEs(
+        @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
+    ) throws Throwable {
+        final var cves = service.listCVEs(Optional.ofNullable(version));
+        System.out.format("%10s %15s %8s %20s %40s\n", "Issue", "CVE", "Bugzilla", "Fix version(s)", "Summary");
+        cves.forEach(cve -> System.out.format("%10s %15s %8d %20s %40s\n", cve.getKey(), cve.getId(), cve.getBugzilla(), cve.getFixVersions(), cve.getSummary()));
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
