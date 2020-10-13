@@ -101,7 +101,7 @@ public class Service {
                 // remove id from summary
                 summary = summary.substring(CVE_PATTERN.end(1)).trim();
             }
-            final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName());
+            final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName(), Utility.getFormatted(issue.getUpdateDate()));
             cve.setId(id);
             final var labels = issue.getLabels();
             final var description = issue.getDescription();

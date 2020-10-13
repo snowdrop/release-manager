@@ -28,16 +28,18 @@ public class CVE {
     private final Iterable<String> fixVersions;
     private final String status;
     private String impact;
+    private final String lastUpdate;
     private long bugzilla;
     private Iterable<Blocked> blockedBy;
     private String id;
     
-    public CVE(String key, String summary, String resolution, Iterable<String> fixVersions, String status) {
+    public CVE(String key, String summary, String resolution, Iterable<String> fixVersions, String status, String lastUpdate) {
         this.key = key;
         this.summary = summary;
         this.resolution = resolution;
         this.fixVersions = fixVersions;
         this.status = status;
+        this.lastUpdate = lastUpdate;
     }
     
     public String getKey() {
@@ -70,6 +72,10 @@ public class CVE {
     
     public Iterable<String> getFixVersions() {
         return fixVersions;
+    }
+    
+    public String getLastUpdate() {
+        return lastUpdate;
     }
     
     public static class Blocked {
