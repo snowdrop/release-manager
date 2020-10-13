@@ -5,6 +5,7 @@ import java.util.function.BinaryOperator;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -13,6 +14,7 @@ public class Utility {
     public static final String JIRA_SERVER = "https://issues.redhat.com/";
     public static final String JIRA_ISSUES_API = "https://issues.redhat.com/rest/api/2/";
     public static final MustacheFactory mf = new DefaultMustacheFactory();
+    private static final DateTimeFormatter DEFAULT_DATE_FORMAT = DateTimeFormat.forPattern("dd MMM YYYY");
     
     public static DateTime toDateTime(String dateTimeSt) {
         return dateParser.parseDateTime(dateTimeSt);
@@ -20,7 +22,7 @@ public class Utility {
     
     public static String getFormatted(String dateTimeSt) {
         final DateTime jodaDate = toDateTime(dateTimeSt);
-        return jodaDate.toString("dd MMM YYYY");
+        return jodaDate.toString(DEFAULT_DATE_FORMAT);
     }
     
     public static String getURLFor(String issueKey) {
