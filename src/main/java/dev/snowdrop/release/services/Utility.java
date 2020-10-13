@@ -21,8 +21,11 @@ public class Utility {
     }
     
     public static String getFormatted(String dateTimeSt) {
-        final DateTime jodaDate = toDateTime(dateTimeSt);
-        return jodaDate.toString(DEFAULT_DATE_FORMAT);
+        return getFormatted(toDateTime(dateTimeSt));
+    }
+    
+    public static String getFormatted(DateTime dateTime) {
+        return dateTime.toString(DEFAULT_DATE_FORMAT);
     }
     
     public static String getURLFor(String issueKey) {
