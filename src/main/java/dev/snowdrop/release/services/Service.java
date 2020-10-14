@@ -103,7 +103,12 @@ public class Service {
                 // remove id from summary
                 summary = summary.substring(CVE_PATTERN.end(1)).trim();
             }
-            final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName(), Utility.getFormatted(issue.getUpdateDate()));
+    
+            // compute last update from this and linked issues
+            final var lastUpdate = issue.getUpdateDate();
+    
+    
+            final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName(), Utility.getFormatted(lastUpdate));
             cve.setId(id);
     
             final var description = issue.getDescription();
@@ -142,8 +147,10 @@ public class Service {
                 Promises.when(promises).claim().forEach(blocker -> {
                         final var status = blocker.getStatus();
                         // only add blocker if linked issue is not done
-                        if (!status.getStatusCategory().getKey().equals("done"))
+                        if (!status.getStatusCategory().getKey().equals("done")) {
+            
                             cve.addBlockerIssue(blocker.getKey(), status.getName(), Optional.of(blocker.getUpdateDate()));
+                        }
                     }
                 );
             }
@@ -160,8 +167,9 @@ public class Service {
                             cve.addBlockerRelease(split[2].replaceAll("_", " "), Optional.ofNullable(date));
                             break;
                         case "wait_assignee":
-                            // format: im:wait_assignee:<date in dd_MMM_YYYY format>
-                            cve.addBlockerAssignee(issue.getAssignee().getDisplayName(), split[2].replaceAll("_", " "));
+                            // format: im:wait_assignee:<assignee>:<date in dd_MMM_YYYY format>
+        
+                            cve.addBlockerAssignee(issue.getAssignee().getDisplayName(), split[3].replaceAll("_", " "));
                             break;
                         case "wait_dependency_analysis":
                             // format: im:wait_dependency_analysis:<date in dd_MMM_YYYY format>

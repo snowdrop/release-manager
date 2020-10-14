@@ -89,19 +89,19 @@ public class CVE {
     }
     
     public void addBlockerIssue(String key, String status, Optional<DateTime> lastUpdate) {
-        blockedBy.add(new Blocker(() -> "by: " + key + " [" + status + lastUpdate.map(d -> "] updated: " + Utility.getFormatted(d)).orElse("]")));
+        blockedBy.add(new Blocker(() -> "by " + key + " [" + status + lastUpdate.map(d -> "] updated " + Utility.getFormatted(d)).orElse("]")));
     }
     
     public void addBlockerRelease(String product, Optional<String> expectedDate) {
-        blockedBy.add(new Blocker(() -> "waiting on: " + product + expectedDate.map(s -> " expected on: " + s).orElse("")));
+        blockedBy.add(new Blocker(() -> "waiting on " + product + expectedDate.map(s -> " expected on " + s).orElse("")));
     }
     
     public void addBlockerAssignee(String assigneeName, String since) {
-        blockedBy.add(new Blocker(() -> "by: " + assigneeName + " since: " + since));
+        blockedBy.add(new Blocker(() -> "by " + assigneeName + " since " + since));
     }
     
     public void addBlockerDependent(String since) {
-        blockedBy.add(new Blocker(() -> "on dependent analysis since: " + since));
+        blockedBy.add(new Blocker(() -> "on dependent analysis since " + since));
     }
     
     @FunctionalInterface
