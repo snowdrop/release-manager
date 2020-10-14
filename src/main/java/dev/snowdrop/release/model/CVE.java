@@ -30,7 +30,7 @@ public class CVE {
     private final String key;
     private final String summary;
     private final String resolution;
-    private final Iterable<String> fixVersions;
+    private final List<String> fixVersions = new LinkedList<>();
     private final String status;
     private String impact;
     private final String lastUpdate;
@@ -42,7 +42,7 @@ public class CVE {
         this.key = key;
         this.summary = summary;
         this.resolution = resolution;
-        this.fixVersions = fixVersions;
+        fixVersions.forEach(s -> this.fixVersions.add(s));
         this.status = status;
         this.lastUpdate = lastUpdate;
     }
@@ -75,7 +75,7 @@ public class CVE {
         return bugzilla;
     }
     
-    public Iterable<String> getFixVersions() {
+    public List<String> getFixVersions() {
         return fixVersions;
     }
     
@@ -84,7 +84,7 @@ public class CVE {
     }
     
     
-    public Iterable<Blocker> getBlockedBy() {
+    public List<Blocker> getBlockedBy() {
         return blockedBy;
     }
     
