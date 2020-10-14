@@ -3,11 +3,16 @@ package dev.snowdrop.release;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
+import de.vandermeer.asciitable.AT_Context;
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciitable.CWC_FixedWidth;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.services.GitService;
 import dev.snowdrop.release.services.ReleaseFactory;
@@ -151,8 +156,22 @@ public class App implements QuarkusApplication {
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
         final var cves = service.listCVEs(Optional.ofNullable(version));
-        System.out.format("%10s %15s %8s %15s %10s %20s %40s\n", "Issue", "CVE", "Bugzilla", "Fix version(s)", "Last updated", "Blocked", "Summary");
-        cves.forEach(cve -> System.out.format("%10s %15s %8d %15s %10s %20s %40s\n", cve.getKey(), cve.getId(), cve.getBugzilla(), cve.getFixVersions(), cve.getLastUpdate(), cve.getBlockedBy(), cve.getSummary()));
+        AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
+        at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(14).add(7).add(8).add(11).add(32).add(40));
+        at.setTextAlignment(TextAlignment.LEFT);
+    
+        at.addRule();
+        at.addRow("Issue", "CVE", "BZ", "Fix versions", "Last updated", "Blocked", "Summary");
+    
+        at.addRule();
+        cves.forEach(cve -> {
+            at.addRow(cve.getKey(), cve.getId(), cve.getBugzilla(),
+                String.join("<br/>", cve.getFixVersions()), cve.getLastUpdate(),
+                cve.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
+                cve.getSummary());
+            at.addRule();
+        });
+        System.out.println(at.render());
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
