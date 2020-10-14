@@ -151,8 +151,8 @@ public class App implements QuarkusApplication {
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
         final var cves = service.listCVEs(Optional.ofNullable(version));
-        System.out.format("%10s %15s %8s %15s %10s %40s\n", "Issue", "CVE", "Bugzilla", "Fix version(s)", "Last updated", "Summary");
-        cves.forEach(cve -> System.out.format("%10s %15s %8d %15s %10s %40s\n", cve.getKey(), cve.getId(), cve.getBugzilla(), cve.getFixVersions(), cve.getLastUpdate(), cve.getSummary()));
+        System.out.format("%10s %15s %8s %15s %10s %20s %40s\n", "Issue", "CVE", "Bugzilla", "Fix version(s)", "Last updated", "Blocked", "Summary");
+        cves.forEach(cve -> System.out.format("%10s %15s %8d %15s %10s %20s %40s\n", cve.getKey(), cve.getId(), cve.getBugzilla(), cve.getFixVersions(), cve.getLastUpdate(), cve.getBlockedBy(), cve.getSummary()));
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
