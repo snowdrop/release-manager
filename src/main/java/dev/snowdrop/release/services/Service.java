@@ -17,6 +17,7 @@ import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
@@ -28,6 +29,7 @@ import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
 import io.atlassian.util.concurrent.Promise;
+import io.atlassian.util.concurrent.Promises;
 import org.jboss.logging.Logger;
 
 import static dev.snowdrop.release.model.Issue.DEFAULT_JIRA_PROJECT;
@@ -103,7 +105,7 @@ public class Service {
             }
             final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName(), Utility.getFormatted(issue.getUpdateDate()));
             cve.setId(id);
-            final var labels = issue.getLabels();
+    
             final var description = issue.getDescription();
             if (description != null) {
                 final var lines = description.lines()
@@ -118,7 +120,7 @@ public class Service {
                         impactFound = true;
                         continue;
                     }
-                    
+    
                     // only check for BZ link after CVE is found since that's where it is (at least, in the JIRAs we've seen so far)
                     if (BZ_PATTERN.reset(line).matches()) {
                         cve.setBugzilla(BZ_PATTERN.group(1));
@@ -126,6 +128,50 @@ public class Service {
                     }
                 }
             }
+    
+            final var links = issue.getIssueLinks();
+            if (links != null) {
+                final var promises = new LinkedList<Promise<? extends Issue>>();
+                links.forEach(l -> {
+                    final var type = l.getIssueLinkType();
+                    if (type.getDirection() == IssueLinkType.Direction.INBOUND && type.getName().equals(LINK_TYPE)) {
+                        promises.add(restClient.getIssueClient().getIssue(l.getTargetIssueKey()));
+                    }
+                });
+        
+                Promises.when(promises).claim().forEach(blocker -> {
+                        final var status = blocker.getStatus();
+                        // only add blocker if linked issue is not done
+                        if (!status.getStatusCategory().getKey().equals("done"))
+                            cve.addBlockerIssue(blocker.getKey(), status.getName(), Optional.of(blocker.getUpdateDate()));
+                    }
+                );
+            }
+    
+            final var labels = issue.getLabels();
+            labels.stream()
+                .filter(l -> l.startsWith("im:"))
+                .forEach(l -> {
+                    final var split = l.split(":");
+                    switch (split[1]) {
+                        case "wait_release":
+                            // format: im:wait_release:<product name with spaces escaped by _>[:<date in dd_MMM_YYYY format>]?
+                            final var date = split.length == 4 ? split[3].replaceAll("_", " ") : null;
+                            cve.addBlockerRelease(split[2].replaceAll("_", " "), Optional.ofNullable(date));
+                            break;
+                        case "wait_assignee":
+                            // format: im:wait_assignee:<date in dd_MMM_YYYY format>
+                            cve.addBlockerAssignee(issue.getAssignee().getDisplayName(), split[2].replaceAll("_", " "));
+                            break;
+                        case "wait_dependency_analysis":
+                            // format: im:wait_dependency_analysis:<date in dd_MMM_YYYY format>
+                            cve.addBlockerDependent(split[2].replaceAll("_", " "));
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Unknown label: '" + l + "'");
+                    }
+                });
+    
             cves.add(cve);
         }
         return cves;
