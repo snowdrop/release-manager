@@ -2,13 +2,7 @@ package dev.snowdrop.release.services;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,22 +11,17 @@ import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
-import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldValue;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
-import dev.snowdrop.release.model.CVE;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
 import io.atlassian.util.concurrent.Promise;
-import io.atlassian.util.concurrent.Promises;
 import org.jboss.logging.Logger;
 
-import static dev.snowdrop.release.model.Issue.DEFAULT_JIRA_PROJECT;
 import static dev.snowdrop.release.services.Utility.JIRA_ISSUES_API;
 import static dev.snowdrop.release.services.Utility.getURLFor;
 import static dev.snowdrop.release.services.Utility.toDateTime;
@@ -41,10 +30,6 @@ import static dev.snowdrop.release.services.Utility.toDateTime;
 public class Service {
     public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
     private static final Logger LOG = Logger.getLogger(Service.class);
-    private static final String LINK_TYPE = "Blocks";
-    private static final long UNRESOLVED_CVES = 12347131;
-    private static final Matcher CVE_PATTERN = Pattern.compile(".*(CVE-\\d{4}-\\d{1,6}).*").matcher("");
-    private static final Matcher BZ_PATTERN = Pattern.compile(".*https://bugzilla.redhat.com/show_bug.cgi\\?id=(\\d{7}).*").matcher("");
     
     @Inject
     JiraRestClient restClient;
@@ -54,7 +39,7 @@ public class Service {
         final Promise<Issue> toPromise = cl.getIssue(toIssue)
             .fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
         
-        cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, LINK_TYPE))
+        cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, CVEService.LINK_TYPE))
             .fail(e -> LOG.errorf("Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage()))
             .claim();
         
@@ -72,122 +57,6 @@ public class Service {
         for (String issue : issues) {
             cl.deleteIssue(issue, false).claim();
             LOG.infof("Issue %s deleted", issue);
-        }
-    }
-    
-    public Iterable<CVE> listCVEs(Optional<String> releaseVersion) {
-        final var searchResult = new SearchResult[1];
-        final var searchClient = restClient.getSearchClient();
-        releaseVersion.ifPresentOrElse(
-            version -> searchResult[0] = searchClient.searchJql("project = " + DEFAULT_JIRA_PROJECT + " AND text ~ \"cve-*\" AND fixVersion = " + version).claim(),
-            () -> searchResult[0] = searchClient.getFilter(UNRESOLVED_CVES).flatMap(f -> searchClient.searchJql(f.getJql())).claim()
-        );
-        final var issues = searchResult[0].getIssues();
-        final var cves = new LinkedList<CVE>();
-        for (Issue issue : issues) {
-            final var resolution = issue.getResolution();
-            final var resolutionAsString = resolution == null ? "Unspecified" : resolution.getName();
-            final var versions = issue.getFixVersions();
-            final List<String> fixVersions;
-            if (versions != null) {
-                fixVersions = new LinkedList<>();
-                versions.forEach(v -> fixVersions.add(v.getName()));
-            } else {
-                fixVersions = Collections.emptyList();
-            }
-            var summary = issue.getSummary();
-            String id = "";
-            // extract CVE id from summary
-            if (CVE_PATTERN.reset(summary).matches()) {
-                id = CVE_PATTERN.group(1);
-                // remove id from summary
-                summary = summary.substring(CVE_PATTERN.end(1)).trim();
-            }
-    
-            // compute last update from this and linked issues
-            final var lastUpdate = issue.getUpdateDate();
-    
-    
-            final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName(), Utility.getFormatted(lastUpdate));
-            cve.setId(id);
-    
-            final var description = issue.getDescription();
-            if (description != null) {
-                final var lines = description.lines()
-                    .filter(Predicate.not(String::isBlank))
-                    .iterator();
-                boolean impactFound = false;
-                while (lines.hasNext()) {
-                    var line = lines.next();
-                    // first line should be the one where impact is recorded
-                    if (!impactFound && line.startsWith("Impact")) {
-                        cve.setImpact(line.substring(line.indexOf(':') + 1).trim());
-                        impactFound = true;
-                        continue;
-                    }
-    
-                    // only check for BZ link after CVE is found since that's where it is (at least, in the JIRAs we've seen so far)
-                    if (BZ_PATTERN.reset(line).matches()) {
-                        cve.setBugzilla(BZ_PATTERN.group(1));
-                        break;
-                    }
-                }
-            }
-    
-            final var links = issue.getIssueLinks();
-            if (links != null) {
-                final var promises = new LinkedList<Promise<? extends Issue>>();
-                links.forEach(l -> {
-                    final var type = l.getIssueLinkType();
-                    if (type.getDirection() == IssueLinkType.Direction.INBOUND && type.getName().equals(LINK_TYPE)) {
-                        promises.add(restClient.getIssueClient().getIssue(l.getTargetIssueKey()));
-                    }
-                });
-        
-                Promises.when(promises).claim().forEach(blocker -> {
-                        final var status = blocker.getStatus();
-                        // only add blocker if linked issue is not done
-                        if (!status.getStatusCategory().getKey().equals("done")) {
-            
-                            cve.addBlockerIssue(blocker.getKey(), status.getName(), Optional.of(blocker.getUpdateDate()));
-                        }
-                    }
-                );
-            }
-    
-            final var labels = issue.getLabels();
-            labels.stream()
-                .filter(l -> l.startsWith("im:"))
-                .forEach(l -> {
-                    final var split = l.split(":");
-                    switch (split[1]) {
-                        case "wait_release":
-                            // format: im:wait_release:<product name with spaces escaped by _>[:<date in dd_MMM_YYYY format>]?
-                            final var date = split.length == 4 ? split[3].replaceAll("_", " ") : null;
-                            cve.addBlockerRelease(split[2].replaceAll("_", " "), Optional.ofNullable(date));
-                            break;
-                        case "wait_assignee":
-                            // format: im:wait_assignee:<assignee>:<date in dd_MMM_YYYY format>
-        
-                            cve.addBlockerAssignee(issue.getAssignee().getDisplayName(), split[3].replaceAll("_", " "));
-                            break;
-                        case "wait_dependency_analysis":
-                            // format: im:wait_dependency_analysis:<date in dd_MMM_YYYY format>
-                            cve.addBlockerDependent(split[2].replaceAll("_", " "));
-                            break;
-                        default:
-                            throw new IllegalArgumentException("Unknown label: '" + l + "'");
-                    }
-                });
-    
-            cves.add(cve);
-        }
-        return cves;
-    }
-    
-    public void linkCVEs(String releaseVersion, String issue) {
-        for (var cve : listCVEs(Optional.of(releaseVersion))) {
-            linkIssue(issue, cve.getKey());
         }
     }
     
