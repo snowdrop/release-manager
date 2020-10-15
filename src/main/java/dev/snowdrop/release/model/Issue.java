@@ -23,6 +23,8 @@ import com.atlassian.jira.rest.client.api.domain.IssueType;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.release.services.Utility;
 
+import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
+
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
@@ -45,8 +47,12 @@ public class Issue {
         return key;
     }
     
-    void setKey(String key) {
-        this.key = key;
+    public void setKey(String key) {
+        if (isStringNullOrBlank(this.key)) {
+            this.key = key;
+        } else {
+            throw new IllegalStateException("Issue already has a key: " + this.key);
+        }
     }
     
     public Long getIssueTypeId() {

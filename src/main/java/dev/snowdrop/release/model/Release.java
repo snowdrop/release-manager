@@ -45,9 +45,7 @@ public class Release {
      * @param key the ticket identifier to which this Release should be associated
      */
     public void setJiraKey(String key) {
-        if (isStringNullOrBlank(getJiraKey())) {
-            issue.setKey(key);
-        }
+        issue.setKey(key);
     }
     
     public String getVersion() {

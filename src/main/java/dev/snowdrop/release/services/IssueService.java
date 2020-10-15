@@ -117,8 +117,10 @@ public class IssueService {
              * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
              * release issue
              */
+            var key = componentIssue.getKey();
             if (jiraKey != null) {
-                linkIssue(jiraKey, componentIssue.getKey());
+                linkIssue(jiraKey, key);
+                component.getJira().setKey(key);
             }
             
             // if component also defines a product field, then we should create a ticket for the associated product team
@@ -127,7 +129,9 @@ public class IssueService {
             if (product != null) {
                 final var productIssue = createIssue(product, watchers);
                 // link the newly created product issue with our component issue
-                linkIssue(componentIssue.getKey(), productIssue.getKey());
+                final var productIssueKey = productIssue.getKey();
+                linkIssue(key, productIssueKey);
+                component.getProductIssue().setKey(productIssueKey);
             }
         }
     }

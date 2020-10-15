@@ -69,6 +69,7 @@ public class ReleaseFactory {
             
             final var release = createFrom(releaseIS, pomIS, skipProductRequests);
             release.setGitRef(gitRef);
+            System.out.println("Created release " + release.getVersion() + " from " + release.getGitRef());
             return release;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -89,7 +90,7 @@ public class ReleaseFactory {
         return createFrom(releaseIS, pomIS, false);
     }
     
-    Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws Throwable {
+    public Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws Throwable {
         try {
             final var release = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -122,6 +123,7 @@ public class ReleaseFactory {
     
     void saveTo(Release release, File to) throws IOException {
         final var writer = MAPPER.writerFor(Release.class);
+        writer.writeValue(System.out, release);
         writer.writeValue(to, release);
     }
     

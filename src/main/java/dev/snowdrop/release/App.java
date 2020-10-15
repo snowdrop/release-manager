@@ -124,10 +124,11 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token") String token
     ) throws Throwable {
+        git.initRepository(gitRef, token); // init git repository to be able to update release
+    
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
-        
         release.setTest(test);
-        
+    
         BasicIssue issue;
         // first check if we already have a release ticket, in which case we don't need to clone the template
         final String releaseTicket = release.getJiraKey();
@@ -142,7 +143,7 @@ public class App implements QuarkusApplication {
         } else {
             // no release ticket was specified, clone
             issue = clone(release, token);
-    
+        
         }
     
         // link CVEs
@@ -153,6 +154,8 @@ public class App implements QuarkusApplication {
         if (!skipProductRequests) {
             service.createComponentRequests(release, watchers);
         }
+    
+        factory.pushChanges(release);
         System.out.println(issue);
     }
     
@@ -181,12 +184,8 @@ public class App implements QuarkusApplication {
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
-        git.initRepository(release.getGitRef(), token);
-    
         final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
         release.setJiraKey(issue.getKey());
-        
-        factory.pushChanges(release);
         return issue;
     }
 }
