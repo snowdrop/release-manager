@@ -111,13 +111,11 @@ public class IssueService {
         final String jiraKey = release.getJiraKey();
         
         for (Component component : release.getComponents()) {
-            final var componentIssue = createIssue(component, watchers);
-            
             /*
              * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
              * release issue
              */
-            var key = componentIssue.getKey();
+            var key = createIssue(component, watchers);
             if (jiraKey != null) {
                 linkIssue(jiraKey, key);
                 component.getJira().setKey(key);
@@ -127,28 +125,35 @@ public class IssueService {
             // and link it to the component request
             final var product = component.getProduct();
             if (product != null) {
-                final var productIssue = createIssue(product, watchers);
                 // link the newly created product issue with our component issue
-                final var productIssueKey = productIssue.getKey();
+                final var productIssueKey = createIssue(product, watchers);
                 linkIssue(key, productIssueKey);
                 component.getProductIssue().setKey(productIssueKey);
             }
         }
     }
     
-    private BasicIssue createIssue(IssueSource source, List<String> watchers) {
+    private String createIssue(IssueSource source, List<String> watchers) {
         final IssueRestClient cl = restClient.getIssueClient();
-        var issue = getIssueInput(source);
-        BasicIssue componentIssue;
-        try {
-            componentIssue = cl.createIssue(issue).claim();
-        } catch (Exception e) {
-            LOG.errorf("Couldn't create request for %s", source);
-            throw e;
+        
+        // if the source has already an issue assigned to it, skip it (it should be already validated when the release was created)
+        final var key = source.getJira().getKey();
+        if (Utility.isStringNullOrBlank(key)) {
+            var issue = getIssueInput(source);
+            BasicIssue componentIssue;
+            try {
+                componentIssue = cl.createIssue(issue).claim();
+            } catch (Exception e) {
+                LOG.errorf("Couldn't create request for %s", source);
+                throw e;
+            }
+            final var created = componentIssue.getKey();
+            addWatchers(created, watchers);
+            LOG.infof("Issue %s created successfully for %s component", getURLFor(created), source.getName());
+            return created;
         }
-        addWatchers(componentIssue.getKey(), watchers);
-        LOG.infof("Issue %s created successfully for %s component", getURLFor(componentIssue.getKey()), source.getName());
-        return componentIssue;
+        LOG.infof("Issue %s already exists for %s component, skipping it", getURLFor(key), source.getName());
+        return key;
     }
     
     private static IssueInput getIssueInput(IssueSource source) {
