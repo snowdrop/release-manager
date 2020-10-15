@@ -123,7 +123,6 @@ public class ReleaseFactory {
     
     void saveTo(Release release, File to) throws IOException {
         final var writer = MAPPER.writerFor(Release.class);
-        writer.writeValue(System.out, release);
         writer.writeValue(to, release);
     }
     
