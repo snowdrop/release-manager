@@ -28,6 +28,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
@@ -89,9 +90,9 @@ public class CVEService {
         
         // compute last update from this and linked issues
         final var lastUpdate = issue.getUpdateDate();
-        
-        
-        final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName(), Utility.getFormatted(lastUpdate));
+    
+    
+        final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName());
         cve.setId(id);
         
         final var description = issue.getDescription();
@@ -131,8 +132,7 @@ public class CVEService {
                     final var status = blocker.getStatus();
                     // only add blocker if linked issue is not done
                     if (!status.getStatusCategory().getKey().equals("done")) {
-                        
-                        cve.addBlocker(newBlockerIssue(blocker.getKey(), status.getName(), Optional.of(blocker.getUpdateDate())));
+                        cve.addBlocker(newBlockerIssue(blocker));
                     }
                 }
             );
@@ -146,17 +146,13 @@ public class CVEService {
                 switch (split[1]) {
                     case "wait_release":
                         // format: im:wait_release:<product name with spaces escaped by _>[:<date in dd_MMM_YYYY format>]?
-                        final var date = split.length == 4 ? split[3].replaceAll("_", " ") : null;
-                        cve.addBlocker(newBlockerRelease(split[2].replaceAll("_", " "), Optional.ofNullable(date)));
+                        final var date = split.length == 4 ? unescape(split[3]) : null;
+                        cve.addBlocker(newBlockerRelease(unescape(split[2]), Optional.ofNullable(date)));
                         break;
                     case "wait_assignee":
                         // format: im:wait_assignee:<assignee>:<date in dd_MMM_YYYY format>
-                        
-                        cve.addBlocker(newBlockerAssignee(issue.getAssignee().getDisplayName(), split[3].replaceAll("_", " ")));
-                        break;
-                    case "wait_dependency_analysis":
-                        // format: im:wait_dependency_analysis:<date in dd_MMM_YYYY format>
-                        cve.addBlocker(newBlockerDependent(split[2].replaceAll("_", " ")));
+                        // we need to specify the assignee in the label in case the ticket gets re-assigned
+                        cve.addBlocker(newBlockerAssignee(issue, unescape(split[2]), unescape(split[3])));
                         break;
                     default:
                         throw new IllegalArgumentException("Unknown label: '" + l + "'");
@@ -165,19 +161,50 @@ public class CVEService {
         return cve;
     }
     
-    public CVE.Blocker newBlockerIssue(String key, String status, Optional<DateTime> lastUpdate) {
-        return new CVE.Blocker(() -> "by " + key + " [" + status + lastUpdate.map(d -> "] updated " + Utility.getFormatted(d)).orElse("]"));
+    private String unescape(String s) {
+        return s.replaceAll("_", " ");
+    }
+    
+    public CVE.Blocker newBlockerIssue(Issue blocker) {
+        final var key = blocker.getKey();
+        final var block = new CVE.Blocker(() -> "by " + key + " [" + blocker.getStatus().getName() + "]");
+        final var updateDate = blocker.getUpdateDate();
+        // if the blocker issue has been updated within the last week, mark it as needing revisit
+        if (updateDate.isAfter(DateTime.now().minusDays(7))) {
+            block.setRevisit(key + " updated last week");
+        }
+        return block;
     }
     
     public CVE.Blocker newBlockerRelease(String product, Optional<String> expectedDate) {
-        return new CVE.Blocker(() -> "waiting on " + product + expectedDate.map(s -> " expected on " + s).orElse(""));
+        var msg = "by " + product;
+        String revisit = null;
+        if (expectedDate.isPresent()) {
+            final var dateAsString = expectedDate.get();
+            msg += " expected on " + dateAsString;
+            // if the product has been released, we need to revisit
+            if (Utility.fromReadableDate(dateAsString).isBeforeNow()) {
+                revisit = product + " should be released";
+            }
+        }
+        String finalMsg = msg;
+        final var blocker = new CVE.Blocker(() -> finalMsg);
+        blocker.setRevisit(revisit);
+        return blocker;
     }
     
-    public CVE.Blocker newBlockerAssignee(String assigneeName, String since) {
-        return new CVE.Blocker(() -> "by " + assigneeName + " since " + since);
-    }
-    
-    public CVE.Blocker newBlockerDependent(String since) {
-        return new CVE.Blocker(() -> "on dependent analysis since " + since);
+    public CVE.Blocker newBlockerAssignee(Issue issue, String assigneeName, String since) {
+        // check comments to see if assignee has commented since it was assigned to them
+        final var assignedDate = Utility.fromReadableDate(since);
+        String revisit = null;
+        for (Comment comment : issue.getComments()) {
+            final var author = comment.getAuthor();
+            if (author != null && author.getName().equals(assigneeName) && comment.getCreationDate().isAfter(assignedDate)) {
+                revisit = "assignee has commented";
+            }
+        }
+        final var blocker = new CVE.Blocker(() -> "by " + assigneeName + " since " + since);
+        blocker.setRevisit(revisit);
+        return blocker;
     }
 }

@@ -16,12 +16,22 @@ public class Utility {
     public static final MustacheFactory mf = new DefaultMustacheFactory();
     private static final DateTimeFormatter DEFAULT_DATE_FORMAT = DateTimeFormat.forPattern("dd MMM YYYY");
     
-    public static DateTime toDateTime(String dateTimeSt) {
+    public static DateTime fromIsoDate(String dateTimeSt) {
         return dateParser.parseDateTime(dateTimeSt);
     }
     
-    public static String getFormatted(String dateTimeSt) {
-        return getFormatted(toDateTime(dateTimeSt));
+    /**
+     * Parses dates using {@link #DEFAULT_DATE_FORMAT}.
+     *
+     * @param readableDate
+     * @return
+     */
+    public static DateTime fromReadableDate(String readableDate) {
+        return DEFAULT_DATE_FORMAT.parseDateTime(readableDate);
+    }
+    
+    public static String getFormatted(String isoDate) {
+        return getFormatted(fromIsoDate(isoDate));
     }
     
     public static String getFormatted(DateTime dateTime) {

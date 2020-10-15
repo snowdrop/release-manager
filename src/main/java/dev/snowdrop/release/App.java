@@ -163,16 +163,16 @@ public class App implements QuarkusApplication {
     ) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version));
         AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
-        at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(14).add(7).add(8).add(11).add(32).add(40));
+        at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(14).add(7).add(8).add(30).add(32).add(40));
         at.setTextAlignment(TextAlignment.LEFT);
     
         at.addRule();
-        at.addRow("Issue", "CVE", "BZ", "Fix versions", "Last updated", "Blocked", "Summary");
+        at.addRow("Issue", "CVE", "BZ", "Fix versions", "Revisit", "Blocked", "Summary");
     
         at.addRule();
         cves.forEach(cve -> {
             at.addRow(cve.getKey(), cve.getId(), cve.getBugzilla(),
-                String.join("<br/>", cve.getFixVersions()), cve.getLastUpdate(),
+                String.join("<br/>", cve.getFixVersions()), cve.getRevisit().orElse(""),
                 cve.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
                 cve.getSummary());
             at.addRule();
