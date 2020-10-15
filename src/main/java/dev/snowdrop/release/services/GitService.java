@@ -92,24 +92,31 @@ public class GitService {
     public void commitAndPush(String commitMessage, File... changed) throws IOException {
         try {
             git.thenAcceptAsync(g -> {
-                //            final var repoDir = new File(g.getRepository().getDirectory().getParent());// repository is .git directory so move up once
-                final var addCommand = g.add();
-                for (File file : changed) {
-                    final var path = file.getPath();
-                    LOG.debugf("Added %s", path);
-                    addCommand.addFilepattern(path);
-                }
                 try {
-                    addCommand.call();
                     final var status = g.status().call();
-                    if (!status.getUncommittedChanges().isEmpty()) {
-                        g.commit().setMessage(commitMessage).call();
-                        LOG.infof("Committed: %s", commitMessage);
-                        g.push().setCredentialsProvider(getCredentialsProvider(token)).call();
-                        LOG.infof("Pushed");
-                    } else {
-                        LOG.infof("No changes detected");
+                    final var uncommittedChanges = status.getUncommittedChanges();
+                    var hasChanges = false;
+                    if (!uncommittedChanges.isEmpty()) {
+                        final var addCommand = g.add().setUpdate(true);
+                        for (File file : changed) {
+                            final var path = file.getName();
+                            if (uncommittedChanges.contains(path)) {
+                                // only add file to be committed if it's part of the modified set
+                                LOG.infof("Added %s", path);
+                                addCommand.addFilepattern(path);
+                                hasChanges = true;
+                            }
+                        }
+                        if (hasChanges) {
+                            addCommand.call();
+                            final var commit = g.commit().setMessage(commitMessage).call();
+                            LOG.infof("Committed: %s", commit.getFullMessage());
+                            g.push().setCredentialsProvider(getCredentialsProvider(token)).call();
+                            LOG.infof("Pushed");
+                            return;
+                        }
                     }
+                    LOG.infof("No changes detected");
                 } catch (GitAPIException e) {
                     throw new RuntimeException(e);
                 }
