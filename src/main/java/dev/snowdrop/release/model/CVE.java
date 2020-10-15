@@ -18,6 +18,8 @@ package dev.snowdrop.release.model;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -29,18 +31,17 @@ public class CVE {
     private final List<String> fixVersions = new LinkedList<>();
     private final String status;
     private String impact;
-    private final String lastUpdate;
     private long bugzilla;
     private final List<Blocker> blockedBy = new LinkedList<>();
     private String id;
     
-    public CVE(String key, String summary, String resolution, Iterable<String> fixVersions, String status, String lastUpdate) {
+    
+    public CVE(String key, String summary, String resolution, Iterable<String> fixVersions, String status) {
         this.key = key;
         this.summary = summary;
         this.resolution = resolution;
         fixVersions.forEach(s -> this.fixVersions.add(s));
         this.status = status;
-        this.lastUpdate = lastUpdate;
     }
     
     public String getKey() {
@@ -75,10 +76,14 @@ public class CVE {
         return fixVersions;
     }
     
-    public String getLastUpdate() {
-        return lastUpdate;
+    public Optional<String> getRevisit() {
+        final var revisit = blockedBy.stream()
+            .map(Blocker::getRevisit)
+            .filter(Optional::isPresent)
+            .map(o -> "- " + o.get())
+            .collect(Collectors.joining("\n"));
+        return revisit.isBlank() ? Optional.empty() : Optional.of(revisit);
     }
-    
     
     public List<Blocker> getBlockedBy() {
         return blockedBy;
@@ -95,9 +100,18 @@ public class CVE {
     
     public static class Blocker {
         private final StatusReporter reporter;
+        private String revisit;
         
         public Blocker(StatusReporter reporter) {
             this.reporter = reporter;
+        }
+        
+        public Optional<String> getRevisit() {
+            return Optional.ofNullable(revisit);
+        }
+        
+        public void setRevisit(String revisit) {
+            this.revisit = revisit;
         }
         
         @Override

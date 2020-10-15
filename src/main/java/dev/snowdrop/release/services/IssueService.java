@@ -23,8 +23,8 @@ import io.atlassian.util.concurrent.Promise;
 import org.jboss.logging.Logger;
 
 import static dev.snowdrop.release.services.Utility.JIRA_ISSUES_API;
+import static dev.snowdrop.release.services.Utility.fromIsoDate;
 import static dev.snowdrop.release.services.Utility.getURLFor;
-import static dev.snowdrop.release.services.Utility.toDateTime;
 
 @ApplicationScoped
 public class IssueService {
@@ -155,7 +155,7 @@ public class IssueService {
         jira.getAssignee().ifPresent(iib::setAssigneeName);
         iib.setSummary(source.getTitle());
         iib.setDescription(source.getDescription());
-        iib.setDueDate(toDateTime(source.getParent().getSchedule().getDueDate()));
+        iib.setDueDate(fromIsoDate(source.getParent().getSchedule().getDueDate()));
 /*
 TODO: To be investigated
 
