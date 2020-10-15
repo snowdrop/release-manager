@@ -51,7 +51,9 @@ public class Issue {
         if (isStringNullOrBlank(this.key)) {
             this.key = key;
         } else {
-            throw new IllegalStateException("Issue already has a key: " + this.key);
+            if (!this.key.equals(key)) {
+                throw new IllegalStateException("Issue already has a key: " + this.key);
+            }
         }
     }
     
