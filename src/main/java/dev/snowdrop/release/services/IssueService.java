@@ -27,9 +27,9 @@ import static dev.snowdrop.release.services.Utility.getURLFor;
 import static dev.snowdrop.release.services.Utility.toDateTime;
 
 @ApplicationScoped
-public class Service {
+public class IssueService {
     public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
-    private static final Logger LOG = Logger.getLogger(Service.class);
+    private static final Logger LOG = Logger.getLogger(IssueService.class);
     
     @Inject
     JiraRestClient restClient;
