@@ -16,8 +16,8 @@ import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.services.CVEService;
 import dev.snowdrop.release.services.GitService;
+import dev.snowdrop.release.services.IssueService;
 import dev.snowdrop.release.services.ReleaseFactory;
-import dev.snowdrop.release.services.Service;
 import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
@@ -49,7 +49,7 @@ public class App implements QuarkusApplication {
     ReleaseFactory factory;
     
     @Inject
-    Service service;
+    IssueService service;
     
     @Inject
     CommandLine.IFactory cliFactory;
@@ -83,7 +83,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-g", "--git"},
             description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
         @CommandLine.Parameters(description = "JIRA issue key",
-            defaultValue = Service.RELEASE_TICKET_TEMPLATE,
+            defaultValue = IssueService.RELEASE_TICKET_TEMPLATE,
             showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
     ) throws Throwable {
         final Release release = factory.createFromGitRef(gitRef);
@@ -182,8 +182,8 @@ public class App implements QuarkusApplication {
     
     private BasicIssue clone(Release release, String token) throws IOException {
         git.initRepository(release.getGitRef(), token);
-        
-        final var issue = service.clone(release, Service.RELEASE_TICKET_TEMPLATE, watchers);
+    
+        final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
         release.setJiraKey(issue.getKey());
         
         factory.pushChanges(release);
