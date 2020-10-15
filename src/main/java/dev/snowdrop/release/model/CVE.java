@@ -18,10 +18,6 @@ package dev.snowdrop.release.model;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-
-import dev.snowdrop.release.services.Utility;
-import org.joda.time.DateTime;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -88,24 +84,12 @@ public class CVE {
         return blockedBy;
     }
     
-    public void addBlockerIssue(String key, String status, Optional<DateTime> lastUpdate) {
-        blockedBy.add(new Blocker(() -> "by " + key + " [" + status + lastUpdate.map(d -> "] updated " + Utility.getFormatted(d)).orElse("]")));
-    }
-    
-    public void addBlockerRelease(String product, Optional<String> expectedDate) {
-        blockedBy.add(new Blocker(() -> "waiting on " + product + expectedDate.map(s -> " expected on " + s).orElse("")));
-    }
-    
-    public void addBlockerAssignee(String assigneeName, String since) {
-        blockedBy.add(new Blocker(() -> "by " + assigneeName + " since " + since));
-    }
-    
-    public void addBlockerDependent(String since) {
-        blockedBy.add(new Blocker(() -> "on dependent analysis since " + since));
+    public void addBlocker(Blocker blocker) {
+        blockedBy.add(blocker);
     }
     
     @FunctionalInterface
-    private interface StatusReporter {
+    public interface StatusReporter {
         String getStatus();
     }
     

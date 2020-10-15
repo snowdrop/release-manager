@@ -14,6 +14,7 @@ import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_FixedWidth;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import dev.snowdrop.release.model.Release;
+import dev.snowdrop.release.services.CVEService;
 import dev.snowdrop.release.services.GitService;
 import dev.snowdrop.release.services.ReleaseFactory;
 import dev.snowdrop.release.services.Service;
@@ -55,6 +56,9 @@ public class App implements QuarkusApplication {
     
     @Inject
     GitService git;
+    
+    @Inject
+    CVEService cveService;
     
     public static void main(String[] argv) throws Exception {
         Quarkus.run(App.class, argv);
@@ -138,11 +142,13 @@ public class App implements QuarkusApplication {
         } else {
             // no release ticket was specified, clone
             issue = clone(release, token);
-            
+    
         }
     
         // link CVEs
-        service.linkCVEs(release.getVersion(), issue.getKey());
+        for (var cve : cveService.listCVEs(Optional.of(release.getVersion()))) {
+            service.linkIssue(issue.getKey(), cve.getKey());
+        }
     
         if (!skipProductRequests) {
             service.createComponentRequests(release, watchers);
@@ -155,7 +161,7 @@ public class App implements QuarkusApplication {
     public void listCVEs(
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
-        final var cves = service.listCVEs(Optional.ofNullable(version));
+        final var cves = cveService.listCVEs(Optional.ofNullable(version));
         AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
         at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(14).add(7).add(8).add(11).add(32).add(40));
         at.setTextAlignment(TextAlignment.LEFT);
