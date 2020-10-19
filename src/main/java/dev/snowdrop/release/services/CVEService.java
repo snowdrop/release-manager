@@ -32,6 +32,7 @@ import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import dev.snowdrop.release.model.Blocker;
 import dev.snowdrop.release.model.CVE;
 import io.atlassian.util.concurrent.Promise;
 import io.atlassian.util.concurrent.Promises;
@@ -165,9 +166,9 @@ public class CVEService {
         return s.replaceAll("_", " ");
     }
     
-    public CVE.Blocker newBlockerIssue(Issue blocker) {
+    public Blocker newBlockerIssue(Issue blocker) {
         final var key = blocker.getKey();
-        final var block = new CVE.Blocker(() -> "by " + key + " [" + blocker.getStatus().getName() + "]");
+        final var block = new Blocker(() -> "by " + key + " [" + blocker.getStatus().getName() + "]");
         final var updateDate = blocker.getUpdateDate();
         // if the blocker issue has been updated within the last week, mark it as needing revisit
         if (updateDate.isAfter(DateTime.now().minusDays(7))) {
@@ -176,7 +177,7 @@ public class CVEService {
         return block;
     }
     
-    public CVE.Blocker newBlockerRelease(String product, Optional<String> expectedDate) {
+    public Blocker newBlockerRelease(String product, Optional<String> expectedDate) {
         var msg = "by " + product;
         String revisit = null;
         if (expectedDate.isPresent()) {
@@ -188,12 +189,12 @@ public class CVEService {
             }
         }
         String finalMsg = msg;
-        final var blocker = new CVE.Blocker(() -> finalMsg);
+        final var blocker = new Blocker(() -> finalMsg);
         blocker.setRevisit(revisit);
         return blocker;
     }
     
-    public CVE.Blocker newBlockerAssignee(Issue issue, String assigneeName, String since) {
+    public Blocker newBlockerAssignee(Issue issue, String assigneeName, String since) {
         // check comments to see if assignee has commented since it was assigned to them
         final var assignedDate = Utility.fromReadableDate(since);
         String revisit = null;
@@ -203,7 +204,7 @@ public class CVEService {
                 revisit = "assignee has commented";
             }
         }
-        final var blocker = new CVE.Blocker(() -> "by " + assigneeName + " since " + since);
+        final var blocker = new Blocker(() -> "by " + assigneeName + " since " + since);
         blocker.setRevisit(revisit);
         return blocker;
     }

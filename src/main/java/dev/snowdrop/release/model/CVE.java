@@ -18,13 +18,11 @@ package dev.snowdrop.release.model;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
-public class CVE {
+public class CVE extends Blockable {
     private final String key;
     private final String summary;
     private final String resolution;
@@ -32,7 +30,7 @@ public class CVE {
     private final String status;
     private String impact;
     private long bugzilla;
-    private final List<Blocker> blockedBy = new LinkedList<>();
+    
     private String id;
     
     
@@ -76,47 +74,5 @@ public class CVE {
         return fixVersions;
     }
     
-    public Optional<String> getRevisit() {
-        final var revisit = blockedBy.stream()
-            .map(Blocker::getRevisit)
-            .filter(Optional::isPresent)
-            .map(o -> "- " + o.get())
-            .collect(Collectors.joining("\n"));
-        return revisit.isBlank() ? Optional.empty() : Optional.of(revisit);
-    }
     
-    public List<Blocker> getBlockedBy() {
-        return blockedBy;
-    }
-    
-    public void addBlocker(Blocker blocker) {
-        blockedBy.add(blocker);
-    }
-    
-    @FunctionalInterface
-    public interface StatusReporter {
-        String getStatus();
-    }
-    
-    public static class Blocker {
-        private final StatusReporter reporter;
-        private String revisit;
-        
-        public Blocker(StatusReporter reporter) {
-            this.reporter = reporter;
-        }
-        
-        public Optional<String> getRevisit() {
-            return Optional.ofNullable(revisit);
-        }
-        
-        public void setRevisit(String revisit) {
-            this.revisit = revisit;
-        }
-        
-        @Override
-        public String toString() {
-            return reporter.getStatus();
-        }
-    }
 }
