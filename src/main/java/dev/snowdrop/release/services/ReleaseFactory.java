@@ -108,7 +108,8 @@ public class ReleaseFactory {
             });
             return pom.thenCombineAsync(release, (p, r) -> {
                 r.setPom(p);
-                final var errors = r.validate(restClient, skipProductRequests);
+                r.setJiraClient(restClient);
+                final var errors = r.validate(skipProductRequests);
                 if (!errors.isEmpty()) {
                     throw new IllegalArgumentException(
                         errors.stream().reduce("Invalid release:\n", Utility.errorsFormatter(0))

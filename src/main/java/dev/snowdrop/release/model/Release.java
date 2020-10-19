@@ -4,14 +4,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.snowdrop.release.services.Utility;
 
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
-public class Release {
+public class Release extends Blockable {
     public static final String RELEASE_SUFFIX = ".RELEASE";
     @JsonProperty
     private String version;
@@ -104,11 +102,11 @@ public class Release {
         }
     }
     
-    public List<String> validate(JiraRestClient restClient, boolean skipProductRequests) {
+    public List<String> validate(boolean skipProductRequests) {
         final List<String> errors = new LinkedList<>();
         
         // validate version
-        if (Utility.isStringNullOrBlank(version)) {
+        if (isStringNullOrBlank(version)) {
             errors.add("missing version");
         } else {
             if (pom == null) {
@@ -150,7 +148,7 @@ public class Release {
         // validate components
         if (!skipProductRequests) {
             final var components = getComponents();
-            components.parallelStream().forEach(c -> errors.addAll(c.validate(restClient)));
+            components.parallelStream().forEach(c -> errors.addAll(c.validate(getRestClient())));
         }
         
         return errors;
