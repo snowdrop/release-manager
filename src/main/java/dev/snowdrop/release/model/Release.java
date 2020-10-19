@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import dev.snowdrop.release.services.Utility;
 
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
@@ -144,13 +145,22 @@ public class Release extends Blockable {
                 errors.add("invalid EOL ISO8601 date: " + e.getMessage());
             }
         }
-        
+    
         // validate components
         if (!skipProductRequests) {
             final var components = getComponents();
             components.parallelStream().forEach(c -> errors.addAll(c.validate(getRestClient())));
         }
-        
+    
         return errors;
+    }
+    
+    public void computeStatus() {
+        final var key = getJiraKey();
+        if (!Utility.isStringNullOrBlank(key)) {
+            final var issue = getRestClient().getIssueClient().getIssue(key).claim();
+            processLabels(issue);
+            processLinks(issue);
+        }
     }
 }

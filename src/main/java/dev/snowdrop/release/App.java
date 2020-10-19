@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
@@ -59,6 +60,9 @@ public class App implements QuarkusApplication {
     
     @Inject
     CVEService cveService;
+    
+    @Inject
+    JiraRestClient client;
     
     public static void main(String[] argv) throws Exception {
         Quarkus.run(App.class, argv);
@@ -181,6 +185,15 @@ public class App implements QuarkusApplication {
             at.addRule();
         });
         System.out.println(at.render());
+    }
+    
+    @CommandLine.Command(name = "status", description = "Compute the release status")
+    public void status(
+        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef
+    ) throws Throwable {
+        Release release = factory.createFromGitRef(gitRef, false);
+        release.computeStatus();
+        release.getBlockedBy().stream().map(b -> "- " + b).forEach(System.out::println);
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
