@@ -80,10 +80,6 @@ public class CVEService {
             summary = summary.substring(CVE_PATTERN.end(1)).trim();
         }
         
-        // compute last update from this and linked issues
-        final var lastUpdate = issue.getUpdateDate();
-    
-    
         final var cve = new CVE(issue.getKey(), summary, fixVersions, issue.getStatus().getName());
         cve.setId(id);
         cve.setJiraClient(restClient);
