@@ -25,7 +25,6 @@ import java.util.List;
 public class CVE extends Blockable {
     private final String key;
     private final String summary;
-    private final String resolution;
     private final List<String> fixVersions = new LinkedList<>();
     private final String status;
     private String impact;
@@ -34,10 +33,9 @@ public class CVE extends Blockable {
     private String id;
     
     
-    public CVE(String key, String summary, String resolution, Iterable<String> fixVersions, String status) {
+    public CVE(String key, String summary, Iterable<String> fixVersions, String status) {
         this.key = key;
         this.summary = summary;
-        this.resolution = resolution;
         fixVersions.forEach(s -> this.fixVersions.add(s));
         this.status = status;
     }

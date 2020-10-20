@@ -63,8 +63,6 @@ public class CVEService {
     }
     
     public CVE create(Issue issue) {
-        final var resolution = issue.getResolution();
-        final var resolutionAsString = resolution == null ? "Unspecified" : resolution.getName();
         final var versions = issue.getFixVersions();
         final List<String> fixVersions;
         if (versions != null) {
@@ -86,7 +84,7 @@ public class CVEService {
         final var lastUpdate = issue.getUpdateDate();
     
     
-        final var cve = new CVE(issue.getKey(), summary, resolutionAsString, fixVersions, issue.getStatus().getName());
+        final var cve = new CVE(issue.getKey(), summary, fixVersions, issue.getStatus().getName());
         cve.setId(id);
         cve.setJiraClient(restClient);
         
