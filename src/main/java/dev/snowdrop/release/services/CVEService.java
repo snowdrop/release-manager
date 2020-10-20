@@ -107,9 +107,7 @@ public class CVEService {
             }
         }
     
-        cve.processLinks(issue);
-    
-        cve.processLabels(issue);
+        cve.computeStatus(issue);
         return cve;
     }
 }

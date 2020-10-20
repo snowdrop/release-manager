@@ -159,11 +159,7 @@ public class Release extends Blockable {
         final var key = getJiraKey();
         if (!Utility.isStringNullOrBlank(key)) {
             final var issue = getRestClient().getIssueClient().getIssue(key).claim();
-            final var status = new Status();
-            processLabels(issue);
-            status.setBlockedLinksRatio(processLinks(issue));
-            status.setBlockedTasksRatio(processTasks(issue));
-            return status;
+            return computeStatus(issue);
         }
         return Status.EMPTY_STATUS;
     }

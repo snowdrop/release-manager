@@ -70,7 +70,15 @@ public abstract class Blockable {
         blockedBy.add(blocker);
     }
     
-    public void processLabels(Issue issue) {
+    public Status computeStatus(Issue issue) {
+        final var status = new Status();
+        processLabels(issue);
+        status.setBlockedLinksRatio(processLinks(issue));
+        status.setBlockedTasksRatio(processTasks(issue));
+        return status;
+    }
+    
+    void processLabels(Issue issue) {
         final var labels = issue.getLabels();
         labels.stream()
             .filter(l -> l.startsWith("im:"))
