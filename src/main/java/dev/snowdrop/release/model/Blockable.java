@@ -101,50 +101,62 @@ public abstract class Blockable {
             });
     }
     
-    public RatioStatus processLinks(Issue issue) {
+    RatioStatus processLinks(Issue issue) {
         final var links = issue.getIssueLinks();
-        return process(links, new IssueIdentifier<IssueLink>() {
+        return process(links, new IssueVisitor<IssueLink>() {
             @Override
             public String getKey(IssueLink item) {
                 return item.getTargetIssueKey();
             }
-            
+        
             @Override
-            public boolean match(IssueLink item) {
+            public boolean accept(IssueLink item) {
                 final var type = item.getIssueLinkType();
                 return type.getDirection() == IssueLinkType.Direction.INBOUND && type.getName().equals(LINK_TYPE);
+            }
+        
+            @Override
+            public void visit(Issue item) {
+                addBlocker(newBlockerIssue(item));
             }
         });
     }
     
-    public RatioStatus processTasks(Issue issue) {
+    RatioStatus processTasks(Issue issue) {
         final var tasks = issue.getSubtasks();
-        return process(tasks, new IssueIdentifier<Subtask>() {
+        return process(tasks, new IssueVisitor<Subtask>() {
             @Override
             public String getKey(Subtask item) {
                 return item.getIssueKey();
             }
             
             @Override
-            public boolean match(Subtask item) {
+            public boolean accept(Subtask item) {
                 return true;
+            }
+            
+            @Override
+            public void visit(Issue item) {
+                addBlocker(newBlockerIssue(item));
             }
         });
     }
     
-    private interface IssueIdentifier<T> {
+    private interface IssueVisitor<T> {
         String getKey(T item);
         
-        boolean match(T item);
+        boolean accept(T item);
+        
+        void visit(Issue issue);
     }
     
-    private RatioStatus process(Iterable<?> links, IssueIdentifier identifier) {
+    private RatioStatus process(Iterable<?> links, IssueVisitor visitor) {
         final var result = new RatioStatus();
         if (links != null) {
             final var promises = new LinkedList<Promise<? extends Issue>>();
             links.forEach(l -> {
-                if (identifier.match(l)) {
-                    promises.add(restClient.getIssueClient().getIssue(identifier.getKey(l)));
+                if (visitor.accept(l)) {
+                    promises.add(restClient.getIssueClient().getIssue(visitor.getKey(l)));
                 }
             });
             
@@ -154,7 +166,7 @@ public abstract class Blockable {
                     final var status = blocker.getStatus();
                     // only add blocker if linked issue is not done
                     if (!status.getStatusCategory().getKey().equals("done")) {
-                        addBlocker(newBlockerIssue(blocker));
+                        visitor.visit(blocker);
                         result.incrementMatching();
                     }
                 }
