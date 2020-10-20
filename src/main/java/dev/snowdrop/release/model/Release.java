@@ -155,12 +155,21 @@ public class Release extends Blockable {
         return errors;
     }
     
-    public void computeStatus() {
+    public Status computeStatus() {
         final var key = getJiraKey();
         if (!Utility.isStringNullOrBlank(key)) {
             final var issue = getRestClient().getIssueClient().getIssue(key).claim();
+            final var status = new Status();
             processLabels(issue);
-            processLinks(issue);
+            status.setBlockedLinksRatio(processLinks(issue));
+            status.setBlockedTasksRatio(processTasks(issue));
+            return status;
         }
+        return Status.EMPTY_STATUS;
+    }
+    
+    @Override
+    protected boolean useExtendedStatus() {
+        return true;
     }
 }

@@ -75,4 +75,8 @@ public class CVE extends Blockable {
     }
     
     
+    @Override
+    protected boolean useExtendedStatus() {
+        return false;
+    }
 }

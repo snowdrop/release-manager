@@ -24,7 +24,9 @@ import java.util.stream.Collectors;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.IssueLink;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
+import com.atlassian.jira.rest.client.api.domain.Subtask;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import dev.snowdrop.release.services.Utility;
 import io.atlassian.util.concurrent.Promise;
@@ -34,12 +36,14 @@ import org.joda.time.DateTime;
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
-public class Blockable {
+public abstract class Blockable {
     public static final String LINK_TYPE = "Blocks";
     @JsonIgnore
     private final List<Blocker> blockedBy = new LinkedList<>();
     @JsonIgnore
     private JiraRestClient restClient;
+    
+    protected abstract boolean useExtendedStatus();
     
     public void setJiraClient(JiraRestClient jiraClient) {
         this.restClient = jiraClient;
@@ -89,26 +93,66 @@ public class Blockable {
             });
     }
     
-    public void processLinks(Issue issue) {
+    public RatioStatus processLinks(Issue issue) {
         final var links = issue.getIssueLinks();
+        return process(links, new IssueIdentifier<IssueLink>() {
+            @Override
+            public String getKey(IssueLink item) {
+                return item.getTargetIssueKey();
+            }
+            
+            @Override
+            public boolean match(IssueLink item) {
+                final var type = item.getIssueLinkType();
+                return type.getDirection() == IssueLinkType.Direction.INBOUND && type.getName().equals(LINK_TYPE);
+            }
+        });
+    }
+    
+    public RatioStatus processTasks(Issue issue) {
+        final var tasks = issue.getSubtasks();
+        return process(tasks, new IssueIdentifier<Subtask>() {
+            @Override
+            public String getKey(Subtask item) {
+                return item.getIssueKey();
+            }
+            
+            @Override
+            public boolean match(Subtask item) {
+                return true;
+            }
+        });
+    }
+    
+    private interface IssueIdentifier<T> {
+        String getKey(T item);
+        
+        boolean match(T item);
+    }
+    
+    private RatioStatus process(Iterable<?> links, IssueIdentifier identifier) {
+        final var result = new RatioStatus();
         if (links != null) {
             final var promises = new LinkedList<Promise<? extends Issue>>();
             links.forEach(l -> {
-                final var type = l.getIssueLinkType();
-                if (type.getDirection() == IssueLinkType.Direction.INBOUND && type.getName().equals(LINK_TYPE)) {
-                    promises.add(restClient.getIssueClient().getIssue(l.getTargetIssueKey()));
+                if (identifier.match(l)) {
+                    promises.add(restClient.getIssueClient().getIssue(identifier.getKey(l)));
                 }
             });
+            
+            result.setConsidered(promises.size());
             
             Promises.when(promises).claim().forEach(blocker -> {
                     final var status = blocker.getStatus();
                     // only add blocker if linked issue is not done
                     if (!status.getStatusCategory().getKey().equals("done")) {
                         addBlocker(newBlockerIssue(blocker));
+                        result.incrementMatching();
                     }
                 }
             );
         }
+        return result;
     }
     
     private String unescape(String s) {
@@ -117,7 +161,15 @@ public class Blockable {
     
     public Blocker newBlockerIssue(Issue blocker) {
         final var key = blocker.getKey();
-        final var block = new Blocker(() -> "by " + key + " [" + blocker.getStatus().getName() + "]");
+        final String finalMsg;
+        if (useExtendedStatus()) {
+            finalMsg = "by " + key + " " + blocker.getIssueType().getName() + " [" + blocker.getStatus().getName() + "]" + ": "
+                + blocker.getSummary();
+        } else {
+            finalMsg = "by " + key + " [" + blocker.getStatus().getName() + "]";
+        }
+        
+        final var block = new Blocker(() -> finalMsg);
         final var updateDate = blocker.getUpdateDate();
         // if the blocker issue has been updated within the last week, mark it as needing revisit
         if (updateDate.isAfter(DateTime.now().minusDays(7))) {

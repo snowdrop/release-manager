@@ -192,8 +192,9 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef
     ) throws Throwable {
         Release release = factory.createFromGitRef(gitRef, false);
-        release.computeStatus();
-        release.getBlockedBy().stream().map(b -> "- " + b).forEach(System.out::println);
+        final var status = release.computeStatus();
+        System.out.println(status.getBlockedLinksRatio() + " blocked issues and " + status.getBlockedTasksRatio() + " blocked tasks:");
+        release.getBlockedBy().stream().map(b -> "  - " + b).forEach(System.out::println);
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
