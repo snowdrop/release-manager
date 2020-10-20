@@ -10,7 +10,7 @@ import dev.snowdrop.release.services.Utility;
 
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
-public class Release extends Blockable {
+public class Release extends Issue {
     public static final String RELEASE_SUFFIX = ".RELEASE";
     @JsonProperty
     private String version;

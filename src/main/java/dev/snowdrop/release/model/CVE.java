@@ -16,36 +16,17 @@
  */
 package dev.snowdrop.release.model;
 
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
-public class CVE extends Blockable {
-    private final String key;
-    private final String summary;
-    private final List<String> fixVersions = new LinkedList<>();
-    private final String status;
+public class CVE extends Issue {
     private String impact;
     private long bugzilla;
-    
     private String id;
     
     
     public CVE(String key, String summary, Iterable<String> fixVersions, String status) {
-        this.key = key;
-        this.summary = summary;
-        fixVersions.forEach(s -> this.fixVersions.add(s));
-        this.status = status;
-    }
-    
-    public String getKey() {
-        return key;
-    }
-    
-    public String getSummary() {
-        return summary;
+        super(key, summary, fixVersions, status);
     }
     
     public void setImpact(String impact) {
@@ -66,15 +47,5 @@ public class CVE extends Blockable {
     
     public long getBugzilla() {
         return bugzilla;
-    }
-    
-    public List<String> getFixVersions() {
-        return fixVersions;
-    }
-    
-    
-    @Override
-    protected boolean useExtendedStatus() {
-        return false;
     }
 }

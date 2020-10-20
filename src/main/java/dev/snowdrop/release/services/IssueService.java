@@ -16,13 +16,13 @@ import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldVal
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
-import dev.snowdrop.release.model.Blockable;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
 import io.atlassian.util.concurrent.Promise;
 import org.jboss.logging.Logger;
 
+import static dev.snowdrop.release.model.Issue.LINK_TYPE;
 import static dev.snowdrop.release.services.Utility.JIRA_ISSUES_API;
 import static dev.snowdrop.release.services.Utility.fromIsoDate;
 import static dev.snowdrop.release.services.Utility.getURLFor;
@@ -40,7 +40,7 @@ public class IssueService {
         final Promise<Issue> toPromise = cl.getIssue(toIssue)
             .fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
     
-        cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, Blockable.LINK_TYPE))
+        cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, LINK_TYPE))
             .fail(e -> LOG.errorf("Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage()))
             .claim();
         
