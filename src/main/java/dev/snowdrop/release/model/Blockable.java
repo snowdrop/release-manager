@@ -71,12 +71,18 @@ public abstract class Blockable {
     }
     
     public Status computeStatus(Issue issue) {
+        return computeStatus(issue, item -> addBlocker(newBlockerIssue(item)));
+    }
+    
+    public Status computeStatus(Issue issue, IssueVisitor visitor) {
+        System.out.println("Looking at " + issue.getKey());
         final var status = new Status();
         processLabels(issue);
-        status.setBlockedLinksRatio(processLinks(issue));
-        status.setBlockedTasksRatio(processTasks(issue));
+        status.setBlockedLinksRatio(processLinks(issue, visitor));
+        status.setBlockedTasksRatio(processTasks(issue, visitor));
         return status;
     }
+    
     
     void processLabels(Issue issue) {
         final var labels = issue.getLabels();
@@ -101,30 +107,25 @@ public abstract class Blockable {
             });
     }
     
-    RatioStatus processLinks(Issue issue) {
+    RatioStatus processLinks(Issue issue, IssueVisitor visitor) {
         final var links = issue.getIssueLinks();
-        return process(links, new IssueVisitor<IssueLink>() {
+        return process(links, new IssueFilter<IssueLink>() {
             @Override
             public String getKey(IssueLink item) {
                 return item.getTargetIssueKey();
             }
-        
+            
             @Override
             public boolean accept(IssueLink item) {
                 final var type = item.getIssueLinkType();
                 return type.getDirection() == IssueLinkType.Direction.INBOUND && type.getName().equals(LINK_TYPE);
             }
-        
-            @Override
-            public void visit(Issue item) {
-                addBlocker(newBlockerIssue(item));
-            }
-        });
+        }, visitor);
     }
     
-    RatioStatus processTasks(Issue issue) {
+    RatioStatus processTasks(Issue issue, IssueVisitor visitor) {
         final var tasks = issue.getSubtasks();
-        return process(tasks, new IssueVisitor<Subtask>() {
+        return process(tasks, new IssueFilter<Subtask>() {
             @Override
             public String getKey(Subtask item) {
                 return item.getIssueKey();
@@ -134,29 +135,27 @@ public abstract class Blockable {
             public boolean accept(Subtask item) {
                 return true;
             }
-            
-            @Override
-            public void visit(Issue item) {
-                addBlocker(newBlockerIssue(item));
-            }
-        });
+        }, visitor);
     }
     
-    private interface IssueVisitor<T> {
+    private interface IssueFilter<T> {
         String getKey(T item);
         
         boolean accept(T item);
-        
-        void visit(Issue issue);
     }
     
-    private RatioStatus process(Iterable<?> links, IssueVisitor visitor) {
+    @FunctionalInterface
+    public interface IssueVisitor {
+        void visit(Issue item);
+    }
+    
+    protected RatioStatus process(Iterable<?> links, IssueFilter filter, IssueVisitor visitor) {
         final var result = new RatioStatus();
         if (links != null) {
             final var promises = new LinkedList<Promise<? extends Issue>>();
             links.forEach(l -> {
-                if (visitor.accept(l)) {
-                    promises.add(restClient.getIssueClient().getIssue(visitor.getKey(l)));
+                if (filter.accept(l)) {
+                    promises.add(restClient.getIssueClient().getIssue(filter.getKey(l)));
                 }
             });
             
