@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import dev.snowdrop.release.services.Utility;
 
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 
@@ -151,15 +150,6 @@ public class Release extends Issue {
         }
     
         return errors;
-    }
-    
-    public Status computeStatus() {
-        final var key = getJiraKey();
-        if (!Utility.isStringNullOrBlank(key)) {
-            final var issue = getRestClient().getIssueClient().getIssue(key).claim();
-            return computeStatus(issue);
-        }
-        return Status.EMPTY_STATUS;
     }
     
     @Override

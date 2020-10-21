@@ -13,13 +13,18 @@
  */
 package dev.snowdrop.release.model;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Comment;
 import com.atlassian.jira.rest.client.api.domain.IssueLink;
 import com.atlassian.jira.rest.client.api.domain.IssueLinkType;
@@ -54,30 +59,47 @@ public class Issue {
     @JsonIgnore
     private String summary;
     @JsonIgnore
-    private List<String> fixVersions = new LinkedList<>();
+    private List<String> fixVersions;
     @JsonIgnore
     private String status;
+    @JsonIgnore
+    private final SortedMap<String, Issue> blocked = new TreeMap<>();
+    @JsonIgnore
+    private int totalConsideredIssues;
+    @JsonIgnore
+    private Optional<com.atlassian.jira.rest.client.api.domain.Issue> underlying = Optional.empty();
+    public static final String LINK_TYPE = "Blocks";
+    @JsonIgnore
+    private final List<Blocker> blockedBy = new LinkedList<>();
+    @JsonIgnore
+    private JiraRestClient restClient;
+    @JsonIgnore
+    private boolean isStatusComputed = false;
     
     public Issue() {
     }
     
-    public Issue(String key, String summary, Iterable<String> fixVersions, String status) {
+    public Issue(String key, String summary, List<String> fixVersions, String status) {
         this.key = key;
         this.summary = summary;
-        fixVersions.forEach(s -> this.fixVersions.add(s));
+        this.fixVersions = fixVersions;
         this.status = status;
     }
     
     public String getKey() {
-        return key;
+        return Objects.requireNonNullElse(key, underlying.map(BasicIssue::getKey).orElse(null));
     }
     
     public String getSummary() {
-        return summary;
+        return Objects.requireNonNullElse(key, underlying.map(com.atlassian.jira.rest.client.api.domain.Issue::getSummary).orElse(null));
     }
     
     public List<String> getFixVersions() {
-        return fixVersions;
+        return Objects.requireNonNullElse(fixVersions, underlying.map(Utility::getVersionsAsStrings).orElse(Collections.emptyList()));
+    }
+    
+    public String getStatus() {
+        return Objects.requireNonNullElse(status, underlying.map(issue -> issue.getStatus().getName()).orElse(null));
     }
     
     public void setKey(String key) {
@@ -116,6 +138,7 @@ public class Issue {
         if (!Utility.isStringNullOrBlank(key)) {
             try {
                 final var issue = restClient.getIssueClient().getIssue(key).claim();
+                underlying = Optional.of(issue);
                 if (!issue.getProject().getKey().equals(project)) {
                     errors.add(String.format("invalid issue key: %s doesn't match project %s", key, project));
                 }
@@ -157,11 +180,10 @@ public class Issue {
             '}';
     }
     
-    public static final String LINK_TYPE = "Blocks";
-    @JsonIgnore
-    private final List<Blocker> blockedBy = new LinkedList<>();
-    @JsonIgnore
-    private JiraRestClient restClient;
+    public Issue(com.atlassian.jira.rest.client.api.domain.Issue issue, JiraRestClient restClient) {
+        this.underlying = Optional.of(issue);
+        setJiraClient(restClient);
+    }
     
     public void setJiraClient(JiraRestClient jiraClient) {
         this.restClient = jiraClient;
@@ -188,18 +210,29 @@ public class Issue {
         blockedBy.add(blocker);
     }
     
-    public Status computeStatus(com.atlassian.jira.rest.client.api.domain.Issue issue) {
-        return computeStatus(issue, item -> addBlocker(newBlockerIssue(item)));
+    public void computeStatus() {
+        final var key = getKey();
+        if (Utility.isStringNullOrBlank(key)) {
+            throw new IllegalArgumentException("Cannot compute the status of an issue without a key");
+        }
+        if (underlying.isEmpty()) {
+            underlying = Optional.of(restClient.getIssueClient().getIssue(key).claim());
+        }
+        computeStatus(underlying.get());
     }
     
-    public Status computeStatus(com.atlassian.jira.rest.client.api.domain.Issue issue, IssueVisitor visitor) {
-        final var status = new Status();
-        processLabels(issue);
-        status.setBlockedLinksRatio(processLinks(issue, visitor));
-        status.setBlockedTasksRatio(processTasks(issue, visitor));
-        return status;
+    public void computeStatus(com.atlassian.jira.rest.client.api.domain.Issue issue) {
+        computeStatus(issue, item -> addBlocker(newBlockerIssue(item)));
     }
     
+    public void computeStatus(com.atlassian.jira.rest.client.api.domain.Issue issue, IssueVisitor visitor) {
+        if (!isStatusComputed) {
+            processLabels(issue);
+            processLinks(issue, visitor);
+            processTasks(issue, visitor);
+            isStatusComputed = true;
+        }
+    }
     
     void processLabels(com.atlassian.jira.rest.client.api.domain.Issue issue) {
         final var labels = issue.getLabels();
@@ -224,9 +257,9 @@ public class Issue {
             });
     }
     
-    RatioStatus processLinks(com.atlassian.jira.rest.client.api.domain.Issue issue, IssueVisitor visitor) {
+    void processLinks(com.atlassian.jira.rest.client.api.domain.Issue issue, IssueVisitor visitor) {
         final var links = issue.getIssueLinks();
-        return process(links, new IssueFilter<IssueLink>() {
+        process(links, new IssueFilter<IssueLink>() {
             @Override
             public String getKey(IssueLink item) {
                 return item.getTargetIssueKey();
@@ -240,9 +273,9 @@ public class Issue {
         }, visitor);
     }
     
-    RatioStatus processTasks(com.atlassian.jira.rest.client.api.domain.Issue issue, IssueVisitor visitor) {
+    void processTasks(com.atlassian.jira.rest.client.api.domain.Issue issue, IssueVisitor visitor) {
         final var tasks = issue.getSubtasks();
-        return process(tasks, new IssueFilter<Subtask>() {
+        process(tasks, new IssueFilter<Subtask>() {
             @Override
             public String getKey(Subtask item) {
                 return item.getIssueKey();
@@ -253,6 +286,20 @@ public class Issue {
                 return true;
             }
         }, visitor);
+    }
+    
+    public int getBlockedNumber() {
+        return blocked.size();
+    }
+    
+    public int getConsideredNumber() {
+        return totalConsideredIssues;
+    }
+    
+    public Collection<Issue> getBlocked() {
+        final var values = blocked.values();
+        values.forEach(Issue::computeStatus);
+        return values;
     }
     
     private interface IssueFilter<T> {
@@ -266,8 +313,7 @@ public class Issue {
         void visit(com.atlassian.jira.rest.client.api.domain.Issue item);
     }
     
-    protected RatioStatus process(Iterable<?> links, IssueFilter filter, IssueVisitor visitor) {
-        final var result = new RatioStatus();
+    protected void process(Iterable<?> links, IssueFilter filter, IssueVisitor visitor) {
         if (links != null) {
             final var promises = new LinkedList<Promise<? extends com.atlassian.jira.rest.client.api.domain.Issue>>();
             links.forEach(l -> {
@@ -276,19 +322,18 @@ public class Issue {
                 }
             });
             
-            result.setConsidered(promises.size());
+            totalConsideredIssues += promises.size();
             
             Promises.when(promises).claim().forEach(blocker -> {
                     final var status = blocker.getStatus();
                     // only add blocker if linked issue is not done
                     if (!status.getStatusCategory().getKey().equals("done")) {
                         visitor.visit(blocker);
-                        result.incrementMatching();
+                        blocked.put(blocker.getKey(), new Issue(blocker, restClient));
                     }
                 }
             );
         }
-        return result;
     }
     
     private String unescape(String s) {

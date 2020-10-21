@@ -16,6 +16,8 @@
  */
 package dev.snowdrop.release.model;
 
+import java.util.List;
+
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
@@ -25,7 +27,7 @@ public class CVE extends Issue {
     private String id;
     
     
-    public CVE(String key, String summary, Iterable<String> fixVersions, String status) {
+    public CVE(String key, String summary, List<String> fixVersions, String status) {
         super(key, summary, fixVersions, status);
     }
     

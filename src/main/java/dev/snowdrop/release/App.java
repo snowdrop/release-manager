@@ -1,6 +1,8 @@
 package dev.snowdrop.release;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,6 +16,8 @@ import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_FixedWidth;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
+import dev.snowdrop.release.model.CVE;
+import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.services.CVEService;
 import dev.snowdrop.release.services.GitService;
@@ -169,22 +173,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version));
-        AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
-        at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(14).add(7).add(8).add(30).add(32).add(40));
-        at.setTextAlignment(TextAlignment.LEFT);
-    
-        at.addRule();
-        at.addRow("Issue", "CVE", "BZ", "Fix versions", "Revisit", "Blocked", "Summary");
-    
-        at.addRule();
-        cves.forEach(cve -> {
-            at.addRow(cve.getKey(), cve.getId(), cve.getBugzilla(),
-                String.join("<br/>", cve.getFixVersions()), cve.getRevisit().orElse(""),
-                cve.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
-                cve.getSummary());
-            at.addRule();
-        });
-        System.out.println(at.render());
+        reportStatus(cves);
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
@@ -192,9 +181,33 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef
     ) throws Throwable {
         Release release = factory.createFromGitRef(gitRef, false);
-        final var status = release.computeStatus();
-        System.out.println(status.getBlockedLinksRatio() + " blocked issues and " + status.getBlockedTasksRatio() + " blocked tasks:");
-        release.getBlockedBy().stream().map(b -> "  - " + b).forEach(System.out::println);
+        final var blocked = new LinkedList<Issue>();
+        final var cves = cveService.listCVEs(Optional.ofNullable(release.getVersion()));
+        release.computeStatus();
+        blocked.addAll(cves);
+        blocked.addAll(release.getBlocked());
+        System.out.println(release.getBlockedNumber() + " blocked issues out of " + release.getConsideredNumber() + " considered");
+        reportStatus(blocked);
+    }
+    
+    public void reportStatus(Collection<? extends Issue> issues) {
+        AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
+        at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(12).add(14).add(7).add(8).add(30).add(32).add(40));
+        at.setTextAlignment(TextAlignment.LEFT);
+        
+        at.addRule();
+        at.addRow("Issue", "Status", "CVE", "BZ", "Fix versions", "Revisit", "Blocked", "Summary");
+        
+        at.addRule();
+        issues.forEach(issue -> {
+            final var isCVE = issue instanceof CVE;
+            at.addRow(issue.getKey(), issue.getStatus(), isCVE ? ((CVE) issue).getId() : "", isCVE ? ((CVE) issue).getBugzilla() : "",
+                String.join("<br/>", issue.getFixVersions()), issue.getRevisit().orElse(""),
+                issue.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
+                issue.getSummary());
+            at.addRule();
+        });
+        System.out.println(at.render());
     }
     
     private BasicIssue clone(Release release, String token) throws IOException {
