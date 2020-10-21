@@ -46,7 +46,7 @@ public class CVEService {
     @Inject
     JiraRestClient restClient;
     
-    public Iterable<CVE> listCVEs(Optional<String> releaseVersion) {
+    public List<CVE> listCVEs(Optional<String> releaseVersion) {
         final var searchResult = new SearchResult[1];
         final var searchClient = restClient.getSearchClient();
         releaseVersion.ifPresentOrElse(
