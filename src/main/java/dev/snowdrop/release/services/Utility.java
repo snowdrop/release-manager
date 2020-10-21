@@ -1,7 +1,11 @@
 package dev.snowdrop.release.services;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.BinaryOperator;
 
+import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.MustacheFactory;
 import org.joda.time.DateTime;
@@ -52,5 +56,17 @@ public class Utility {
             indent.insert(0, "   ");
         }
         return (s, s2) -> s + indent + s2 + "\n";
+    }
+    
+    public static List<String> getVersionsAsStrings(Issue issue) {
+        final var versions = issue.getFixVersions();
+        final List<String> fixVersions;
+        if (versions != null) {
+            fixVersions = new LinkedList<>();
+            versions.forEach(v -> fixVersions.add(v.getName()));
+        } else {
+            fixVersions = Collections.emptyList();
+        }
+        return fixVersions;
     }
 }

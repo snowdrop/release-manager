@@ -16,7 +16,6 @@
  */
 package dev.snowdrop.release.services;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -63,14 +62,7 @@ public class CVEService {
     }
     
     public CVE create(Issue issue) {
-        final var versions = issue.getFixVersions();
-        final List<String> fixVersions;
-        if (versions != null) {
-            fixVersions = new LinkedList<>();
-            versions.forEach(v -> fixVersions.add(v.getName()));
-        } else {
-            fixVersions = Collections.emptyList();
-        }
+        final List<String> fixVersions = Utility.getVersionsAsStrings(issue);
         var summary = issue.getSummary();
         String id = "";
         // extract CVE id from summary
