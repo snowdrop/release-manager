@@ -15,8 +15,6 @@ public class Release extends Issue {
     @JsonProperty
     private String version;
     @JsonProperty
-    private Issue issue;
-    @JsonProperty
     private Schedule schedule;
     @JsonProperty
     private List<Component> components;
@@ -26,7 +24,7 @@ public class Release extends Issue {
     private POM pom;
     
     public String getProjectKey() {
-        return issue.getProject();
+        return getProject();
     }
     
     public String getLongVersionName() {
@@ -34,7 +32,7 @@ public class Release extends Issue {
     }
     
     public String getJiraKey() {
-        return issue.getKey();
+        return getKey();
     }
     
     /**
@@ -44,7 +42,7 @@ public class Release extends Issue {
      * @param key the ticket identifier to which this Release should be associated
      */
     public void setJiraKey(String key) {
-        issue.setKey(key);
+        setKey(key);
     }
     
     public String getVersion() {
@@ -88,8 +86,8 @@ public class Release extends Issue {
      */
     public void setTest(boolean test) {
         if (test) {
-            issue.setKey(Issue.TEST_ISSUE_KEY); // to avoid the cloning process
-            issue.useTestMode();
+            setKey(Issue.TEST_ISSUE_KEY); // to avoid the cloning process
+            useTestMode();
             components.forEach(c -> {
                 var issue = c.getJira();
                 if (issue != null) {
