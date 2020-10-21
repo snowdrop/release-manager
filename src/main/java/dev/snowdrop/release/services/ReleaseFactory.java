@@ -69,7 +69,7 @@ public class ReleaseFactory {
             
             final var release = createFrom(releaseIS, pomIS, skipProductRequests);
             release.setGitRef(gitRef);
-            System.out.println("Created release " + release.getVersion() + " from " + release.getGitRef());
+            System.out.println("Loaded release " + release.getVersion() + " from " + release.getGitRef());
             return release;
         } catch (IOException e) {
             throw new RuntimeException(e);
