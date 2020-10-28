@@ -240,7 +240,11 @@ public class Issue {
             .filter(l -> l.startsWith("im:"))
             .forEach(l -> {
                 final var split = l.split(":");
-                switch (split[1]) {
+                if (split.length < 2) {
+                    throw new IllegalArgumentException("Invalid label: '" + l + "'");
+                }
+                final var cause = split[1];
+                switch (cause) {
                     case "wait_release":
                         // format: im:wait_release:<product name with spaces escaped by _>[:<date in dd_MMM_YYYY format>]?
                         final var date = split.length == 4 ? unescape(split[3]) : null;
@@ -252,7 +256,7 @@ public class Issue {
                         addBlocker(newBlockerAssignee(issue, unescape(split[2]), unescape(split[3])));
                         break;
                     default:
-                        throw new IllegalArgumentException("Unknown label: '" + l + "'");
+                        throw new IllegalArgumentException("Unknown '" + cause + "' cause in '" + l + "' label");
                 }
             });
     }
