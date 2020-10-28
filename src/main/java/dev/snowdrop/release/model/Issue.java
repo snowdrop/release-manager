@@ -91,7 +91,7 @@ public class Issue {
     }
     
     public String getSummary() {
-        return Objects.requireNonNullElse(key, underlying.map(com.atlassian.jira.rest.client.api.domain.Issue::getSummary).orElse(null));
+        return Objects.requireNonNullElse(summary, underlying.map(com.atlassian.jira.rest.client.api.domain.Issue::getSummary).orElse(null));
     }
     
     public List<String> getFixVersions() {
