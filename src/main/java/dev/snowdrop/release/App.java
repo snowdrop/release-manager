@@ -1,10 +1,12 @@
 package dev.snowdrop.release;
 
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -18,7 +20,9 @@ import de.vandermeer.asciitable.CWC_FixedWidth;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import dev.snowdrop.release.model.CVE;
 import dev.snowdrop.release.model.Issue;
+import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
+import dev.snowdrop.release.reporting.CveReportingService;
 import dev.snowdrop.release.services.CVEService;
 import dev.snowdrop.release.services.GitService;
 import dev.snowdrop.release.services.IssueService;
@@ -28,6 +32,12 @@ import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 import org.jboss.logging.Logger;
+
+import net.steppschuh.markdowngenerator.MarkdownSerializationException;
+import net.steppschuh.markdowngenerator.link.Link;
+import net.steppschuh.markdowngenerator.list.UnorderedList;
+import net.steppschuh.markdowngenerator.text.Text;
+import net.steppschuh.markdowngenerator.text.TextBuilder;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -67,6 +77,9 @@ public class App implements QuarkusApplication {
     
     @Inject
     JiraRestClient client;
+
+    @Inject
+    CveReportingService cveReportSvc;
     
     public static void main(String[] argv) throws Exception {
         Quarkus.run(App.class, argv);
@@ -170,10 +183,20 @@ public class App implements QuarkusApplication {
     
     @CommandLine.Command(name = "list-cves", description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
     public void listCVEs(
+        @CommandLine.Option(names = {"-r", "--release"}, description = "Release the CVE list to github") boolean release,
+        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token. Required if --release is enabled") String token,
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version));
         reportStatus(cves);
+        String mdReport = cveReportSvc.buildMdReport(cves, "Version - " + Optional.ofNullable(version).orElse(" ALL OPEN"));
+        if (release) {
+            if (Optional.ofNullable(token).isPresent()) {
+                git.createGithubIssue(mdReport, "CVE " + (version != null ? "for " + version : "list"), "cve", token, "snowdrop/reports");
+            } else {
+                LOG.error("Cannot release CVE to GitHub. Github API token is required if --release is enabled!");
+            }
+        }
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
@@ -209,7 +232,7 @@ public class App implements QuarkusApplication {
         });
         System.out.println(at.render());
     }
-    
+
     private BasicIssue clone(Release release, String token) throws IOException {
         final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
         release.setJiraKey(issue.getKey());

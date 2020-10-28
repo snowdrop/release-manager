@@ -2,16 +2,20 @@
 
 ## Table of Contents
 
-* [Introduction](#introduction)
-* [Issues Manager](#issues-manager)
-    * [Release definition](#release-definition)
-    * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
-    * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
-    * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
-    * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
-* [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
-    * [Get](#get)
-    * [Post](#post)
+   * [JIRA Tools](#jira-tools)
+      * [Table of Contents](#table-of-contents)
+      * [Introduction](#introduction)
+      * [Issues manager](#issues-manager)
+         * [Release definition](#release-definition)
+         * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
+         * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
+         * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
+         * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
+         * [List CVE](#list-cve)
+      * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
+         * [Get](#get)
+         * [Post](#post)
+
 
 ## Introduction
 
@@ -115,6 +119,21 @@ To clone a Release issue and their sub-tasks
     --git <github org>/<github repo>/<git reference: branch, tag, hash> 
 ```
 
+### List CVE
+
+Generate a list of CVE. This process will print the list of CVE in a report. 
+If the `-r` option is used this list will also be pushed to GitHub, being the `-o` option required for that.
+
+```bash
+ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+    -u JBOSS_JIRA_USER \
+    -p JBOSS_JIRA_PWD \
+    list-cves \
+    -r 
+    -o <github token> 
+    version
+```
+
 ## HTTP Request to get or create JIRA tickets
 
 Atlassian REST API v2 doc: https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/
@@ -130,3 +149,4 @@ http --verify=no --follow --auth user:pwd https://issues.jboss.org/rest/api/2/is
 ```bash
 http --verify=no --follow  --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
 ```
+
