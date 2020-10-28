@@ -35,6 +35,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import dev.snowdrop.release.services.Utility;
 import io.atlassian.util.concurrent.Promise;
 import io.atlassian.util.concurrent.Promises;
+import org.jboss.logging.Logger;
 import org.joda.time.DateTime;
 
 import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
@@ -43,6 +44,7 @@ import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class Issue {
+    private static final Logger LOG = Logger.getLogger(Issue.class);
     public static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
     static final String TEST_JIRA_PROJECT = "SB";
     static final String TEST_ASSIGNEE = "snowdrop-test-user";
@@ -241,7 +243,8 @@ public class Issue {
             .forEach(l -> {
                 final var split = l.split(":");
                 if (split.length < 2) {
-                    throw new IllegalArgumentException("Invalid label: '" + l + "'");
+                    LOG.infof("Ignoring invalid label: '%s' for issue %s", l, issue.getKey());
+                    return;
                 }
                 final var cause = split[1];
                 switch (cause) {
@@ -256,7 +259,7 @@ public class Issue {
                         addBlocker(newBlockerAssignee(issue, unescape(split[2]), unescape(split[3])));
                         break;
                     default:
-                        throw new IllegalArgumentException("Unknown '" + cause + "' cause in '" + l + "' label");
+                        LOG.infof("Ignoring unknown '%s' cause in '%s' label for issue %s", cause, l, issue.getKey());
                 }
             });
     }
