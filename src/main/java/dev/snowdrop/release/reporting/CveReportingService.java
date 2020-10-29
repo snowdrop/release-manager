@@ -44,7 +44,7 @@ public class CveReportingService {
 
     public static final String JIRA_LINK_PREFIX = Utility.JIRA_SERVER + "browse/";
     public static final String JIRA_LINK_SUFFIX = "?filter=12347131";
-    public static final String BUGZILLA_LINK_SUFFIX = "https://bugzilla.redhat.com/show_bug.cgi?id=";
+    public static final String BUGZILLA_LINK_PREFIX = "https://bugzilla.redhat.com/show_bug.cgi?id=";
 
     /**
      * <p>Owner of the snowdrop weekly development repository owner</p>
@@ -66,13 +66,13 @@ public class CveReportingService {
         issues.forEach(issue -> {
             final var isCVE = issue instanceof CVE;
             TableRow tableRow = new TableRow(
-                new ArrayList<>(
-                    List.of(new TextBuilder().append(new Link(issue.getKey(), JIRA_LINK_PREFIX + issue.getKey() + JIRA_LINK_SUFFIX)), issue.getStatus(),
-                        isCVE ? ((CVE) issue).getId() : "",
-                        isCVE ? new TextBuilder().append(new Link(((CVE) issue).getBugzilla(), BUGZILLA_LINK_SUFFIX + ((CVE) issue).getBugzilla())) : "",
-                        String.join("<br/>", issue.getFixVersions()), issue.getRevisit().orElse(""),
-                        issue.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
-                        issue.getSummary())));
+                List.of(new TextBuilder().append(new Link(issue.getKey(), JIRA_LINK_PREFIX + issue.getKey() + JIRA_LINK_SUFFIX)), issue.getStatus(),
+                    isCVE ? ((CVE) issue).getId() : "",
+                    isCVE ? new TextBuilder().append(new Link(((CVE) issue).getBugzilla(), BUGZILLA_LINK_PREFIX + ((CVE) issue).getBugzilla())) : "",
+                    String.join("<br/>", issue.getFixVersions()), issue.getRevisit().orElse(""),
+                    issue.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
+                    issue.getSummary())
+            );
             lstTableRows.add(tableRow);
         });
         Table mdTable = new Table();

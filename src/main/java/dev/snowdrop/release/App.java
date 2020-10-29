@@ -1,12 +1,10 @@
 package dev.snowdrop.release;
 
 import java.io.IOException;
-import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -14,13 +12,15 @@ import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
+
+import org.jboss.logging.Logger;
+
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_FixedWidth;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import dev.snowdrop.release.model.CVE;
 import dev.snowdrop.release.model.Issue;
-import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.reporting.CveReportingService;
 import dev.snowdrop.release.services.CVEService;
@@ -31,13 +31,6 @@ import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import org.jboss.logging.Logger;
-
-import net.steppschuh.markdowngenerator.MarkdownSerializationException;
-import net.steppschuh.markdowngenerator.link.Link;
-import net.steppschuh.markdowngenerator.list.UnorderedList;
-import net.steppschuh.markdowngenerator.text.Text;
-import net.steppschuh.markdowngenerator.text.TextBuilder;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -47,7 +40,7 @@ import picocli.CommandLine;
 @QuarkusMain
 public class App implements QuarkusApplication {
     static final Logger LOG = Logger.getLogger(App.class);
-    
+
     @CommandLine.Option(names = {"-u", "--user"}, description = "JIRA user", required = true, scope = CommandLine.ScopeType.INHERIT)
     private String user;
     @CommandLine.Option(names = {"-p", "--password"}, description = "JIRA password", required = true, scope = CommandLine.ScopeType.INHERIT)
@@ -59,45 +52,45 @@ public class App implements QuarkusApplication {
         description = "Comma-separated list of user names to add to watchers",
         scope = CommandLine.ScopeType.INHERIT, split = ",")
     private List<String> watchers;
-    
+
     @Inject
     ReleaseFactory factory;
-    
+
     @Inject
     IssueService service;
-    
+
     @Inject
     CommandLine.IFactory cliFactory;
-    
+
     @Inject
     GitService git;
-    
+
     @Inject
     CVEService cveService;
-    
+
     @Inject
     JiraRestClient client;
 
     @Inject
     CveReportingService cveReportSvc;
-    
+
     public static void main(String[] argv) throws Exception {
         Quarkus.run(App.class, argv);
     }
-    
+
     @Override
     public int run(String... args) throws Exception {
         int exitCode = new CommandLine(this, cliFactory).execute(args);
         return exitCode;
     }
-    
+
     @CommandLine.Command(name = "get", description = "Retrieve the specified issue")
     public void get(
         @CommandLine.Parameters(description = "JIRA issue key") String key
     ) {
         System.out.println(service.getIssue(key));
     }
-    
+
     @CommandLine.Command(name = "clone",
         description = "Clone the specified issue using information from the release associated with the specified git reference")
     public void clone(
@@ -110,7 +103,7 @@ public class App implements QuarkusApplication {
         final Release release = factory.createFromGitRef(gitRef);
         System.out.println(service.clone(release, toCloneFrom, watchers));
     }
-    
+
     @CommandLine.Command(name = "create-component",
         description = "Create component requests for the release associated with the specified git reference")
     public void createComponentRequests(
@@ -120,14 +113,14 @@ public class App implements QuarkusApplication {
         final Release release = factory.createFromGitRef(gitRef);
         service.createComponentRequests(release, watchers);
     }
-    
+
     @CommandLine.Command(name = "delete", description = "Delete the specified comma-separated issues")
     public void delete(
         @CommandLine.Parameters(description = "Comma-separated JIRA issue keys", split = ",") List<String> issues
     ) {
         service.deleteIssues(issues);
     }
-    
+
     @CommandLine.Command(name = "link",
         description = "Link the issue specified by the 'from' option to the issue specified by the 'to' option")
     public void link(
@@ -136,7 +129,7 @@ public class App implements QuarkusApplication {
     ) {
         service.linkIssue(fromIssue, toIssue);
     }
-    
+
     @CommandLine.Command(name = "start-release",
         description = "Start the release process for the release associated with the specified git reference")
     public void startRelease(
@@ -146,10 +139,10 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token") String token
     ) throws Throwable {
         git.initRepository(gitRef, token); // init git repository to be able to update release
-    
+
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
         release.setTest(test);
-    
+
         BasicIssue issue;
         // first check if we already have a release ticket, in which case we don't need to clone the template
         final String releaseTicket = release.getJiraKey();
@@ -164,23 +157,22 @@ public class App implements QuarkusApplication {
         } else {
             // no release ticket was specified, clone
             issue = clone(release, token);
-        
+
         }
-    
+
         // link CVEs
         for (var cve : cveService.listCVEs(Optional.of(release.getVersion()))) {
             service.linkIssue(issue.getKey(), cve.getKey());
         }
-    
+
         if (!skipProductRequests) {
             service.createComponentRequests(release, watchers);
         }
-    
+
         factory.pushChanges(release);
         System.out.println(issue);
     }
-    
-    
+
     @CommandLine.Command(name = "list-cves", description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
     public void listCVEs(
         @CommandLine.Option(names = {"-r", "--release"}, description = "Release the CVE list to github") boolean release,
@@ -189,16 +181,16 @@ public class App implements QuarkusApplication {
     ) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version));
         reportStatus(cves);
-        String mdReport = cveReportSvc.buildMdReport(cves, "Version - " + Optional.ofNullable(version).orElse(" ALL OPEN"));
         if (release) {
             if (Optional.ofNullable(token).isPresent()) {
+                String mdReport = cveReportSvc.buildMdReport(cves, "Version - " + Optional.ofNullable(version).orElse(" ALL OPEN"));
                 git.createGithubIssue(mdReport, "CVE " + (version != null ? "for " + version : "list"), "cve", token, "snowdrop/reports");
             } else {
-                LOG.error("Cannot release CVE to GitHub. Github API token is required if --release is enabled!");
+                LOG.error("Cannot release CVE to GitHub. Github API token is required if --release is enabled. PLease specify the github token using --token.");
             }
         }
     }
-    
+
     @CommandLine.Command(name = "status", description = "Compute the release status")
     public void status(
         @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef
@@ -212,15 +204,15 @@ public class App implements QuarkusApplication {
         System.out.println(release.getBlockedNumber() + " blocked issues out of " + release.getConsideredNumber() + " considered");
         reportStatus(blocked);
     }
-    
+
     public void reportStatus(Collection<? extends Issue> issues) {
         AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
         at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(12).add(14).add(7).add(8).add(30).add(32).add(40));
         at.setTextAlignment(TextAlignment.LEFT);
-        
+
         at.addRule();
         at.addRow("Issue", "Status", "CVE", "BZ", "Fix versions", "Revisit", "Blocked", "Summary");
-        
+
         at.addRule();
         issues.forEach(issue -> {
             final var isCVE = issue instanceof CVE;
