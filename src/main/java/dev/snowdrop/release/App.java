@@ -186,7 +186,7 @@ public class App implements QuarkusApplication {
                 String mdReport = cveReportSvc.buildMdReport(cves, "Version - " + Optional.ofNullable(version).orElse(" ALL OPEN"));
                 git.createGithubIssue(mdReport, "CVE " + (version != null ? "for " + version : "list"), "cve", token, "snowdrop/reports");
             } else {
-                LOG.error("Cannot release CVE to GitHub. Github API token is required if --release is enabled. PLease specify the github token using --token.");
+                LOG.error("Cannot release CVE to GitHub. GitHub API token is required if --release is enabled. Please specify the GitHub token using --token.");
             }
         }
     }
