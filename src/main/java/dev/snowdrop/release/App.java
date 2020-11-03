@@ -175,7 +175,7 @@ public class App implements QuarkusApplication {
 
     @CommandLine.Command(name = "list-cves", description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
     public void listCVEs(
-        @CommandLine.Option(names = {"-r", "--release"}, description = "Release the CVE list to github") boolean release,
+        @CommandLine.Option(names = {"-g", "--publish"}, description = "Publish the CVE list to github") boolean release,
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token. Required if --release is enabled") String token,
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
@@ -186,7 +186,7 @@ public class App implements QuarkusApplication {
                 String mdReport = cveReportSvc.buildMdReport(cves, "Version - " + Optional.ofNullable(version).orElse(" ALL OPEN"));
                 git.createGithubIssue(mdReport, "CVE " + (version != null ? "for " + version : "list"), "cve", token, "snowdrop/reports");
             } else {
-                LOG.error("Cannot release CVE to GitHub. Github API token is required if --release is enabled. PLease specify the github token using --token.");
+                LOG.error("Cannot release CVE to GitHub. Github API token is required if --publish is enabled. PLease specify the github token using --token.");
             }
         }
     }
