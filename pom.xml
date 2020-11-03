@@ -11,6 +11,8 @@
         <jira-rest-java-atlassian.version>5.2.1</jira-rest-java-atlassian.version>
         <fugue.version>4.7.2</fugue.version>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
+        <kohsuke.version>1.116</kohsuke.version>
+        <markdowngenerator.version>1.3.1.1</markdowngenerator.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -87,10 +89,23 @@
             <version>0.3.2</version>
         </dependency>
 
+        <!-- Markdown -->
+        <dependency>
+            <groupId>net.steppschuh.markdowngenerator</groupId>
+            <artifactId>markdowngenerator</artifactId>
+            <version>${markdowngenerator.version}</version>
+        </dependency>
+
         <!-- git -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>${kohsuke.version}</version>
         </dependency>
 
         <!-- Maven processing -->

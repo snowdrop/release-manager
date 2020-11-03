@@ -33,6 +33,10 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jboss.logging.Logger;
+import org.kohsuke.github.GHIssueBuilder;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
+import org.kohsuke.github.GitHubBuilder;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -124,5 +128,15 @@ public class GitService {
         } catch (InterruptedException | ExecutionException e) {
             throw new IOException(e);
         }
+    }
+
+    public void createGithubIssue(final String mdText, final String issueTitle, final String label,
+        final String token, final String repoName) throws IOException {
+        GitHub github = new GitHubBuilder().withOAuthToken(token).build();
+        GHRepository gitHubRepo = github.getRepository(repoName);
+        GHIssueBuilder githubIssueBuilder = gitHubRepo.createIssue(issueTitle);
+        githubIssueBuilder.body(mdText);
+        githubIssueBuilder.label(label);
+        githubIssueBuilder.create();
     }
 }
