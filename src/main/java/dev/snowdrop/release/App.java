@@ -176,7 +176,7 @@ public class App implements QuarkusApplication {
     @CommandLine.Command(name = "list-cves", description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
     public void listCVEs(
         @CommandLine.Option(names = {"-g", "--publish"}, description = "Publish the CVE list to github") boolean release,
-        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token. Required if --release is enabled") String token,
+        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token. Required if --publish is enabled") String token,
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version));
