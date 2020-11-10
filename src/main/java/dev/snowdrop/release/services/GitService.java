@@ -16,27 +16,25 @@
  */
 package dev.snowdrop.release.services;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.nio.file.Files;
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.jboss.logging.Logger;
-import org.kohsuke.github.GHIssueBuilder;
-import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GitHub;
-import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.*;
+
+import javax.enterprise.context.ApplicationScoped;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
@@ -130,6 +128,10 @@ public class GitService {
         }
     }
 
+    public String getCveIssueTitle(final String version) {
+        return "CVE " + (version != null ? "for " + version : "for triage");
+    }
+
     public void createGithubIssue(final String mdText, final String issueTitle, final String label,
         final String token, final String repoName) throws IOException {
         GitHub github = new GitHubBuilder().withOAuthToken(token).build();
@@ -138,5 +140,40 @@ public class GitService {
         githubIssueBuilder.body(mdText);
         githubIssueBuilder.label(label);
         githubIssueBuilder.create();
+    }
+
+    /**
+     * Close issues
+     * @param label
+     * @param token
+     * @param repoName
+     * @param version
+     * @throws IOException
+     */
+    public void closeOldCveIssues(final String label, final String token, final String repoName, final String version) throws IOException {
+        final String issueTitle = this.getCveIssueTitle(version);
+        GitHub github = new GitHubBuilder().withOAuthToken(token).build();
+        GHRepository gitHubRepo = github.getRepository(repoName);
+        List<GHIssue> ghIssues = gitHubRepo.getIssues(GHIssueState.OPEN);
+        ghIssues.stream().filter(issue -> {
+            try {
+                LOG.warnf("Issue title: %s; calculated title: %s;", issue.getTitle(),issueTitle);
+               return (issue.getLabels().stream().anyMatch(labels -> {
+                   return labels.getName().equalsIgnoreCase(label);
+               }) && (
+                issue.getTitle().equalsIgnoreCase(issueTitle)
+               )
+               );
+            } catch (IOException e) {
+                LOG.warnf("Error filtering issue %s. Error: %s", issue.getNumber(), e.getLocalizedMessage());
+                return false;
+            }
+        }).forEach(issue -> {
+            try {
+                issue.close();
+            } catch (IOException e) {
+                LOG.warnf("Error closing issue {}. Error: {}", issue.getNumber(), e.getLocalizedMessage());
+            }
+        });
     }
 }

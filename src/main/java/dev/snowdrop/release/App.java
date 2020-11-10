@@ -182,9 +182,11 @@ public class App implements QuarkusApplication {
         final var cves = cveService.listCVEs(Optional.ofNullable(version));
         reportStatus(cves);
         if (release) {
+            final String repoName = "snowdrop/reports";
             if (Optional.ofNullable(token).isPresent()) {
-                String mdReport = cveReportSvc.buildMdReport(cves, "Version - " + Optional.ofNullable(version).orElse(" ALL OPEN"));
-                git.createGithubIssue(mdReport, "CVE " + (version != null ? "for " + version : "list"), "cve", token, "snowdrop/reports");
+                git.closeOldCveIssues("cve",token,repoName, version);
+                String mdReport = cveReportSvc.buildMdReport(cves,  git.getCveIssueTitle(version));
+                git.createGithubIssue(mdReport, git.getCveIssueTitle(version), "cve", token, repoName);
             } else {
                 LOG.error("Cannot release CVE to GitHub. Github API token is required if --publish is enabled. PLease specify the github token using --token.");
             }
