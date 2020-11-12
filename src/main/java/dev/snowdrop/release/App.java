@@ -12,9 +12,6 @@ import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-
-import org.jboss.logging.Logger;
-
 import de.vandermeer.asciitable.AT_Context;
 import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_FixedWidth;
@@ -31,6 +28,7 @@ import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -133,10 +131,10 @@ public class App implements QuarkusApplication {
     @CommandLine.Command(name = "start-release",
         description = "Start the release process for the release associated with the specified git reference")
     public void startRelease(
-        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef,
+        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format", required = true) String gitRef,
         @CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests,
         @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test,
-        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token") String token
+        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token", required = true) String token
     ) throws Throwable {
         git.initRepository(gitRef, token); // init git repository to be able to update release
 
