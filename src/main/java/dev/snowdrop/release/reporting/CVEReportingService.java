@@ -38,7 +38,7 @@ import net.steppschuh.markdowngenerator.text.heading.Heading;
  * @author <a href="antcosta@redhat.com">Antonio costa</a>
  */
 @ApplicationScoped
-public class CveReportingService {
+public class CVEReportingService {
 
     public static String CR = "\n";
 
@@ -46,20 +46,12 @@ public class CveReportingService {
     public static final String JIRA_LINK_SUFFIX = "?filter=12347131";
     public static final String BUGZILLA_LINK_PREFIX = "https://bugzilla.redhat.com/show_bug.cgi?id=";
 
-    /**
-     * <p>Owner of the snowdrop weekly development repository owner</p>
-     */
-    public static String WEEK_DEV_REPO_OWNER = "snowdrop";
+    public final static String CVE_REPORT_REPO_NAME = "snowdrop/reports";
 
-    /**
-     * <p>Name of the snowdrop weekly development repository</p>
-     */
-    public static String WEEK_DEV_REPO_NAME = "team";
 
     public String buildMdReport(Collection<? extends Issue> issues, final String reportName) {
         StringBuilder sb = new StringBuilder().append(new Heading(reportName, 1)).append(CR);
         ZonedDateTime now = ZonedDateTime.now();
-        String repoName = WEEK_DEV_REPO_OWNER + "/" + WEEK_DEV_REPO_NAME;
         List<TableRow> lstTableRows = new LinkedList();
         TableRow tableHeader = new TableRow(new ArrayList<>(List.of("Issue", "Status", "CVE", "BZ", "Fix versions", "Revisit", "Blocked", "Summary")));
         lstTableRows.add(tableHeader);
