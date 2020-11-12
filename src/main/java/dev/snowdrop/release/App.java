@@ -161,7 +161,7 @@ public class App implements QuarkusApplication {
         }
 
         // link CVEs
-        for (var cve : cveService.listCVEs(Optional.of(release.getVersion()))) {
+        for (var cve : cveService.listCVEs(Optional.of(release.getVersion()), false)) {
             service.linkIssue(issue.getKey(), cve.getKey());
         }
 
@@ -179,7 +179,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token. Required if --publish is enabled") String token,
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
-        final var cves = cveService.listCVEs(Optional.ofNullable(version));
+        final var cves = cveService.listCVEs(Optional.ofNullable(version), true);
         reportStatus(cves);
         if (release) {
             if (Optional.ofNullable(token).isPresent()) {
@@ -197,7 +197,7 @@ public class App implements QuarkusApplication {
     ) throws Throwable {
         Release release = factory.createFromGitRef(gitRef, false);
         final var blocked = new LinkedList<Issue>();
-        final var cves = cveService.listCVEs(Optional.ofNullable(release.getVersion()));
+        final var cves = cveService.listCVEs(Optional.ofNullable(release.getVersion()), true);
         release.computeStatus();
         blocked.addAll(cves);
         blocked.addAll(release.getBlocked());

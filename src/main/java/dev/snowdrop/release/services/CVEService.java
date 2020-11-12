@@ -45,7 +45,7 @@ public class CVEService {
     @Inject
     JiraRestClient restClient;
     
-    public List<CVE> listCVEs(Optional<String> releaseVersion) {
+    public List<CVE> listCVEs(Optional<String> releaseVersion, boolean computeStatus) {
         final var searchResult = new SearchResult[1];
         final var searchClient = restClient.getSearchClient();
         releaseVersion.ifPresentOrElse(
@@ -55,13 +55,13 @@ public class CVEService {
         final var issues = searchResult[0].getIssues();
         final var cves = new LinkedList<CVE>();
         for (Issue issue : issues) {
-            final CVE cve = create(issue);
+            final CVE cve = create(issue, computeStatus);
             cves.add(cve);
         }
         return cves;
     }
     
-    public CVE create(Issue issue) {
+    CVE create(Issue issue, boolean computeStatus) {
         final List<String> fixVersions = Utility.getVersionsAsStrings(issue);
         var summary = issue.getSummary();
         String id = "";
@@ -98,8 +98,10 @@ public class CVEService {
                 }
             }
         }
-    
-        cve.computeStatus(issue);
+        
+        if (computeStatus) {
+            cve.computeStatus(issue);
+        }
         return cve;
     }
 }
