@@ -88,20 +88,24 @@ public class Issue {
         this.status = status;
     }
     
+    private static <T> T requireNonNullOrGetDefault(T nullable, T defaultObj) {
+        return nullable != null ? nullable : defaultObj;
+    }
+    
     public String getKey() {
-        return Objects.requireNonNullElse(key, underlying.map(BasicIssue::getKey).orElse(null));
+        return requireNonNullOrGetDefault(key, underlying.map(BasicIssue::getKey).orElse(null));
     }
     
     public String getSummary() {
-        return Objects.requireNonNullElse(summary, underlying.map(com.atlassian.jira.rest.client.api.domain.Issue::getSummary).orElse(null));
+        return requireNonNullOrGetDefault(summary, underlying.map(com.atlassian.jira.rest.client.api.domain.Issue::getSummary).orElse(null));
     }
     
     public List<String> getFixVersions() {
-        return Objects.requireNonNullElse(fixVersions, underlying.map(Utility::getVersionsAsStrings).orElse(Collections.emptyList()));
+        return requireNonNullOrGetDefault(fixVersions, underlying.map(Utility::getVersionsAsStrings).orElse(Collections.emptyList()));
     }
     
     public String getStatus() {
-        return Objects.requireNonNullElse(status, underlying.map(issue -> issue.getStatus().getName()).orElse(null));
+        return requireNonNullOrGetDefault(status, underlying.map(issue -> issue.getStatus().getName()).orElse(null));
     }
     
     public void setKey(String key) {
