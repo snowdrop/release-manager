@@ -132,6 +132,11 @@ public class Issue {
         this.assignee = TEST_ASSIGNEE;
     }
     
+    public boolean isTestMode() {
+        // consider we're in test mode if we're using the test assignee
+        return TEST_ASSIGNEE.equals(this.assignee);
+    }
+    
     public Optional<String> getAssignee() {
         return Utility.isStringNullOrBlank(assignee) ? Optional.empty() : Optional.of(assignee);
     }

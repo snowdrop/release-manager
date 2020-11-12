@@ -136,11 +136,13 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token", required = true) String token
     ) throws Throwable {
-        git.initRepository(gitRef, token); // init git repository to be able to update release
-
+        if (!test) {
+            git.initRepository(gitRef, token); // init git repository to be able to update release
+        }
+    
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
         release.setTest(test);
-
+    
         BasicIssue issue;
         // first check if we already have a release ticket, in which case we don't need to clone the template
         final String releaseTicket = release.getJiraKey();
