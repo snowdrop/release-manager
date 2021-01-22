@@ -41,10 +41,10 @@ public class CVEService {
     private static final Matcher CVE_PATTERN = Pattern.compile(".*(CVE-\\d{4}-\\d{1,6}).*").matcher("");
     private static final Matcher BZ_PATTERN = Pattern.compile(".*https://bugzilla.redhat.com/show_bug.cgi\\?id=(\\d{7}).*").matcher("");
     private static final long UNRESOLVED_CVES = 12347131;
-    
+
     @Inject
     JiraRestClient restClient;
-    
+
     public List<CVE> listCVEs(Optional<String> releaseVersion, boolean computeStatus) {
         final var searchResult = new SearchResult[1];
         final var searchClient = restClient.getSearchClient();
@@ -60,7 +60,7 @@ public class CVEService {
         }
         return cves;
     }
-    
+
     CVE create(Issue issue, boolean computeStatus) {
         final List<String> fixVersions = Utility.getVersionsAsStrings(issue);
         var summary = issue.getSummary();
@@ -71,11 +71,11 @@ public class CVEService {
             // remove id from summary
             summary = summary.substring(CVE_PATTERN.end(1)).trim();
         }
-        
-        final var cve = new CVE(issue.getKey(), summary, fixVersions, issue.getStatus().getName());
+
+        final var cve = new CVE(issue.getKey(), summary, fixVersions, issue.getStatus().getName(), issue.getDueDate());
         cve.setId(id);
         cve.setJiraClient(restClient);
-        
+
         final var description = issue.getDescription();
         if (description != null) {
             final var lines = description.lines()
@@ -90,7 +90,7 @@ public class CVEService {
                     impactFound = true;
                     continue;
                 }
-    
+
                 // only check for BZ link after CVE is found since that's where it is (at least, in the JIRAs we've seen so far)
                 if (BZ_PATTERN.reset(line).matches()) {
                     cve.setBugzilla(BZ_PATTERN.group(1));
@@ -98,7 +98,7 @@ public class CVEService {
                 }
             }
         }
-        
+
         if (computeStatus) {
             cve.computeStatus(issue);
         }

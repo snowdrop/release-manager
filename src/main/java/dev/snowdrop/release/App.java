@@ -1,25 +1,18 @@
 package dev.snowdrop.release;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import de.vandermeer.asciitable.AT_Context;
-import de.vandermeer.asciitable.AsciiTable;
-import de.vandermeer.asciitable.CWC_FixedWidth;
-import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
-import dev.snowdrop.release.model.CVE;
 import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.Release;
-import dev.snowdrop.release.reporting.CVEReportingService;
+import dev.snowdrop.release.reporting.ReportingService;
 import dev.snowdrop.release.services.CVEService;
 import dev.snowdrop.release.services.GitService;
 import dev.snowdrop.release.services.IssueService;
@@ -37,6 +30,8 @@ import picocli.CommandLine;
 @ApplicationScoped
 @QuarkusMain
 public class App implements QuarkusApplication {
+    public final static String CVE_REPORT_REPO_NAME = "snowdrop/reports";
+
     static final Logger LOG = Logger.getLogger(App.class);
 
     @CommandLine.Option(names = {"-u", "--user"}, description = "JIRA user", required = true, scope = CommandLine.ScopeType.INHERIT)
@@ -70,7 +65,7 @@ public class App implements QuarkusApplication {
     JiraRestClient client;
 
     @Inject
-    CVEReportingService cveReportSvc;
+    ReportingService reportingService;
 
     public static void main(String[] argv) throws Exception {
         Quarkus.run(App.class, argv);
@@ -139,10 +134,10 @@ public class App implements QuarkusApplication {
         if (!test) {
             git.initRepository(gitRef, token); // init git repository to be able to update release
         }
-    
+
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
         release.setTest(test);
-    
+
         BasicIssue issue;
         // first check if we already have a release ticket, in which case we don't need to clone the template
         final String releaseTicket = release.getJiraKey();
@@ -180,12 +175,12 @@ public class App implements QuarkusApplication {
         @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
     ) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version), true);
-        reportStatus(cves);
+        System.out.println(reportingService.buildAsciiReport(cves));
         if (release) {
             if (Optional.ofNullable(token).isPresent()) {
-                git.closeOldCveIssues("cve",token, CVEReportingService.CVE_REPORT_REPO_NAME, version);
-                String mdReport = cveReportSvc.buildMdReport(cves,  git.getCveIssueTitle(version));
-                git.createGithubIssue(mdReport, git.getCveIssueTitle(version), "cve", token, CVEReportingService.CVE_REPORT_REPO_NAME);
+                git.closeOldCveIssues("cve",token, CVE_REPORT_REPO_NAME, version);
+                String mdReport = reportingService.buildMdReport(cves,  git.getCveIssueTitle(version));
+                git.createGithubIssue(mdReport, git.getCveIssueTitle(version), "cve", token, CVE_REPORT_REPO_NAME);
             } else {
                 LOG.error("Cannot release CVE to GitHub. Github API token is required if --publish is enabled. Please specify the github token using --token.");
             }
@@ -203,27 +198,7 @@ public class App implements QuarkusApplication {
         blocked.addAll(cves);
         blocked.addAll(release.getBlocked());
         System.out.println(release.getBlockedNumber() + " blocked issues out of " + release.getConsideredNumber() + " considered");
-        reportStatus(blocked);
-    }
-
-    public void reportStatus(Collection<? extends Issue> issues) {
-        AsciiTable at = new AsciiTable(new AT_Context().setWidth(120));
-        at.getRenderer().setCWC(new CWC_FixedWidth().add(11).add(12).add(14).add(7).add(8).add(30).add(32).add(40));
-        at.setTextAlignment(TextAlignment.LEFT);
-
-        at.addRule();
-        at.addRow("Issue", "Status", "CVE", "BZ", "Fix versions", "Revisit", "Blocked", "Summary");
-
-        at.addRule();
-        issues.forEach(issue -> {
-            final var isCVE = issue instanceof CVE;
-            at.addRow(issue.getKey(), issue.getStatus(), isCVE ? ((CVE) issue).getId() : "", isCVE ? ((CVE) issue).getBugzilla() : "",
-                String.join("<br/>", issue.getFixVersions()), issue.getRevisit().orElse(""),
-                issue.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
-                issue.getSummary());
-            at.addRule();
-        });
-        System.out.println(at.render());
+        System.out.println(reportingService.buildAsciiReport(blocked));
     }
 
     private BasicIssue clone(Release release, String token) throws IOException {
