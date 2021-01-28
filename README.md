@@ -52,11 +52,12 @@ with the code base that has been updated from upstream Spring Boot, which contai
 needed operations. This is done by running the following command:
 
 ```bash
-java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
+java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     start-release \
     -g <github org>/<github repo>/<git reference: branch, tag, hash> \
+    -o <github token> \
     -w john,doe,foo  
 ```
 
@@ -129,8 +130,8 @@ If the `-r` option is used this list will also be pushed to GitHub, being the `-
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     list-cves \
-    -r 
-    -o <github token> 
+    -r \
+    -o <github token> \ 
     version
 ```
 
