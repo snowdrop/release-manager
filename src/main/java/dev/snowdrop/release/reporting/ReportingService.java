@@ -91,8 +91,8 @@ public class ReportingService {
                     isCVE ? ((CVE) issue).getId() : "",
                     isCVE ? new TextBuilder().append(new Link(((CVE) issue).getBugzilla(), BUGZILLA_LINK_PREFIX + ((CVE) issue).getBugzilla())) : "",
                     String.join("<br/>", issue.getFixVersions()),
-                    issue.getRevisit().orElse(""),
                     getDueDateMdString(issue.getDueDate()),
+                    issue.getRevisit().orElse(""),
                     issue.getBlockedBy().stream().map(b -> "- " + b).collect(Collectors.joining("<br><br>")),
                     issue.getSummary())
             );
