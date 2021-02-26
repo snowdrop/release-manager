@@ -24,9 +24,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
-@CommandLine.Command(
-    name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0"
-)
+@CommandLine.Command(name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0")
 @ApplicationScoped
 @QuarkusMain
 public class App implements QuarkusApplication {
@@ -34,16 +32,30 @@ public class App implements QuarkusApplication {
 
     static final Logger LOG = Logger.getLogger(App.class);
 
-    @CommandLine.Option(names = {"-u", "--user"}, description = "JIRA user", required = true, scope = CommandLine.ScopeType.INHERIT)
+    @CommandLine.Option(
+            names = { "-u", "--user" },
+            description = "JIRA user",
+            required = true,
+            scope = CommandLine.ScopeType.INHERIT)
     private String user;
-    @CommandLine.Option(names = {"-p", "--password"}, description = "JIRA password", required = true, scope = CommandLine.ScopeType.INHERIT)
+    @CommandLine.Option(
+            names = { "-p", "--password" },
+            description = "JIRA password",
+            required = true,
+            scope = CommandLine.ScopeType.INHERIT)
     private String password;
-    @CommandLine.Option(names = "--url", description = "URL of the JIRA server", showDefaultValue =
-        CommandLine.Help.Visibility.ALWAYS, defaultValue = Utility.JIRA_SERVER, scope = CommandLine.ScopeType.INHERIT)
+    @CommandLine.Option(
+            names = "--url",
+            description = "URL of the JIRA server",
+            showDefaultValue = CommandLine.Help.Visibility.ALWAYS,
+            defaultValue = Utility.JIRA_SERVER,
+            scope = CommandLine.ScopeType.INHERIT)
     private String jiraServerURI;
-    @CommandLine.Option(names = {"-w", "--watchers"},
-        description = "Comma-separated list of user names to add to watchers",
-        scope = CommandLine.ScopeType.INHERIT, split = ",")
+    @CommandLine.Option(
+            names = { "-w", "--watchers" },
+            description = "Comma-separated list of user names to add to watchers",
+            scope = CommandLine.ScopeType.INHERIT,
+            split = ",")
     private List<String> watchers;
 
     @Inject
@@ -78,59 +90,82 @@ public class App implements QuarkusApplication {
     }
 
     @CommandLine.Command(name = "get", description = "Retrieve the specified issue")
-    public void get(
-        @CommandLine.Parameters(description = "JIRA issue key") String key
-    ) {
+    public void get(@CommandLine.Parameters(description = "JIRA issue key") String key) {
         System.out.println(service.getIssue(key));
     }
 
-    @CommandLine.Command(name = "clone",
-        description = "Clone the specified issue using information from the release associated with the specified git reference")
+    @CommandLine.Command(
+            name = "clone",
+            description = "Clone the specified issue using information from the release associated with the specified git reference")
     public void clone(
-        @CommandLine.Option(names = {"-g", "--git"},
-            description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
-        @CommandLine.Parameters(description = "JIRA issue key",
-            defaultValue = IssueService.RELEASE_TICKET_TEMPLATE,
-            showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom
-    ) throws Throwable {
+            @CommandLine.Option(
+                    names = { "-g", "--git" },
+                    description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef,
+            @CommandLine.Parameters(
+                    description = "JIRA issue key",
+                    defaultValue = IssueService.RELEASE_TICKET_TEMPLATE,
+                    showDefaultValue = CommandLine.Help.Visibility.ALWAYS) String toCloneFrom) throws Throwable {
         final Release release = factory.createFromGitRef(gitRef);
         System.out.println(service.clone(release, toCloneFrom, watchers));
     }
 
-    @CommandLine.Command(name = "create-component",
-        description = "Create component requests for the release associated with the specified git reference")
+    @CommandLine.Command(
+            name = "create-component",
+            description = "Create component requests for the release associated with the specified git reference")
     public void createComponentRequests(
-        @CommandLine.Option(names = {"-g", "--git"},
-            description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef
-    ) throws Throwable {
+            @CommandLine.Option(
+                    names = { "-g", "--git" },
+                    description = "Git reference in the <github org>/<github repo>/<branch | tag | hash> format") String gitRef)
+            throws Throwable {
         final Release release = factory.createFromGitRef(gitRef);
         service.createComponentRequests(release, watchers);
     }
 
     @CommandLine.Command(name = "delete", description = "Delete the specified comma-separated issues")
     public void delete(
-        @CommandLine.Parameters(description = "Comma-separated JIRA issue keys", split = ",") List<String> issues
-    ) {
+            @CommandLine.Parameters(description = "Comma-separated JIRA issue keys", split = ",") List<String> issues) {
         service.deleteIssues(issues);
     }
 
-    @CommandLine.Command(name = "link",
-        description = "Link the issue specified by the 'from' option to the issue specified by the 'to' option")
+    @CommandLine.Command(
+            name = "link",
+            description = "Link the issue specified by the 'from' option to the issue specified by the 'to' option")
     public void link(
-        @CommandLine.Parameters(description = ("JIRA issue key from which a link should be created")) String fromIssue,
-        @CommandLine.Option(names = {"-t", "--to"}, description = ("JIRA issue key to link to"), required = true) String toIssue
-    ) {
+            @CommandLine.Parameters(
+                    description = ("JIRA issue key from which a link should be created")) String fromIssue,
+            @CommandLine.Option(
+                    names = { "-t", "--to" },
+                    description = ("JIRA issue key to link to"),
+                    required = true) String toIssue) {
         service.linkIssue(fromIssue, toIssue);
     }
 
-    @CommandLine.Command(name = "start-release",
-        description = "Start the release process for the release associated with the specified git reference")
+    @CommandLine.Command(
+            name = "start-release",
+            description = "Start the release process for the release associated with the specified git reference")
     public void startRelease(
-        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format", required = true) String gitRef,
-        @CommandLine.Option(names = {"-s", "--skip"}, description = "Skip product requests") boolean skipProductRequests,
-        @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test,
-        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token", required = true) String token
-    ) throws Throwable {
+            @CommandLine.Option(
+                    names = { "-g", "--git" },
+                    description = "Git reference in the <github org>/<github repo>/<branch> format",
+                    required = true) String gitRef,
+            @CommandLine.Option(
+                    names = { "-s", "--skip" },
+                    description = "Skip product requests") boolean skipProductRequests,
+            @CommandLine.Option(
+                    names = { "-t", "--test" },
+                    description = "Create a test release ticket using the SB project for all requests") boolean test,
+            @CommandLine.Option(
+                    names = { "-o", "--token" },
+                    description = "Github API token",
+                    required = true) String token,
+            @CommandLine.Option(
+                    names = { "-r", "--release-date" },
+                    description = "Release Date",
+                    required = true) String releaseDate,
+            @CommandLine.Option(
+                    names = { "-e", "--eol-date" },
+                    description = "EOL Date",
+                    required = true) String eolDate) throws Throwable {
         if (!test) {
             git.initRepository(gitRef, token); // init git repository to be able to update release
         }
@@ -138,8 +173,16 @@ public class App implements QuarkusApplication {
         Release release = factory.createFromGitRef(gitRef, skipProductRequests);
         release.setTest(test);
 
+        try {
+            release.setSchedule(releaseDate, eolDate);
+        } catch (Exception e) {
+            LOG.error("Invalid release date", e);
+            return;
+        }
+
         BasicIssue issue;
-        // first check if we already have a release ticket, in which case we don't need to clone the template
+        // first check if we already have a release ticket, in which case we don't need
+        // to clone the template
         final String releaseTicket = release.getJiraKey();
         if (!Utility.isStringNullOrBlank(releaseTicket)) {
             try {
@@ -168,36 +211,47 @@ public class App implements QuarkusApplication {
         System.out.println(issue);
     }
 
-    @CommandLine.Command(name = "list-cves", description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
+    @CommandLine.Command(
+            name = "list-cves",
+            description = "List CVEs for the specified release or, if not specified, unresolved CVEs")
     public void listCVEs(
-        @CommandLine.Option(names = {"-g", "--publish"}, description = "Publish the CVE list to github") boolean release,
-        @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token. Required if --publish is enabled") String token,
-        @CommandLine.Parameters(description = "Release for which to retrieve the CVEs, e.g. 2.2.10", arity = "0..1") String version
-    ) throws Throwable {
+            @CommandLine.Option(
+                    names = { "-g", "--publish" },
+                    description = "Publish the CVE list to github") boolean release,
+            @CommandLine.Option(
+                    names = { "-o", "--token" },
+                    description = "Github API token. Required if --publish is enabled") String token,
+            @CommandLine.Parameters(
+                    description = "Release for which to retrieve the CVEs, e.g. 2.2.10",
+                    arity = "0..1") String version) throws Throwable {
         final var cves = cveService.listCVEs(Optional.ofNullable(version), true);
         System.out.println(reportingService.buildAsciiReport(cves));
         if (release) {
             if (Optional.ofNullable(token).isPresent()) {
-                git.closeOldCveIssues("cve",token, CVE_REPORT_REPO_NAME, version);
-                String mdReport = reportingService.buildMdReport(cves,  git.getCveIssueTitle(version));
+                git.closeOldCveIssues("cve", token, CVE_REPORT_REPO_NAME, version);
+                String mdReport = reportingService.buildMdReport(cves, git.getCveIssueTitle(version));
                 git.createGithubIssue(mdReport, git.getCveIssueTitle(version), "cve", token, CVE_REPORT_REPO_NAME);
             } else {
-                LOG.error("Cannot release CVE to GitHub. Github API token is required if --publish is enabled. Please specify the github token using --token.");
+                LOG.error(
+                        "Cannot release CVE to GitHub. Github API token is required if --publish is enabled. Please specify the github token using --token.");
             }
         }
     }
 
     @CommandLine.Command(name = "status", description = "Compute the release status")
     public void status(
-        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef
-    ) throws Throwable {
+            @CommandLine.Option(
+                    names = { "-g", "--git" },
+                    description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef)
+            throws Throwable {
         Release release = factory.createFromGitRef(gitRef, false);
         final var blocked = new LinkedList<Issue>();
         final var cves = cveService.listCVEs(Optional.ofNullable(release.getVersion()), true);
         release.computeStatus();
         blocked.addAll(cves);
         blocked.addAll(release.getBlocked());
-        System.out.println(release.getBlockedNumber() + " blocked issues out of " + release.getConsideredNumber() + " considered");
+        System.out.println(release.getBlockedNumber() + " blocked issues out of " + release.getConsideredNumber()
+                + " considered");
         System.out.println(reportingService.buildAsciiReport(blocked));
     }
 

@@ -31,28 +31,27 @@ import static dev.snowdrop.release.services.Utility.getURLFor;
 public class IssueService {
     public static final String RELEASE_TICKET_TEMPLATE = "ENTSBT-323";
     private static final Logger LOG = Logger.getLogger(IssueService.class);
-    
+
     @Inject
     JiraRestClient restClient;
-    
+
     public void linkIssue(String fromIssue, String toIssue) {
         final var cl = restClient.getIssueClient();
-        final Promise<Issue> toPromise = cl.getIssue(toIssue)
-            .fail(e -> LOG.errorf("Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
-    
-        cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, LINK_TYPE))
-            .fail(e -> LOG.errorf("Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage()))
-            .claim();
-        
+        final Promise<Issue> toPromise = cl.getIssue(toIssue).fail(e -> LOG.errorf(
+                "Couldn't retrieve %s issue to link to: %s", toIssue, e.getLocalizedMessage()));
+
+        cl.linkIssue(new LinkIssuesInput(toIssue, fromIssue, LINK_TYPE)).fail(e -> LOG.errorf(
+                "Exception linking %s to %s: %s", fromIssue, toIssue, e.getLocalizedMessage())).claim();
+
         final Issue to = toPromise.claim();
         LOG.infof("Linked %s with the blocking issue %s: %s", getURLFor(fromIssue), toIssue, to.getSummary());
     }
-    
+
     public Issue getIssue(String issueNumber) {
         final var cl = restClient.getIssueClient();
         return cl.getIssue(issueNumber).claim();
     }
-    
+
     public void deleteIssues(List<String> issues) {
         final var cl = restClient.getIssueClient();
         for (String issue : issues) {
@@ -60,10 +59,11 @@ public class IssueService {
             LOG.infof("Issue %s deleted", issue);
         }
     }
-    
+
     public BasicIssue clone(Release release, String toCloneFrom, List<String> watchers) {
         final IssueRestClient cl = restClient.getIssueClient();
         Issue issue = cl.getIssue(toCloneFrom).claim();
+
         // Create the cloned task
         IssueInputBuilder iib = new IssueInputBuilder();
         final var projectKey = release.getProjectKey();
@@ -75,17 +75,18 @@ public class IssueService {
         final String clonedIssueKey = clonedIssue.getKey();
         addWatchers(clonedIssueKey, watchers);
         LOG.infof("Issue cloned: %s", getURLFor(clonedIssueKey));
-        
+
         try {
             cl.linkIssue(new LinkIssuesInput(clonedIssueKey, toCloneFrom, "Cloners")).claim();
         } catch (Exception e) {
             LOG.error("Couldn't link " + clonedIssueKey + " as clone of " + toCloneFrom, e);
         }
-        
+
         // Get the list of the sub-tasks
         Iterable<Subtask> subTasks = issue.getSubtasks();
         for (Subtask subtask : subTasks) {
-            // Fetch the SubTask from the server as the subTask object dont contain the assignee :-(
+            // Fetch the SubTask from the server as the subTask object dont contain the
+            // assignee :-(
             Issue fetchSubTask = cl.getIssue(subtask.getIssueKey()).claim();
             if (fetchSubTask != null) {
                 // Create a sub-task that we will link to the parent
@@ -102,27 +103,28 @@ public class IssueService {
                 LOG.infof("Sub task issue cloned: %s", subTaskIssue.getKey());
             }
         }
-        
+
         // set the JIRA key on the release for further processing
         release.setJiraKey(clonedIssueKey);
         return clonedIssue;
     }
-    
+
     public void createComponentRequests(Release release, List<String> watchers) {
         final String jiraKey = release.getJiraKey();
-        
+
         for (Component component : release.getComponents()) {
             /*
-             * If the Release jira key field is not null, then we will link the newly component/starter created Issue to the
-             * release issue
+             * If the Release jira key field is not null, then we will link the newly
+             * component/starter created Issue to the release issue
              */
             var key = createIssue(component, watchers);
             if (jiraKey != null) {
                 linkIssue(jiraKey, key);
                 component.getJira().setKey(key);
             }
-            
-            // if component also defines a product field, then we should create a ticket for the associated product team
+
+            // if component also defines a product field, then we should create a ticket for
+            // the associated product team
             // and link it to the component request
             final var product = component.getProduct();
             if (product != null) {
@@ -133,11 +135,12 @@ public class IssueService {
             }
         }
     }
-    
+
     private String createIssue(IssueSource source, List<String> watchers) {
         final IssueRestClient cl = restClient.getIssueClient();
-        
-        // if the source has already an issue assigned to it, skip it (it should be already validated when the release was created)
+
+        // if the source has already an issue assigned to it, skip it (it should be
+        // already validated when the release was created)
         final var key = source.getJira().getKey();
         if (Utility.isStringNullOrBlank(key)) {
             var issue = getIssueInput(source);
@@ -156,7 +159,7 @@ public class IssueService {
         LOG.infof("Issue %s already exists for %s component, skipping it", getURLFor(key), source.getName());
         return key;
     }
-    
+
     private static IssueInput getIssueInput(IssueSource source) {
         IssueInputBuilder iib = new IssueInputBuilder();
         final var jira = source.getJira();
@@ -166,21 +169,21 @@ public class IssueService {
         iib.setSummary(source.getTitle());
         iib.setDescription(source.getDescription());
         iib.setDueDate(fromIsoDate(source.getParent().getSchedule().getDueDate()));
-/*
-TODO: To be investigated
+        /*
+         * TODO: To be investigated
+         * 
+         * snowdrop-bot user cannot set the following field
+         * iib.setDueDate(formatDueDate(release.getDueDate()));
+         * 
+         * See: https://github.com/snowdrop/jira-tool/issues/7
+         * 
+         * IF we know the custom_field value, then we can fill the following field
+         * iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
+         */
 
-snowdrop-bot user cannot set the following field
-iib.setDueDate(formatDueDate(release.getDueDate()));
-
-See: https://github.com/snowdrop/jira-tool/issues/7
-
-IF we know the custom_field value, then we can fill the following field
-iib.setFieldValue(TARGET_RELEASE_CUSTOMFIELD_ID,setTargetRelease());
-*/
-        
         return iib.build();
     }
-    
+
     private void addWatchers(final String issueKey, final List<String> watchers) {
         final IssueRestClient cl = restClient.getIssueClient();
         try {

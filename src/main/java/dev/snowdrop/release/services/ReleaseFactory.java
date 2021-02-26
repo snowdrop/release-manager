@@ -35,38 +35,38 @@ import dev.snowdrop.release.model.Release;
  */
 @Singleton
 public class ReleaseFactory {
+
     @Inject
     JiraRestClient restClient;
-    
+
     @Inject
     GitService git;
-    
+
     private static final YAMLMapper MAPPER = new YAMLMapper();
-    
+
     static {
-        MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS,
-            MapperFeature.AUTO_DETECT_FIELDS,
-            MapperFeature.AUTO_DETECT_GETTERS,
-            MapperFeature.AUTO_DETECT_IS_GETTERS);
+        MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS, MapperFeature.AUTO_DETECT_FIELDS,
+                MapperFeature.AUTO_DETECT_GETTERS, MapperFeature.AUTO_DETECT_IS_GETTERS);
         final var factory = MAPPER.getFactory();
         factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
         factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
-    
+
     /**
-     * @param gitRef a GitHub reference in the form org/project/reference e.g. metacosm/spring-boot-bom/release-integration
+     * @param gitRef a GitHub reference in the form org/project/reference e.g.
+     *               metacosm/spring-boot-bom/release-integration
      * @return
      * @throws Exception
      */
     public Release createFromGitRef(String gitRef) throws Throwable {
         return createFromGitRef(gitRef, false);
     }
-    
+
     public Release createFromGitRef(String gitRef, boolean skipProductRequests) throws Throwable {
-        try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release.yml");
-             InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
-            
+        try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release_template.yml");
+                InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
+
             final var release = createFrom(releaseIS, pomIS, skipProductRequests);
             release.setGitRef(gitRef);
             System.out.println("Loaded release " + release.getVersion() + " from " + release.getGitRef());
@@ -75,23 +75,24 @@ public class ReleaseFactory {
             throw new RuntimeException(e);
         }
     }
-    
+
     public void pushChanges(Release release) throws IOException {
         if (!release.isTestMode()) {
             final var gitRef = release.getGitRef();
             if (Utility.isStringNullOrBlank(gitRef)) {
                 throw new IllegalArgumentException("Cannot push changes to Release not associated with a git ref");
             }
-            final var releaseFile = new File(git.getRepositoryDirectory(), "release.yml");
+            String releaseFileName = "release" + "-" + release.getVersion() + ".yml";
+            final var releaseFile = new File(git.getRepositoryDirectory(), releaseFileName);
             saveTo(release, releaseFile);
             git.commitAndPush("chore: update release issues' key [issues-manager]", releaseFile);
         }
     }
-    
+
     Release createFrom(InputStream releaseIS, InputStream pomIS) throws Throwable {
         return createFrom(releaseIS, pomIS, false);
     }
-    
+
     public Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws Throwable {
         try {
             final var release = CompletableFuture.supplyAsync(() -> {
@@ -109,13 +110,13 @@ public class ReleaseFactory {
                 }
             });
             return pom.thenCombineAsync(release, (p, r) -> {
+                r.setVersion(p.getVersion());
                 r.setPom(p);
                 r.setJiraClient(restClient);
                 final var errors = r.validate(skipProductRequests);
                 if (!errors.isEmpty()) {
-                    throw new IllegalArgumentException(
-                        errors.stream().reduce("Invalid release:\n", Utility.errorsFormatter(0))
-                    );
+                    throw new IllegalArgumentException(errors.stream().reduce("Invalid release:\n", Utility
+                            .errorsFormatter(0)));
                 }
                 return r;
             }).join();
@@ -123,12 +124,12 @@ public class ReleaseFactory {
             throw e.getCause();
         }
     }
-    
+
     void saveTo(Release release, File to) throws IOException {
         final var writer = MAPPER.writerFor(Release.class);
         writer.writeValue(to, release);
     }
-    
+
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
         return GitService.getStreamFrom(gitRef, relativePath);
     }
