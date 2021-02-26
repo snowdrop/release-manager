@@ -37,53 +37,24 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 @QuarkusTest
 public class ReleaseFactoryTest {
-    
+
     @Inject
     ReleaseFactory factory;
-    
+
     private static InputStream getResourceAsStream(String s) {
         return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
     }
-    
+
     @Test
-    public void missingVersionShouldFail() {
-        try {
-            factory.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"), true);
-            fail("should have failed on missing version");
-        } catch (IllegalArgumentException e) {
-            // expected
-            assertTrue(e.getMessage().contains("missing version"));
-        } catch (Throwable e) {
-            fail(e);
-        }
+    public void missingVersionShouldNotFail() throws Throwable {
+        factory.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"), true);
     }
-    
+
     @Test
-    public void mismatchedVersionShouldFail() {
-        try {
-            factory.createFrom(getResourceAsStream("mismatched-version.yml"), getResourceAsStream("pom.xml"), true);
-            fail("should have failed on mismatched version");
-        } catch (IllegalArgumentException e) {
-            // expected
-            assertTrue(e.getMessage().contains("release version doesn't match"));
-        } catch (Throwable e) {
-            fail(e);
-        }
+    public void missingScheduleShouldNotFail() throws Throwable {
+        factory.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"), true);
     }
-    
-    @Test
-    public void missingScheduleShouldFail() {
-        try {
-            factory.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"), true);
-            fail("should have failed on missing schedule");
-        } catch (IllegalArgumentException e) {
-            // expected
-            assertTrue(e.getMessage().contains("missing schedule"));
-        } catch (Throwable e) {
-            fail(e);
-        }
-    }
-    
+
     @Test
     public void wrongScheduleShouldFail() {
         try {
@@ -97,7 +68,7 @@ public class ReleaseFactoryTest {
             fail(e);
         }
     }
-    
+
     @Test
     public void mismatchedPOMVersionsShouldFail() {
         try {
@@ -111,11 +82,12 @@ public class ReleaseFactoryTest {
             fail(e);
         }
     }
-    
+
     @Test
     public void invalidComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), false);
+            factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"),
+                    false);
             fail("should have failed on invalid component project");
         } catch (IllegalArgumentException e) {
             // expected
@@ -125,16 +97,18 @@ public class ReleaseFactoryTest {
             assertTrue(message.contains("invalid project 'FOO'"));
             assertTrue(message.contains("invalid project 'BAR'"));
             assertTrue(message.contains("invalid issue key: INVALID"));
-            assertTrue(message.contains("invalid issue key: " + MockIssueRestClient.ISSUE_KEY + " doesn't match project FOO"));
+            assertTrue(message.contains("invalid issue key: " + MockIssueRestClient.ISSUE_KEY
+                    + " doesn't match project FOO"));
         } catch (Throwable e) {
             fail(e);
         }
     }
-    
+
     @Test
     public void emptyComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-empty-project.yml"), getResourceAsStream("pom.xml"), false);
+            factory.createFrom(getResourceAsStream("invalid-component-empty-project.yml"), getResourceAsStream(
+                    "pom.xml"), false);
             fail("should have failed on empty component project");
         } catch (IllegalArgumentException e) {
             // expected
@@ -146,16 +120,17 @@ public class ReleaseFactoryTest {
             fail(e);
         }
     }
-    
+
     @Test
     public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws Throwable {
         factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), true);
     }
-    
+
     @Test
     public void invalidComponentIssueTypeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"), false);
+            factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"),
+                    false);
             fail("should have failed on invalid component issue type");
         } catch (IllegalArgumentException e) {
             // expected
@@ -164,47 +139,50 @@ public class ReleaseFactoryTest {
             fail(e);
         }
     }
-    
+
     @Test
     public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"), true);
+        factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"),
+                true);
     }
-    
+
     @Test
     public void invalidComponentAssigneeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-assignee.yml"), getResourceAsStream("pom.xml"), false);
+            factory.createFrom(getResourceAsStream("invalid-component-assignee.yml"), getResourceAsStream("pom.xml"),
+                    false);
             fail("should have failed on invalid component assignee");
         } catch (IllegalArgumentException e) {
             // expected
-            assertTrue(e.getMessage().contains("invalid assignee for project 'ENTSBT': " + MockUserRestClient.NON_EXISTING_USER));
+            assertTrue(e.getMessage().contains("invalid assignee for project 'ENTSBT': "
+                    + MockUserRestClient.NON_EXISTING_USER));
         } catch (Throwable e) {
             fail(e);
         }
     }
-    
+
     @Test
     public void validReleaseShouldWork() throws Throwable {
         final Release release = factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
         validate(release);
     }
-    
+
     private void validate(Release release) {
         assertNotNull(release);
-        final var expectedSBVersion = "2.3.2";
+        final var expectedSBVersion = "2.3.2.RELEASE";
         assertEquals(expectedSBVersion, release.getVersion());
-        
+
         final List<Component> components = release.getComponents();
         assertEquals(11, components.size());
-        
+
         var component = components.get(0);
         assertNotNull(component.getParent());
         assertEquals("Hibernate / Hibernate Validator / Undertow / RESTEasy", component.getName());
         assertEquals("ivassile", component.getJira().getAssignee().get());
-        
+
         final List<Artifact> artifacts = component.getArtifacts();
         assertEquals(7, artifacts.size());
-        
+
         final String hibernateVersion = "5.4.18.Final";
         final String undertowVersion = "2.1.3.Final";
         checkArtifact(artifacts, 0, "org.hibernate:hibernate-core", hibernateVersion);
@@ -213,7 +191,7 @@ public class ReleaseFactoryTest {
         checkArtifact(artifacts, 3, "io.undertow:undertow-core", undertowVersion);
         checkArtifact(artifacts, 4, "io.undertow:undertow-servlet", undertowVersion);
         checkArtifact(artifacts, 5, "io.undertow:undertow-websockets-jsr", undertowVersion);
-        
+
         var description = component.getDescription();
         assertTrue(description.contains(component.getParent().getVersion()));
         assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
@@ -221,7 +199,7 @@ public class ReleaseFactoryTest {
             assertTrue(description.contains(artifact.getName()));
             assertTrue(description.contains(artifact.getVersion()));
         }
-        
+
         component = components.get(7);
         assertEquals("Narayana starter", component.getName());
         final var product = component.getProduct();
@@ -240,24 +218,24 @@ public class ReleaseFactoryTest {
         assertTrue(description.contains(expectedSBVersion));
         assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
     }
-    
+
     @Test
     public void creatingFromNonExistentGitRefShouldFail() {
         assertThrows(IOException.class, () -> ReleaseFactory.getStreamFromGitRef("foo/bar", "release.yml"));
     }
-    
+
     @Test
     public void creatingFromGitBranchShouldWork() throws Exception {
         final String gitRef = "snowdrop/spring-boot-bom/sb-2.3.x";
         ReleaseFactory.getStreamFromGitRef(gitRef, "release.yml");
     }
-    
+
     @Test
     public void creatingFromGitCommitShouldWork() throws Exception {
         final String gitRef = "snowdrop/spring-boot-bom/1c45351";
         ReleaseFactory.getStreamFromGitRef(gitRef, "release.yml");
     }
-    
+
     private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {
         final Artifact artifact = artifacts.get(index);
         assertEquals(expectedName, artifact.getName());
