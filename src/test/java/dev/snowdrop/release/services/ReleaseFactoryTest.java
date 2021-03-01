@@ -47,18 +47,29 @@ public class ReleaseFactoryTest {
 
     @Test
     public void missingVersionShouldNotFail() throws Throwable {
-        factory.createFrom(getResourceAsStream("missing-version.yml"), getResourceAsStream("pom.xml"), true);
+        factory.createFrom(getResourceAsStream("missing_version_template.yml"), getResourceAsStream("pom.xml"), true,
+                false);
     }
 
     @Test
-    public void missingScheduleShouldNotFail() throws Throwable {
-        factory.createFrom(getResourceAsStream("missing-schedule.yml"), getResourceAsStream("pom.xml"), true);
+    public void missingScheduleShouldFail() {
+        try {
+            factory.createFrom(getResourceAsStream("missing_schedule_template.yml"), getResourceAsStream("pom.xml"),
+                    true, false);
+            fail("should have failed on missing schedule");
+        } catch (IllegalArgumentException e) {
+            // expected
+            assertTrue(e.getMessage().contains("missing schedule"));
+        } catch (Throwable e) {
+            fail(e);
+        }
     }
 
     @Test
     public void wrongScheduleShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-schedule.yml"), getResourceAsStream("pom.xml"), true);
+            factory.createFrom(getResourceAsStream("invalid_schedule_template.yml"), getResourceAsStream("pom.xml"),
+                    true, false);
             fail("should have failed on invalid schedule");
         } catch (IllegalArgumentException e) {
             // expected
@@ -72,7 +83,8 @@ public class ReleaseFactoryTest {
     @Test
     public void mismatchedPOMVersionsShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("mismatched-pom.xml"), true);
+            factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream("mismatched-pom.xml"),
+                    true, false);
             fail("should have failed on mismatched POM versions");
         } catch (IllegalArgumentException e) {
             // expected
@@ -86,8 +98,8 @@ public class ReleaseFactoryTest {
     @Test
     public void invalidComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"),
-                    false);
+            factory.createFrom(getResourceAsStream("invalid_component_project_template.yml"), getResourceAsStream(
+                    "pom.xml"), false, false);
             fail("should have failed on invalid component project");
         } catch (IllegalArgumentException e) {
             // expected
@@ -107,8 +119,8 @@ public class ReleaseFactoryTest {
     @Test
     public void emptyComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-empty-project.yml"), getResourceAsStream(
-                    "pom.xml"), false);
+            factory.createFrom(getResourceAsStream("invalid_component_empty_project_template.yml"), getResourceAsStream(
+                    "pom.xml"), false, false);
             fail("should have failed on empty component project");
         } catch (IllegalArgumentException e) {
             // expected
@@ -123,14 +135,15 @@ public class ReleaseFactoryTest {
 
     @Test
     public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid-component-project.yml"), getResourceAsStream("pom.xml"), true);
+        factory.createFrom(getResourceAsStream("invalid_component_project_template.yml"), getResourceAsStream(
+                "pom.xml"), true, false);
     }
 
     @Test
     public void invalidComponentIssueTypeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"),
-                    false);
+            factory.createFrom(getResourceAsStream("invalid_component_issuetypeid_template.yml"), getResourceAsStream(
+                    "pom.xml"), false, false);
             fail("should have failed on invalid component issue type");
         } catch (IllegalArgumentException e) {
             // expected
@@ -142,15 +155,15 @@ public class ReleaseFactoryTest {
 
     @Test
     public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid-component-issuetypeid.yml"), getResourceAsStream("pom.xml"),
-                true);
+        factory.createFrom(getResourceAsStream("invalid_component_issuetypeid_template.yml"), getResourceAsStream(
+                "pom.xml"), true, false);
     }
 
     @Test
     public void invalidComponentAssigneeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid-component-assignee.yml"), getResourceAsStream("pom.xml"),
-                    false);
+            factory.createFrom(getResourceAsStream("invalid_component_assignee_template.yml"), getResourceAsStream(
+                    "pom.xml"), false, false);
             fail("should have failed on invalid component assignee");
         } catch (IllegalArgumentException e) {
             // expected
@@ -163,7 +176,8 @@ public class ReleaseFactoryTest {
 
     @Test
     public void validReleaseShouldWork() throws Throwable {
-        final Release release = factory.createFrom(getResourceAsStream("release.yml"), getResourceAsStream("pom.xml"));
+        final Release release = factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream(
+                "pom.xml"));
         validate(release);
     }
 
@@ -221,19 +235,19 @@ public class ReleaseFactoryTest {
 
     @Test
     public void creatingFromNonExistentGitRefShouldFail() {
-        assertThrows(IOException.class, () -> ReleaseFactory.getStreamFromGitRef("foo/bar", "release.yml"));
+        assertThrows(IOException.class, () -> ReleaseFactory.getStreamFromGitRef("foo/bar", "release_template.yml"));
     }
 
     @Test
     public void creatingFromGitBranchShouldWork() throws Exception {
-        final String gitRef = "snowdrop/spring-boot-bom/sb-2.3.x";
-        ReleaseFactory.getStreamFromGitRef(gitRef, "release.yml");
+        final String gitRef = "snowdrop/spring-boot-bom/sb-2.4.x";
+        ReleaseFactory.getStreamFromGitRef(gitRef, "release_template.yml");
     }
 
     @Test
     public void creatingFromGitCommitShouldWork() throws Exception {
-        final String gitRef = "snowdrop/spring-boot-bom/1c45351";
-        ReleaseFactory.getStreamFromGitRef(gitRef, "release.yml");
+        final String gitRef = "snowdrop/spring-boot-bom/74cea74";
+        ReleaseFactory.getStreamFromGitRef(gitRef, "release_template.yml");
     }
 
     private void checkArtifact(List<Artifact> artifacts, int index, String expectedName, String expectedVersion) {

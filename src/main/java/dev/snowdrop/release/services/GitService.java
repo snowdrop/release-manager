@@ -93,13 +93,13 @@ public class GitService {
                 try {
                     final var status = g.status().call();
                     final var uncommittedChanges = status.getUncommittedChanges();
-                    final var unTracked = status.getUntracked();
+                    final var untracked = status.getUntracked();
                     var hasChanges = false;
-                    if (!uncommittedChanges.isEmpty() || !unTracked.isEmpty()) {
+                    if (!uncommittedChanges.isEmpty() || !untracked.isEmpty()) {
                         final var addCommand = g.add();
                         for (File file : changed) {
                             final var path = file.getName();
-                            if (uncommittedChanges.contains(path) || unTracked.contains(path)) {
+                            if (uncommittedChanges.contains(path) || untracked.contains(path)) {
                                 // only add file to be committed if it's part of the modified set or untracked
                                 LOG.infof("Added %s", path);
                                 addCommand.addFilepattern(path);

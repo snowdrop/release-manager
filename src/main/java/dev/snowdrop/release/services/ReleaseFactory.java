@@ -60,14 +60,15 @@ public class ReleaseFactory {
      * @throws Exception
      */
     public Release createFromGitRef(String gitRef) throws Throwable {
-        return createFromGitRef(gitRef, false);
+        return createFromGitRef(gitRef, false, false);
     }
 
-    public Release createFromGitRef(String gitRef, boolean skipProductRequests) throws Throwable {
+    public Release createFromGitRef(String gitRef, boolean skipProductRequests, boolean skipScheduleValidation)
+            throws Throwable {
         try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release_template.yml");
                 InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
 
-            final var release = createFrom(releaseIS, pomIS, skipProductRequests);
+            final var release = createFrom(releaseIS, pomIS, skipProductRequests, skipScheduleValidation);
             release.setGitRef(gitRef);
             System.out.println("Loaded release " + release.getVersion() + " from " + release.getGitRef());
             return release;
@@ -90,10 +91,14 @@ public class ReleaseFactory {
     }
 
     Release createFrom(InputStream releaseIS, InputStream pomIS) throws Throwable {
-        return createFrom(releaseIS, pomIS, false);
+        return createFrom(releaseIS, pomIS, false, false);
     }
 
-    public Release createFrom(InputStream releaseIS, InputStream pomIS, boolean skipProductRequests) throws Throwable {
+    public Release createFrom(
+            InputStream releaseIS,
+            InputStream pomIS,
+            boolean skipProductRequests,
+            boolean skipScheduleValidation) throws Throwable {
         try {
             final var release = CompletableFuture.supplyAsync(() -> {
                 try {
@@ -113,7 +118,7 @@ public class ReleaseFactory {
                 r.setVersion(p.getVersion());
                 r.setPom(p);
                 r.setJiraClient(restClient);
-                final var errors = r.validate(skipProductRequests);
+                final var errors = r.validate(skipProductRequests, skipScheduleValidation);
                 if (!errors.isEmpty()) {
                     throw new IllegalArgumentException(errors.stream().reduce("Invalid release:\n", Utility
                             .errorsFormatter(0)));

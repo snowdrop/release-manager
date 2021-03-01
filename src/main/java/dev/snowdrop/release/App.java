@@ -170,7 +170,7 @@ public class App implements QuarkusApplication {
             git.initRepository(gitRef, token); // init git repository to be able to update release
         }
 
-        Release release = factory.createFromGitRef(gitRef, skipProductRequests);
+        Release release = factory.createFromGitRef(gitRef, skipProductRequests, true);
         release.setTest(test);
 
         try {
@@ -178,6 +178,12 @@ public class App implements QuarkusApplication {
         } catch (Exception e) {
             LOG.error("Invalid release date", e);
             return;
+        }
+
+        List<String> errors = release.validateSchedule();
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(errors.stream().reduce("Invalid release:\n", Utility.errorsFormatter(
+                    0)));
         }
 
         BasicIssue issue;
@@ -244,7 +250,7 @@ public class App implements QuarkusApplication {
                     names = { "-g", "--git" },
                     description = "Git reference in the <github org>/<github repo>/<branch> format") String gitRef)
             throws Throwable {
-        Release release = factory.createFromGitRef(gitRef, false);
+        Release release = factory.createFromGitRef(gitRef, false, false);
         final var blocked = new LinkedList<Issue>();
         final var cves = cveService.listCVEs(Optional.ofNullable(release.getVersion()), true);
         release.computeStatus();

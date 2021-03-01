@@ -134,7 +134,7 @@ public class Release extends Issue {
         return dateFormat.format(calendar.getTime());
     }
 
-    public List<String> validate(boolean skipProductRequests) {
+    public List<String> validate(boolean skipProductRequests, boolean skipScheduleValidation) {
         final List<String> errors = new LinkedList<>();
 
         // validate version
@@ -154,8 +154,25 @@ public class Release extends Issue {
             }
         }
 
-        // validate schedule only if it not null
-        if (schedule != null) {
+        // validate schedule
+        if (!skipScheduleValidation) {
+            errors.addAll(validateSchedule());
+        }
+
+        // validate components
+        if (!skipProductRequests) {
+            final var components = getComponents();
+            components.parallelStream().forEach(c -> errors.addAll(c.validate(getRestClient())));
+        }
+
+        return errors;
+    }
+
+    public List<String> validateSchedule() {
+        final List<String> errors = new LinkedList<>();
+        if (schedule == null) {
+            errors.add("missing schedule");
+        } else {
             if (isStringNullOrBlank(schedule.getReleaseDate())) {
                 errors.add("missing release date");
             }
@@ -174,13 +191,6 @@ public class Release extends Issue {
                 errors.add("invalid EOL ISO8601 date: " + e.getMessage());
             }
         }
-
-        // validate components
-        if (!skipProductRequests) {
-            final var components = getComponents();
-            components.parallelStream().forEach(c -> errors.addAll(c.validate(getRestClient())));
-        }
-
         return errors;
     }
 
