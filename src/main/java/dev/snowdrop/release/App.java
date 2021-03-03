@@ -160,11 +160,11 @@ public class App implements QuarkusApplication {
                     required = true) String token,
             @CommandLine.Option(
                     names = { "-r", "--release-date" },
-                    description = "Release Date",
+                    description = "Release Date(yyyy-mm-dd)",
                     required = true) String releaseDate,
             @CommandLine.Option(
                     names = { "-e", "--eol-date" },
-                    description = "EOL Date",
+                    description = "End of Life Date(yyyy-mm-dd)",
                     required = true) String eolDate) throws Throwable {
         if (!test) {
             git.initRepository(gitRef, token); // init git repository to be able to update release
