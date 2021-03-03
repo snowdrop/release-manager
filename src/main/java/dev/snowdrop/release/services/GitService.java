@@ -46,39 +46,35 @@ public class GitService {
     private CompletableFuture<Git> git;
     private String token;
     private File repository;
-    
-    
+
     static InputStream getStreamFrom(String gitRef, String relativePath) throws IOException {
         URI uri = URI.create("https://raw.githubusercontent.com/" + gitRef + "/" + relativePath);
         return uri.toURL().openStream();
     }
-    
+
     public File getRepositoryDirectory() {
         return repository;
     }
-    
+
     public void initRepository(String gitRef, String token) throws IOException {
         this.token = token;
         // first parse git ref
         final var split = gitRef.split("/");
         if (split.length != 3) {
-            throw new IllegalArgumentException("Invalid git reference: " + gitRef + ". Must follow organization/repository/branch format.");
+            throw new IllegalArgumentException("Invalid git reference: " + gitRef
+                    + ". Must follow organization/repository/branch format.");
         }
         final var branch = "refs/heads/" + split[2];
-        
+
         repository = Files.createTempDirectory("snowdrop-bom").toFile();
         repository.deleteOnExit();
-        
+
         git = CompletableFuture.supplyAsync(() -> {
             try {
                 final var uri = "https://github.com/" + split[0] + "/" + split[1] + ".git";
-                final var git = Git.cloneRepository()
-                    .setURI(uri)
-                    .setBranchesToClone(Collections.singleton(branch))
-                    .setBranch(branch)
-                    .setDirectory(repository)
-                    .setCredentialsProvider(getCredentialsProvider(token))
-                    .call();
+                final var git = Git.cloneRepository().setURI(uri).setBranchesToClone(Collections.singleton(branch))
+                        .setBranch(branch).setDirectory(repository).setCredentialsProvider(getCredentialsProvider(
+                                token)).call();
                 LOG.infof("Cloned %s in %s", uri, repository.getPath());
                 return git;
             } catch (GitAPIException e) {
@@ -86,24 +82,25 @@ public class GitService {
             }
         });
     }
-    
+
     private CredentialsProvider getCredentialsProvider(String token) {
         return new UsernamePasswordCredentialsProvider(token, "");
     }
-    
+
     public void commitAndPush(String commitMessage, File... changed) throws IOException {
         try {
             git.thenAcceptAsync(g -> {
                 try {
                     final var status = g.status().call();
                     final var uncommittedChanges = status.getUncommittedChanges();
+                    final var untracked = status.getUntracked();
                     var hasChanges = false;
-                    if (!uncommittedChanges.isEmpty()) {
-                        final var addCommand = g.add().setUpdate(true);
+                    if (!uncommittedChanges.isEmpty() || !untracked.isEmpty()) {
+                        final var addCommand = g.add();
                         for (File file : changed) {
                             final var path = file.getName();
-                            if (uncommittedChanges.contains(path)) {
-                                // only add file to be committed if it's part of the modified set
+                            if (uncommittedChanges.contains(path) || untracked.contains(path)) {
+                                // only add file to be committed if it's part of the modified set or untracked
                                 LOG.infof("Added %s", path);
                                 addCommand.addFilepattern(path);
                                 hasChanges = true;
@@ -132,8 +129,12 @@ public class GitService {
         return "CVE " + (version != null ? "for " + version : "for triage");
     }
 
-    public void createGithubIssue(final String mdText, final String issueTitle, final String label,
-        final String token, final String repoName) throws IOException {
+    public void createGithubIssue(
+            final String mdText,
+            final String issueTitle,
+            final String label,
+            final String token,
+            final String repoName) throws IOException {
         GitHub github = new GitHubBuilder().withOAuthToken(token).build();
         GHRepository gitHubRepo = github.getRepository(repoName);
         GHIssueBuilder githubIssueBuilder = gitHubRepo.createIssue(issueTitle);
@@ -144,26 +145,25 @@ public class GitService {
 
     /**
      * Close issues
+     * 
      * @param label
      * @param token
      * @param repoName
      * @param version
      * @throws IOException
      */
-    public void closeOldCveIssues(final String label, final String token, final String repoName, final String version) throws IOException {
+    public void closeOldCveIssues(final String label, final String token, final String repoName, final String version)
+            throws IOException {
         final String issueTitle = this.getCveIssueTitle(version);
         GitHub github = new GitHubBuilder().withOAuthToken(token).build();
         GHRepository gitHubRepo = github.getRepository(repoName);
         List<GHIssue> ghIssues = gitHubRepo.getIssues(GHIssueState.OPEN);
         ghIssues.stream().filter(issue -> {
             try {
-                LOG.warnf("Issue title: %s; calculated title: %s;", issue.getTitle(),issueTitle);
-               return (issue.getLabels().stream().anyMatch(labels -> {
-                   return labels.getName().equalsIgnoreCase(label);
-               }) && (
-                issue.getTitle().equalsIgnoreCase(issueTitle)
-               )
-               );
+                LOG.warnf("Issue title: %s; calculated title: %s;", issue.getTitle(), issueTitle);
+                return (issue.getLabels().stream().anyMatch(labels -> {
+                    return labels.getName().equalsIgnoreCase(label);
+                }) && (issue.getTitle().equalsIgnoreCase(issueTitle)));
             } catch (IOException e) {
                 LOG.warnf("Error filtering issue %s. Error: %s", issue.getNumber(), e.getLocalizedMessage());
                 return false;
