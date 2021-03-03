@@ -114,15 +114,7 @@ public class Release extends Issue {
     }
 
     public void setSchedule(String releaseDate, String eolDate) throws ParseException {
-        this.schedule = generateSchedule(releaseDate, eolDate);
-    }
-
-    public Schedule generateSchedule(String releaseDate, String eolDate) throws ParseException {
-        Schedule schedule = new Schedule();
-        schedule.setRelease(releaseDate);
-        schedule.setDue(getDueDate(releaseDate));
-        schedule.setEol(eolDate);
-        return schedule;
+        this.schedule = new Schedule(releaseDate, getDueDate(releaseDate), eolDate);
     }
 
     public String getDueDate(String releaseDate) throws ParseException {

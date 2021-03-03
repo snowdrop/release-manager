@@ -28,6 +28,15 @@ public class Schedule {
     @JsonProperty
     private String eol;
 
+    public Schedule() {
+    }
+
+    public Schedule(String release, String due, String eol) {
+        this.release = release;
+        this.due = due;
+        this.eol = eol;
+    }
+
     public String getFormattedReleaseDate() {
         return getFormatted(release);
     }
@@ -51,17 +60,4 @@ public class Schedule {
     public String getEOLDate() {
         return eol;
     }
-
-    public void setRelease(String release) {
-        this.release = release;
-    }
-
-    public void setDue(String due) {
-        this.due = due;
-    }
-
-    public void setEol(String eol) {
-        this.eol = eol;
-    }
-
 }
