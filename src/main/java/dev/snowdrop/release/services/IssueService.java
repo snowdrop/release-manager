@@ -9,6 +9,7 @@ import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
@@ -191,7 +192,11 @@ public class IssueService {
             if (watchers != null && !watchers.isEmpty()) {
                 watchers.forEach(associate -> {
                     LOG.debug("associate: " + associate);
-                    cl.addWatcher(jiraUri, associate).claim();
+                    try {
+                        cl.addWatcher(jiraUri, associate).claim();
+                    } catch (RestClientException restClientException){
+                        LOG.warn("Associate " + associate +" cannot be added as watcher to " + issueKey + ". Error was the following.", restClientException);
+                    }
                 });
             }
         } catch (URISyntaxException e) {
