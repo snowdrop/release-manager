@@ -261,7 +261,9 @@ public class App implements QuarkusApplication {
         System.out.println(reportingService.buildAsciiReport(blocked));
     }
 
-    @CommandLine.Command(name = "update-build-config", description = "")
+    @CommandLine.Command(
+            name = "update-build-config",
+            description = "updates the build-config.yml file in build-configurations repo")
     public void updateBuildConfig(
             @CommandLine.Option(
                     names = { "-g", "--git" },
