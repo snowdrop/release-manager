@@ -261,6 +261,29 @@ public class App implements QuarkusApplication {
         System.out.println(reportingService.buildAsciiReport(blocked));
     }
 
+    @CommandLine.Command(name = "update-build-config", description = "")
+    public void updateBuildConfig(
+            @CommandLine.Option(
+                    names = { "-g", "--git" },
+                    description = "Git reference in the <github org>/<github repo>/<branch> format",
+                    required = true) String gitRef,
+            @CommandLine.Option(
+                    names = { "-o", "--token" },
+                    description = "Github API token",
+                    required = true) String token,
+            @CommandLine.Option(names = { "-r", "--release" }, description = "release", required = true) String release)
+            throws Throwable {
+
+        git.initRepository(gitRef, token); // init git repository to be able to update release
+
+        Release releaseObj = factory.createFromGitRef(gitRef, false, true, release);
+
+        service.getComponentRequests(releaseObj);
+
+        // TODO write to build-config.yml file
+
+    }
+
     private BasicIssue clone(Release release, String token) throws IOException {
         final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
         release.setJiraKey(issue.getKey());

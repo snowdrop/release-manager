@@ -77,6 +77,23 @@ public class ReleaseFactory {
         }
     }
 
+    public Release createFromGitRef(
+            String gitRef,
+            boolean skipProductRequests,
+            boolean skipScheduleValidation,
+            String version) throws Throwable {
+        try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release" + "-" + version + ".yml");
+                InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
+
+            final var release = createFrom(releaseIS, pomIS, skipProductRequests, skipScheduleValidation);
+            release.setGitRef(gitRef);
+            System.out.println("Loaded release " + release.getVersion() + " from " + release.getGitRef());
+            return release;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void pushChanges(Release release) throws IOException {
         if (!release.isTestMode()) {
             final var gitRef = release.getGitRef();
