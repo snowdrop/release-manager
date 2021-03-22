@@ -41,6 +41,7 @@ public class CVEService {
     private static final Matcher CVE_PATTERN = Pattern.compile(".*(CVE-\\d{4}-\\d{1,6}).*").matcher("");
     private static final Matcher BZ_PATTERN = Pattern.compile(".*https://bugzilla.redhat.com/show_bug.cgi\\?id=(\\d{7}).*").matcher("");
     private static final long UNRESOLVED_CVES = 12347131;
+    public static final String EMBARGOED_PREFIX = "EMBARGOED";
 
     @Inject
     JiraRestClient restClient;
@@ -69,7 +70,7 @@ public class CVEService {
         if (CVE_PATTERN.reset(summary).matches()) {
             id = CVE_PATTERN.group(1);
             // remove id from summary
-            summary = summary.substring(CVE_PATTERN.end(1)).trim();
+            summary = (issue.getSummary().startsWith(EMBARGOED_PREFIX) ? EMBARGOED_PREFIX + " " :"").concat(summary.substring(CVE_PATTERN.end(1)).trim());
         }
 
         final var cve = new CVE(issue.getKey(), summary, fixVersions, issue.getStatus().getName(), issue.getDueDate());
