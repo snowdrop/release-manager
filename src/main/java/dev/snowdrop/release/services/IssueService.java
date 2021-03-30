@@ -9,7 +9,6 @@ import javax.inject.Inject;
 
 import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.RestClientException;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.Subtask;
@@ -137,6 +136,17 @@ public class IssueService {
         }
     }
 
+    public void getComponentRequests(Release release) {
+        for (Component component : release.getComponents()) {
+            Issue issue = getIssue(component);
+            String description = issue.getDescription();
+        }
+    }
+
+    public void parseIssueDescription(String description) {
+        // TODO
+    }
+
     private String createIssue(IssueSource source, List<String> watchers) {
         final IssueRestClient cl = restClient.getIssueClient();
 
@@ -159,6 +169,26 @@ public class IssueService {
         }
         LOG.infof("Issue %s already exists for %s component, skipping it", getURLFor(key), source.getName());
         return key;
+    }
+
+    public Issue getIssue(IssueSource source) {
+        final IssueRestClient cl = restClient.getIssueClient();
+
+        final var key = source.getJira().getKey();
+        if (!Utility.isStringNullOrBlank(key)) {
+            Issue componentIssue;
+            try {
+                componentIssue = cl.getIssue(source.getJira().getKey()).claim();
+            } catch (Exception e) {
+                LOG.errorf("Couldn't find request for %s", source);
+                throw e;
+            }
+            final var created = componentIssue.getKey();
+            LOG.infof("Issue %s retrieved successfully for %s component", getURLFor(created), source.getName());
+            return componentIssue;
+        }
+        LOG.infof("Issue %s doesn't exists for %s component, skipping it", getURLFor(key), source.getName());
+        return null;
     }
 
     private static IssueInput getIssueInput(IssueSource source) {
@@ -192,11 +222,7 @@ public class IssueService {
             if (watchers != null && !watchers.isEmpty()) {
                 watchers.forEach(associate -> {
                     LOG.debug("associate: " + associate);
-                    try {
-                        cl.addWatcher(jiraUri, associate).claim();
-                    } catch (RestClientException restClientException){
-                        LOG.warn("Associate " + associate +" cannot be added as watcher to " + issueKey + ". Error was the following.", restClientException);
-                    }
+                    cl.addWatcher(jiraUri, associate).claim();
                 });
             }
         } catch (URISyntaxException e) {

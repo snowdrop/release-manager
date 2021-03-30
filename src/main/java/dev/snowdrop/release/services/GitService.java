@@ -48,7 +48,7 @@ public class GitService {
     private File repository;
 
     static InputStream getStreamFrom(String gitRef, String relativePath) throws IOException {
-        URI uri = URI.create("https://raw.githubusercontent.com/" + gitRef + "/" + relativePath);
+        URI uri = URI.create("https://gitlab.cee.redhat.com/" + gitRef + "/" + relativePath);
         return uri.toURL().openStream();
     }
 

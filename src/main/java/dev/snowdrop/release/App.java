@@ -261,6 +261,38 @@ public class App implements QuarkusApplication {
         System.out.println(reportingService.buildAsciiReport(blocked));
     }
 
+    @CommandLine.Command(
+            name = "update-build-config",
+            description = "updates the build-config.yml file in build-configurations repo")
+    public void updateBuildConfig(
+            @CommandLine.Option(
+                    names = { "-g", "--git" },
+                    description = "Git reference in the <github org>/<github repo> format",
+                    required = true) String gitRef,
+            @CommandLine.Option(
+                    names = { "-o", "--token" },
+                    description = "Github API token",
+                    required = true) String token,
+            @CommandLine.Option(
+                names = { "-l", "--ltoken" },
+                description = "Gitlab API token",
+                required = true) String ltoken,
+            @CommandLine.Option(names = { "-r", "--release" }, description = "release", required = true) String release)
+            throws Throwable {
+
+        String[] releaseMMF = release.split("\\.");
+        final String gitFullRef = new StringBuffer(gitRef).append("/sb-").append(releaseMMF[0]).append(".").append(releaseMMF[1]).append(".x").toString();
+        git.initRepository(gitFullRef, token); // init git repository to be able to update release
+        Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
+
+        autoUpdate.initRepository("snowdrop/build-configurations", ltoken);
+        autoUpdate.getComponentRequests(releaseObj);
+
+        // TODO write to build-config.yml file
+        factory.pushChanges(releaseObj);
+
+    }
+
     private BasicIssue clone(Release release, String token) throws IOException {
         final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
         release.setJiraKey(issue.getKey());
