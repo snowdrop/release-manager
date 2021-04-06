@@ -247,7 +247,7 @@ public class App implements QuarkusApplication {
         name = "update-build-config",
         description = "updates the build-config.yml file in build-configurations repo")
     public void updateBuildConfig(
-        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo> format", required = true) String gitRef,
+        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo> format", required = true, defaultValue = "snowdrop/spring-boot-bom") String gitRef,
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token", required = true) String token,
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
@@ -257,16 +257,38 @@ public class App implements QuarkusApplication {
         throws Throwable {
         LOG.infof("release: %s; qualifier: %s; milestone: %s", release, qualifier, milestone);
         String[] releaseMMF = release.split("\\.");
-        final String gitFullRef = new StringBuffer(gitRef).append("/sb-").append(releaseMMF[0]).append(".").append(releaseMMF[1]).append(".x").toString();
+        final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-//        autoupdateService.initRepository("snowdrop/build-configurations", release, gluser, gltoken);
-//        autoupdateService.updateBuildConfig(releaseObj, release, qualifier, milestone);
-        autoupdateService.start(releaseObj,"snowdrop/build-configurations", release, qualifier, milestone,gluser,gltoken);
-        // TODO update the release file
-//        factory.pushChanges(releaseObj);
+        GitConfig config = GitConfig.gitlabConfig("snowdrop/build-configurations", release, gluser, gltoken);
+        git.initRepository(config);
 
+        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> autoupdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
     }
+
+
+    @CommandLine.Command(
+        name = "foo",
+        description = "updates the build-config.yml file in build-configurations repo")
+    public void foo(
+        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo> format", required = true, defaultValue = "metacosm/test/foo") String gitRef)
+        throws Throwable {
+        GitConfig config = GitConfig.githubConfig(gitRef, "7fd1e9bb5c009a96e4278c24bf4a091b68bd047a");
+        git.initRepository(config); // init git repository to be able to update release
+
+        git.commitAndPush("foo", config, repo -> {
+            final var file = new File(repo, "README.md");
+            try (FileWriter writer = new FileWriter(file, true)) {
+                writer.write("test\n");
+                writer.flush();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return file;
+        });
+    }
+
+
 
 
     @CommandLine.Command(name = "status", description = "Compute the release status")

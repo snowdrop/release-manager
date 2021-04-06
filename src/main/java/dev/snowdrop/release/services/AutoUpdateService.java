@@ -14,7 +14,9 @@ import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.model.buildconfig.BuildConfig;
+import dev.snowdrop.release.services.GitService.GitConfig;
 import io.atlassian.util.concurrent.Promise;
+import java.io.File;
 import org.apache.commons.lang3.text.WordUtils;
 import org.jboss.logging.Logger;
 
@@ -41,52 +43,39 @@ public class AutoUpdateService {
     BuildConfigFactory factory;
 
     @Inject
-    GitlabService gitlab;
-
-    private String gitRef;
-
-    //    @Inject
-//    GitService git;
-
-    @Inject
     IssueService issueSvc;
-
-    @Inject
-    JiraRestClient restClient;
-
-    public void start(Release releaseObj,final String gitRef, final String releaseVersion, final String qualifier, final String milestone, final String username, final String token) throws Throwable {
-        LOG.infof("#initRepository(%s,***;%s)...", gitRef, releaseVersion);
-        this.gitRef = gitRef;
-        gitlab.initRepository(gitRef, releaseVersion, username, token);
-        updateBuildConfig(releaseObj, releaseVersion, qualifier, milestone);
-        LOG.infof("#initRepository(%s,***;%s)!", gitRef, releaseVersion);
-    }
-
 
     /**
      *
      * @param release <p>Release object</p>
      * @param releaseVersion <p>Release version number</p>
      * @throws Throwable
+     * @return
      */
-    public void updateBuildConfig(Release release, final String releaseVersion, final String qualifier, final String milestone) throws Throwable {
-        LOG.infof("#getComponentRequests(Release)...");
-        LOG.debugf("  -> release: %s", release);
-        final String[] releaseMMF = releaseVersion.split("\\.");
-        final String releaseMM = releaseMMF[0]+"."+releaseMMF[1];
-        BuildConfig buildConfigObj = factory.createFromGitRef(gitRef, releaseVersion);
-        LOG.infof("buildConfigObj: %s", buildConfigObj);
-        buildConfigObj.setVersion(releaseVersion);
-        buildConfigObj.setMilestone(milestone);
-        buildConfigObj.setGroup("spring-boot-"+releaseMM+"-all");
+    public File updateBuildConfig(File repo, Release release, final String releaseVersion, final String qualifier, final String milestone) {
+        try {
+            LOG.infof("#getComponentRequests(Release)...");
+            LOG.debugf("  -> release: %s", release);
+            File buildConfigFile = factory.getBuildConfigRelativeTo(repo, releaseVersion);
+            BuildConfig buildConfigObj = factory.createFromRepo(buildConfigFile);
+            LOG.infof("buildConfigObj: %s", buildConfigObj);
+            buildConfigObj.setVersion(releaseVersion);
+            buildConfigObj.setMilestone(milestone);
+            final String[] releaseMMF = releaseVersion.split("\\.");
+            final String releaseMM = releaseMMF[0]+"."+releaseMMF[1];
+            buildConfigObj.setGroup("spring-boot-"+releaseMM+"-all");
 //        buildConfigObj.getBuilds().
-        LOG.infof("buildConfigObj: %s", buildConfigObj);
+            LOG.infof("buildConfigObj: %s", buildConfigObj);
 //        release.getComponents().stream().forEach(component -> {
 //            // TODO: Check if it's a product or a component only template
 ////            manageComponentOnly(component);
 //            manageProduct(component);
 //        });
-        factory.pushChanges(buildConfigObj);
+            factory.saveTo(buildConfigObj, buildConfigFile);
+            return buildConfigFile;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void manageProduct(Component component) {

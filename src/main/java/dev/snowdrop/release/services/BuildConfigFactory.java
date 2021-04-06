@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.buildconfig.BuildConfig;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
@@ -87,17 +89,6 @@ public class BuildConfigFactory {
         return "spring-boot/" + releaseVersionMajMin + "/" + BUILD_CONFIG_FILE_NAME;
     }
 
-    public void pushChanges(BuildConfig buildConfig) throws IOException {
-//        if (!release.isTestMode()) {
-        if (Utility.isStringNullOrBlank(gitRef)) {
-            throw new IllegalArgumentException("Cannot push changes to BuildConfig not associated with a git ref");
-        }
-        final var buildConfigFile = new File(gitlab.getRepositoryDirectory(), getRelativePath());
-        saveTo(buildConfig, buildConfigFile);
-        gitlab.commitAndPush("chore: update release issues' key [issues-manager]", buildConfigFile);
-//        }
-    }
-
     public BuildConfig createFrom(
         InputStream releaseIS) throws Throwable {
         try {
@@ -117,5 +108,18 @@ public class BuildConfigFactory {
     void saveTo(BuildConfig buildConfig, File to) throws IOException {
         final var writer = MAPPER.writerFor(BuildConfig.class);
         writer.writeValue(to, buildConfig);
+    }
+
+    public File getBuildConfigRelativeTo(File repo, String version) {
+        final String[] releaseMMF = version.split("\\.");
+        final var releaseVersionMajMin = releaseMMF[0] + "." + releaseMMF[1];
+        final String relativePath = "spring-boot/" + releaseVersionMajMin + "/" + BUILD_CONFIG_FILE_NAME;
+        return new File(repo, relativePath);
+    }
+    public BuildConfig createFromRepo(File buildConfigFile) throws IOException {
+        FileInputStream inputStream = new FileInputStream(buildConfigFile);
+        BuildConfig buildConfig = MAPPER.readValue(inputStream, BuildConfig.class);
+        System.out.println("Loaded release " + buildConfig.getVersion() + "." + buildConfig.getMilestone());
+        return buildConfig;
     }
 }
