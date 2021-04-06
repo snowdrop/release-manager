@@ -1,5 +1,7 @@
 package dev.snowdrop.release;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,6 +33,8 @@ public class App implements QuarkusApplication {
     ReleaseFactory factory;
     @Inject
     IssueService service;
+    @Inject
+    GitHubService github;
     @Inject
     CommandLine.IFactory cliFactory;
     @Inject
@@ -224,9 +228,10 @@ public class App implements QuarkusApplication {
         System.out.println(reportingService.buildAsciiReport(cves));
         if (release) {
             if (Optional.ofNullable(token).isPresent()) {
-                git.closeOldCveIssues("cve", token, CVE_REPORT_REPO_NAME, version);
-                String mdReport = reportingService.buildMdReport(cves, git.getCveIssueTitle(version));
-                git.createGithubIssue(mdReport, git.getCveIssueTitle(version), "cve", token, CVE_REPORT_REPO_NAME);
+                github.closeOldCveIssues("cve", token, CVE_REPORT_REPO_NAME, version);
+                String cveIssueTitle = github.getCveIssueTitle(version);
+                String mdReport = reportingService.buildMdReport(cves, cveIssueTitle);
+                github.createGithubIssue(mdReport, cveIssueTitle, "cve", token, CVE_REPORT_REPO_NAME);
             } else {
                 LOG.error(
                     "Cannot release CVE to GitHub. Github API token is required if --publish is enabled. Please specify the github token using --token.");
