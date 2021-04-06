@@ -135,6 +135,14 @@ If the `-r` option is used this list will also be pushed to GitHub, being the `-
     version
 ```
 
+### Update Build Config
+
+```bash
+$ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+  -u ${JBOSS_JIRA_USER} -p ${JBOSS_JIRA_PWD} \
+  update-build-config \
+  -g jacobdotcosta/spring-boot-bom -o ${GITHUB_TOKEN} -glu ${GITLAB_USER} -glt ${GITLAB_TOKEN} -r 2.4.3
+```
 ## HTTP Request to get or create JIRA tickets
 
 Atlassian REST API v2 doc: https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/
