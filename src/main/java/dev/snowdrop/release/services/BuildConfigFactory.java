@@ -48,63 +48,6 @@ public class BuildConfigFactory {
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    @Inject
-    GitlabService gitlab;
-
-    private String gitRef;
-    private String gitBranch;
-
-    private String releaseVersionMajMin;
-
-    static InputStream getStreamFromGitRef(final String gitRepoRef, final String gitBranchRef, final String relativePath) throws IOException {
-        return GitlabService.getStreamFrom(gitRepoRef, gitBranchRef, relativePath);
-    }
-
-    /**
-     * @param gitRef         a GitHub reference in the form org/project/reference e.g.
-     *                       springboot/build-configurations
-     * @param releaseVersion <p>Release version, e.g. 2.4.3</p>
-     * @return
-     * @throws Exception
-     */
-    public BuildConfig createFromGitRef(final String gitRef, final String releaseVersion)
-        throws Throwable {
-        LOG.infof("#createFromGitRef(%s,%s,%s)...", gitRef, gitBranch, releaseVersion);
-        this.gitRef = gitRef;
-        this.gitBranch = gitlab.getBranchName(releaseVersion);
-        final String[] releaseMMF = releaseVersion.split("\\.");
-        this.releaseVersionMajMin = releaseMMF[0] + "." + releaseMMF[1];
-        final String relativePath = getRelativePath();
-        LOG.infof("relativePath: %s", relativePath);
-        try (InputStream buildConfigIS = getStreamFromGitRef(gitRef, gitBranch, relativePath)) {
-            final var buildConfig = createFrom(buildConfigIS);
-            System.out.println("Loaded release " + buildConfig.getVersion() + "." + buildConfig.getMilestone());
-            return buildConfig;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getRelativePath() {
-        return "spring-boot/" + releaseVersionMajMin + "/" + BUILD_CONFIG_FILE_NAME;
-    }
-
-    public BuildConfig createFrom(
-        InputStream releaseIS) throws Throwable {
-        try {
-            final var buildConfig = CompletableFuture.supplyAsync(() -> {
-                try {
-                    return MAPPER.readValue(releaseIS, BuildConfig.class);
-                } catch (IOException e) {
-                    throw new CompletionException(e);
-                }
-            });
-            return buildConfig.get();
-        } catch (CompletionException e) {
-            throw e.getCause();
-        }
-    }
-
     void saveTo(BuildConfig buildConfig, File to) throws IOException {
         final var writer = MAPPER.writerFor(BuildConfig.class);
         writer.writeValue(to, buildConfig);
