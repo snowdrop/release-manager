@@ -13,6 +13,7 @@
  */
 package dev.snowdrop.release.services;
 
+import dev.snowdrop.release.services.GitService.GitConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,20 +30,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.POM;
 import dev.snowdrop.release.model.Release;
-import org.jboss.logging.Logger;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 @Singleton
 public class ReleaseFactory {
-    private static final Logger LOG = Logger.getLogger(ReleaseFactory.class);
-
     @Inject
     JiraRestClient restClient;
-
-    @Inject
-    GitService git;
 
     private static final YAMLMapper MAPPER = new YAMLMapper();
 
@@ -96,17 +91,17 @@ public class ReleaseFactory {
         }
     }
 
-    public void pushChanges(Release release) throws IOException {
+    public File updateRelease(File repo, Release release) {
         if (!release.isTestMode()) {
             final var gitRef = release.getGitRef();
             if (Utility.isStringNullOrBlank(gitRef)) {
                 throw new IllegalArgumentException("Cannot push changes to Release not associated with a git ref");
             }
             String releaseFileName = "release" + "-" + release.getVersion() + ".yml";
-            final var releaseFile = new File(git.getRepositoryDirectory(), releaseFileName);
+            final var releaseFile = new File(repo, releaseFileName);
             saveTo(release, releaseFile);
-            git.commitAndPush("chore: update release issues' key [issues-manager]", releaseFile);
         }
+        return repo;
     }
 
     Release createFrom(InputStream releaseIS, InputStream pomIS) throws Throwable {
@@ -149,12 +144,16 @@ public class ReleaseFactory {
         }
     }
 
-    void saveTo(Release release, File to) throws IOException {
+    void saveTo(Release release, File to) {
         final var writer = MAPPER.writerFor(Release.class);
-        writer.writeValue(to, release);
+        try {
+            writer.writeValue(to, release);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
-        return GitService.getStreamFrom(gitRef, relativePath);
+        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null), relativePath);
     }
 }

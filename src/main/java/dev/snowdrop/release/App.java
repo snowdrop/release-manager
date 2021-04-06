@@ -1,5 +1,6 @@
 package dev.snowdrop.release;
 
+import dev.snowdrop.release.services.GitService.GitConfig;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -160,8 +161,9 @@ public class App implements QuarkusApplication {
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
             required = true) String eolDate) throws Throwable {
+        final GitConfig config = GitConfig.githubConfig(gitRef, token);
         if (!test) {
-            git.initRepository(gitRef, token); // init git repository to be able to update release
+            git.initRepository(config); // init git repository to be able to update release
         }
 
         Release release = factory.createFromGitRef(gitRef, skipProductRequests, true);
@@ -207,7 +209,9 @@ public class App implements QuarkusApplication {
             service.createComponentRequests(release, watchers);
         }
 
-        factory.pushChanges(release);
+        if (!release.isTestMode()) {
+            git.commitAndPush("chore: update release issues' key [issues-manager]", config, repo -> factory.updateRelease(repo, release));
+        }
         System.out.println(issue);
     }
 
@@ -254,7 +258,6 @@ public class App implements QuarkusApplication {
         LOG.infof("release: %s; qualifier: %s; milestone: %s", release, qualifier, milestone);
         String[] releaseMMF = release.split("\\.");
         final String gitFullRef = new StringBuffer(gitRef).append("/sb-").append(releaseMMF[0]).append(".").append(releaseMMF[1]).append(".x").toString();
-        git.initRepository(gitFullRef, token); // init git repository to be able to update release
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
 //        autoupdateService.initRepository("snowdrop/build-configurations", release, gluser, gltoken);
