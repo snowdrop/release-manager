@@ -86,7 +86,7 @@ public class AutoUpdateService {
         buildConfigObj.setVersion(releaseVersion);
         buildConfigObj.setMilestone(milestone);
         buildConfigObj.setGroup("spring-boot-"+releaseMM+"-all");
-        buildConfigObj.getBuilds().
+//        buildConfigObj.getBuilds().
         LOG.infof("buildConfigObj: %s", buildConfigObj);
 //        release.getComponents().stream().forEach(component -> {
 //            // TODO: Check if it's a product or a component only template

@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * @author <a href="claprun@redhat.com">Christophe Laprun</a>
+ * @author <a href="antcosta@redhat.com">Antonio Costa</a>
  */
 @ApplicationScoped
 public class GitlabService {
