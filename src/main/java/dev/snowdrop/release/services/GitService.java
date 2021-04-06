@@ -131,7 +131,7 @@ public class GitService {
 
         @Override
         public String getURI(String relativePath) {
-            return "https://raw.githubusercontent.com/" + org + "/" + repo + "/" + relativePath;
+            return "https://raw.githubusercontent.com/" + org + "/" + repo + "/" +  branch + "/" + relativePath;
         }
     }
 
