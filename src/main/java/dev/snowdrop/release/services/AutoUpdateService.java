@@ -62,20 +62,6 @@ public class AutoUpdateService {
         LOG.infof("#initRepository(%s,***;%s)!", gitRef, releaseVersion);
     }
 
-    /**
-     *
-     * @param gitRef <p>a GitHub reference in the form org/project e.g. springboot/build-configurations</p>
-     * @param releaseVersion
-     * @param username <p>GitLab user</p>
-     * @param token <p>GitLab token</p>
-     * @throws Throwable
-     */
-    public void initRepository(final String gitRef, final String releaseVersion, final String username, final String token) throws Throwable {
-        LOG.infof("#initRepository(%s,***;%s)...", gitRef, releaseVersion);
-        this.gitRef = gitRef;
-        gitlab.initRepository(gitRef, releaseVersion, username, token);
-        LOG.infof("#initRepository(%s,***;%s)!", gitRef, releaseVersion);
-    }
 
     /**
      *
