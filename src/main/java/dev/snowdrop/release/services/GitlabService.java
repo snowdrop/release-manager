@@ -90,10 +90,10 @@ public class GitlabService {
         }
         git = CompletableFuture.supplyAsync(() -> {
             try {
-                Git gitlab = Git.cloneRepository().setURI(uri).setBranchesToClone(Collections.singleton(branch))
+                final var git = Git.cloneRepository().setURI(uri).setBranchesToClone(Collections.singleton(branch))
                     .setBranch(branch).setDirectory(repository).setCredentialsProvider(getCredentialsProvider(username,
                         token)).call();
-                return gitlab;
+                return git;
             } catch (GitAPIException e) {
                 LOG.error(e, e);
                 throw new RuntimeException(e);

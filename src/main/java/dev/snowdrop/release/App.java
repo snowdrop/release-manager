@@ -252,8 +252,9 @@ public class App implements QuarkusApplication {
         git.initRepository(gitFullRef, token); // init git repository to be able to update release
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-        autoupdateService.initRepository("snowdrop/build-configurations", release, gluser, gltoken);
-        autoupdateService.updateBuildConfig(releaseObj, release, qualifier, milestone);
+//        autoupdateService.initRepository("snowdrop/build-configurations", release, gluser, gltoken);
+//        autoupdateService.updateBuildConfig(releaseObj, release, qualifier, milestone);
+        autoupdateService.start(releaseObj,"snowdrop/build-configurations", release, qualifier, milestone,gluser,gltoken);
         // TODO update the release file
 //        factory.pushChanges(releaseObj);
 

@@ -54,6 +54,13 @@ public class AutoUpdateService {
     @Inject
     JiraRestClient restClient;
 
+    public void start(Release releaseObj,final String gitRef, final String releaseVersion, final String qualifier, final String milestone, final String username, final String token) throws Throwable {
+        LOG.infof("#initRepository(%s,***;%s)...", gitRef, releaseVersion);
+        this.gitRef = gitRef;
+        gitlab.initRepository(gitRef, releaseVersion, username, token);
+        updateBuildConfig(releaseObj, releaseVersion, qualifier, milestone);
+        LOG.infof("#initRepository(%s,***;%s)!", gitRef, releaseVersion);
+    }
 
     /**
      *
