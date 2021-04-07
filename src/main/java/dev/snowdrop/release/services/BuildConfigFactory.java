@@ -18,16 +18,10 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.buildconfig.BuildConfig;
-
-import java.io.*;
-
 import org.jboss.logging.Logger;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
+import java.io.*;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>

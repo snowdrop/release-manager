@@ -130,7 +130,6 @@ public class AutoUpdateService {
         // Skip the 1st 2 lines
         for (int arrayPos = 0; arrayPos < ((artifactArr.length - 1) / 5); arrayPos++) {
             final String gavText = artifactArr[arrayPos * 5 + 1];
-            LOG.infof("gavText: %s", gavText);
             if (GAV_NAME_REGEX_PATTERN.reset(gavText).matches()) {
                 final String gid = GAV_NAME_REGEX_PATTERN.group(2);
                 final String aid = GAV_NAME_REGEX_PATTERN.group(4);
