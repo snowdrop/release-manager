@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.enterprise.context.ApplicationScoped;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
@@ -63,7 +64,6 @@ public class GitService {
                 try {
                     // process the potential changes
                     var files = Arrays.stream(changed).map(fm -> fm.modify(repository)).collect(Collectors.toList());
-
                     final var status = g.status().call();
                     final var uncommittedChanges = status.getUncommittedChanges();
                     final var untracked = status.getUntracked();
@@ -71,7 +71,7 @@ public class GitService {
                     if (!uncommittedChanges.isEmpty() || !untracked.isEmpty()) {
                         final var addCommand = g.add();
                         files.forEach(file -> {
-                            final var path = file.getName();
+                            final var path = file.getAbsolutePath().replace(repository.getAbsolutePath() + "/", "");
                             if (uncommittedChanges.contains(path) || untracked.contains(path)) {
                                 // only add file to be committed if it's part of the modified set or untracked
                                 LOG.infof("Added %s", path);
