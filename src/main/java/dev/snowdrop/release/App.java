@@ -265,32 +265,7 @@ public class App implements QuarkusApplication {
 
         git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> autoupdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
     }
-
-
-    @CommandLine.Command(
-        name = "foo",
-        description = "updates the build-config.yml file in build-configurations repo")
-    public void foo(
-        @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo> format", required = true, defaultValue = "metacosm/test/foo") String gitRef)
-        throws Throwable {
-        GitConfig config = GitConfig.githubConfig(gitRef, "7fd1e9bb5c009a96e4278c24bf4a091b68bd047a");
-        git.initRepository(config); // init git repository to be able to update release
-
-        git.commitAndPush("foo", config, repo -> {
-            final var file = new File(repo, "README.md");
-            try (FileWriter writer = new FileWriter(file, true)) {
-                writer.write("test\n");
-                writer.flush();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            return file;
-        });
-    }
-
-
-
-
+    
     @CommandLine.Command(name = "status", description = "Compute the release status")
     public void status(
         @CommandLine.Option(
