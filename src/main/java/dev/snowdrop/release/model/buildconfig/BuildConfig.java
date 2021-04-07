@@ -28,14 +28,11 @@ public class BuildConfig {
     private List<String> outputPrefixes;
     @JsonIgnore
     private List<String> flow;
-    @JsonIgnore
-    private List<String> addons;
+    @JsonProperty
+    private Addons addons;
 
     @JsonIgnore
     private Map<String,Object> additionalProperties = new HashMap<>();
-
-    @JsonProperty("vertxSpringBootVersion")
-    private String xxx;
 
     @Override
     public String toString() {
@@ -50,7 +47,6 @@ public class BuildConfig {
         sb.append(", flow=").append(flow);
         sb.append(", addons=").append(addons);
         sb.append(", additionalProperties=").append(additionalProperties);
-        sb.append(", xxx=").append(xxx);
         sb.append('}');
         return sb.toString();
     }
@@ -81,11 +77,11 @@ public class BuildConfig {
         this.flow = flow;
     }
 
-    public List<String> getAddons() {
+    public Addons getAddons() {
         return addons;
     }
 
-    public void setAddons(List<String> addons) {
+    public void setAddons(Addons addons) {
         this.addons = addons;
     }
 

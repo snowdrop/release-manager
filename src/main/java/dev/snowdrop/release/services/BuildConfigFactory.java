@@ -18,15 +18,14 @@ import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.buildconfig.BuildConfig;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+
+import java.io.*;
+
 import org.jboss.logging.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -45,12 +44,26 @@ public class BuildConfigFactory {
         final var factory = MAPPER.getFactory();
         factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
         factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
+        factory.disable(YAMLGenerator.Feature.SPLIT_LINES);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
-    void saveTo(BuildConfig buildConfig, File to) throws IOException {
+    void saveTo(BuildConfig buildConfig, final String variableMap, File to) throws IOException {
         final var writer = MAPPER.writerFor(BuildConfig.class);
-        writer.writeValue(to, buildConfig);
+        final var buildConfigStr = writer.writeValueAsString(buildConfig);
+        FileOutputStream fos = new FileOutputStream(to);
+        OutputStreamWriter outStream = new OutputStreamWriter(fos);
+        outStream.write("###############################################################################\r\n");
+        outStream.write("\r\n");
+        outStream.write("# Variable definition\r\n");
+        outStream.write("# WARNING: this section is updated automatically with the issues-manager\r\n");
+        outStream.write("\r\n");
+        outStream.write(variableMap);
+        outStream.write("\r\n");
+        outStream.write("####################### AUTOMATIC UPDATE SECTION FINISH ########################\r\n");
+        outStream.write("\r\n");
+        outStream.write(buildConfigStr);
+        outStream.close();
     }
 
     public File getBuildConfigRelativeTo(File repo, String version) {
