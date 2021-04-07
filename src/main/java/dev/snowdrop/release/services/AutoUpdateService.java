@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class AutoUpdateService {
     private static final Logger LOG = Logger.getLogger(AutoUpdateService.class);
     private static final String GAV_CAMEL_CASE_REGEX_PATTERN = "[ -\\.]";
-    Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([a-zA-Z\\.\\-]*)(:)([a-zA-Z\\-]*)(\\s\\(.*[\\r\\n]?)").matcher("");
+    Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*)(:)([0-9a-zA-Z\\-]*)(\\s\\(.*[\\r\\n]?)").matcher("");
     @Inject
     BuildConfigFactory factory;
 
