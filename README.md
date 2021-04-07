@@ -137,6 +137,23 @@ If the `-r` option is used this list will also be pushed to GitHub, being the `-
 
 ### Update Build Config
 
+This task gathers information from the JIRA issues stored in the release file, updates the build configuration file and pushes 
+the changes to the gitlab repository to be merged.
+
+The required parameters are the following:
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| -g, --git | YES | Git reference in the <github org>/<github repo> format |
+| -o, --token | YES | Github API token |
+| -glu, --gluser | YES | Gitlab user name |
+| -glt, --gltoken | YES | Gitlab API token |
+| -r, --release | YES | Release number (e.g. 2.4.3) |
+| -q, --qualifier | YES | Qualifier [Alpha, Beta, Final, SP] (e.g. Beta1) |
+| -m, --milestone | YES | Milestone [DR*, ER*, CR*]  | 
+
+Execution example: 
+
 ```bash
 $ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
   -u ${JBOSS_JIRA_USER} -p ${JBOSS_JIRA_PWD} \
