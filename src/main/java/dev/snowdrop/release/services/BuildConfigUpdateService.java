@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class BuildConfigUpdateService {
     private static final Logger LOG = Logger.getLogger(BuildConfigUpdateService.class);
     private static final String GAV_CAMEL_CASE_REGEX_PATTERN = "[ -\\.]";
-    Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*)(:)([0-9a-zA-Z\\-]*)(\\s\\(.*[\\r\\n]?)").matcher("");
+    Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*):([0-9a-zA-Z\\-]*)\\s\\(.*[\\r\\n]?").matcher("");
     private static final int ELEMENTS_IN_GAV_GROUP=5;
     @Inject
     BuildConfigFactory factory;
@@ -131,7 +131,7 @@ public class BuildConfigUpdateService {
             final String gavText = artifactArr[elementStartingPosition];
             if (GAV_NAME_REGEX_PATTERN.reset(gavText).matches()) {
                 final String gid = GAV_NAME_REGEX_PATTERN.group(2);
-                final String aid = GAV_NAME_REGEX_PATTERN.group(4);
+                final String aid = GAV_NAME_REGEX_PATTERN.group(3);
                 final String productVersionText = artifactArr[elementStartingPosition + 2];
                 final String productVersion = productVersionText.split(":")[1];
                 final String supportedVersionText = artifactArr[elementStartingPosition + 3];
