@@ -1,24 +1,26 @@
 package dev.snowdrop.release;
 
-import dev.snowdrop.release.services.GitService.GitConfig;
-
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.reporting.ReportingService;
-import dev.snowdrop.release.services.*;
+import dev.snowdrop.release.services.BuildConfigUpdateService;
+import dev.snowdrop.release.services.CVEService;
+import dev.snowdrop.release.services.GitHubService;
+import dev.snowdrop.release.services.GitService;
+import dev.snowdrop.release.services.GitService.GitConfig;
+import dev.snowdrop.release.services.IssueService;
+import dev.snowdrop.release.services.ReleaseFactory;
+import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
@@ -41,8 +43,6 @@ public class App implements QuarkusApplication {
     GitService git;
     @Inject
     CVEService cveService;
-    @Inject
-    JiraRestClient client;
     @Inject
     ReportingService reportingService;
     @Inject
