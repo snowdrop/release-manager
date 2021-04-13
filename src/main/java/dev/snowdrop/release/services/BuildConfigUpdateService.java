@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class BuildConfigUpdateService {
     private static final Logger LOG = Logger.getLogger(BuildConfigUpdateService.class);
     private static final String GAV_CAMEL_CASE_REGEX_PATTERN = "[ -\\.]";
-    Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*):([0-9a-zA-Z\\-]*)\\s\\(.*[\\r\\n]?").matcher("");
+    private static final Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*):([0-9a-zA-Z\\-]*)\\s\\(.*[\\r\\n]?").matcher("");
     private static final int ELEMENTS_IN_GAV_GROUP=5;
     @Inject
     BuildConfigFactory factory;
