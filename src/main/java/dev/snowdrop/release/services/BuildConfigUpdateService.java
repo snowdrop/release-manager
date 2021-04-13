@@ -125,18 +125,19 @@ public class BuildConfigUpdateService {
         final String description = issue.getDescription();
         final String versionSection = description.substring(description.lastIndexOf("==="));
         final String[] artifactArr = versionSection.split("\\n[\\n \\r]*");
-        int elementStartingPosition = 0;
+        int elementStartingPosition;
         for (int arrayPos = 0; arrayPos < ((artifactArr.length - 1) / ELEMENTS_IN_GAV_GROUP); arrayPos++) {
             elementStartingPosition = arrayPos * ELEMENTS_IN_GAV_GROUP + 1;
             final String gavText = artifactArr[elementStartingPosition];
             if (GAV_NAME_REGEX_PATTERN.reset(gavText).matches()) {
                 final String gid = GAV_NAME_REGEX_PATTERN.group(2);
                 final String aid = GAV_NAME_REGEX_PATTERN.group(3);
+                final String gavPrefix = toCamelCase(gid) + toCamelCase(aid);
                 final String productVersionText = artifactArr[elementStartingPosition + 2];
                 final String productVersion = productVersionText.split(":")[1].trim();
                 final String supportedVersionText = artifactArr[elementStartingPosition + 3];
                 final String supportedVersion = supportedVersionText.split(":")[1].trim();
-                final var gavProd = toCamelCase(gid) + toCamelCase(aid) + "Prod";
+                final var gavProd = gavPrefix + "Prod";
                 if (variableMap.containsKey(gavProd)) {
                     if (!supportedVersion.startsWith("[")) {
                         variableMap.put(gavProd, supportedVersion);
@@ -144,7 +145,7 @@ public class BuildConfigUpdateService {
                 } else {
                     variableMap.put(gavProd, (supportedVersion != null ? supportedVersion : ""));
                 }
-                final var gavUpstream = toCamelCase(gid) + toCamelCase(aid) + "Upstream";
+                final var gavUpstream = gavPrefix + "Upstream";
                 if (variableMap.containsKey(gavUpstream)) {
                     if (!productVersion.startsWith("[")) {
                         variableMap.put(gavUpstream, productVersion);
