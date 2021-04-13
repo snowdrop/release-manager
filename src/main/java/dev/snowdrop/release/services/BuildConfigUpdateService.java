@@ -4,7 +4,6 @@ import com.atlassian.jira.rest.client.api.domain.Issue;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.model.buildconfig.BuildConfig;
-import org.apache.commons.lang3.text.WordUtils;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -23,6 +22,7 @@ public class BuildConfigUpdateService {
     private static final Logger LOG = Logger.getLogger(BuildConfigUpdateService.class);
     private static final String GAV_CAMEL_CASE_REGEX_PATTERN = "[ -\\.]";
     Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*)(:)([0-9a-zA-Z\\-]*)(\\s\\(.*[\\r\\n]?)").matcher("");
+    private static final int ELEMENTS_IN_GAV_GROUP=5;
     @Inject
     BuildConfigFactory factory;
 
@@ -91,17 +91,15 @@ public class BuildConfigUpdateService {
      */
     public File updateBuildConfig(File repo, Release release, final String releaseVersion, final String qualifier, final String milestone) {
         try {
-            final String[] releaseMMFA = releaseVersion.split("\\.");
+            final String[] releaseVersionMajorMinorFix = releaseVersion.split("\\.");
             File buildConfigFile = factory.getBuildConfigRelativeTo(repo, releaseVersion);
             Map<String, String> variableMap = readVariablesFromFile(new FileInputStream(buildConfigFile));
-            variableMap.put("majorVersion", releaseMMFA[0]);
-            variableMap.put("minorVersion", releaseMMFA[1]);
-            variableMap.put("patchVersion", releaseMMFA[2]);
+            variableMap.put("majorVersion", releaseVersionMajorMinorFix[0]);
+            variableMap.put("minorVersion", releaseVersionMajorMinorFix[1]);
+            variableMap.put("patchVersion", releaseVersionMajorMinorFix[2]);
             variableMap.put("qualifier", qualifier);
             variableMap.put("milestone", milestone);
             BuildConfig buildConfigObj = factory.createFromRepo(buildConfigFile);
-            final String[] releaseMMF = releaseVersion.split("\\.");
-            final String releaseMM = releaseMMF[0] + "." + releaseMMF[1];
             release.getComponents().stream().forEach(component -> {
 //            // TODO: Check if it's a product or a component only template
 //            manageComponentOnly(component);
@@ -127,19 +125,17 @@ public class BuildConfigUpdateService {
         final String description = issue.getDescription();
         final String versionSection = description.substring(description.lastIndexOf("==="));
         final String[] artifactArr = versionSection.split("\\n[\\n \\r]*");
-        // Skip the 1st 2 lines
-        for (int arrayPos = 0; arrayPos < ((artifactArr.length - 1) / 5); arrayPos++) {
-            final String gavText = artifactArr[arrayPos * 5 + 1];
+        int elementStartingPosition = 0;
+        for (int arrayPos = 0; arrayPos < ((artifactArr.length - 1) / ELEMENTS_IN_GAV_GROUP); arrayPos++) {
+            elementStartingPosition = arrayPos * ELEMENTS_IN_GAV_GROUP + 1;
+            final String gavText = artifactArr[elementStartingPosition];
             if (GAV_NAME_REGEX_PATTERN.reset(gavText).matches()) {
                 final String gid = GAV_NAME_REGEX_PATTERN.group(2);
                 final String aid = GAV_NAME_REGEX_PATTERN.group(4);
-                final String varName = WordUtils.capitalizeFully(aid, '-', '.').replaceAll("-", "");
-                final String productNameText = artifactArr[arrayPos * 5 + 1 + 1];
-                final String productVersionText = artifactArr[arrayPos * 5 + 1 + 2];
+                final String productVersionText = artifactArr[elementStartingPosition + 2];
                 final String productVersion = productVersionText.split(":")[1];
-                final String supportedVersionText = artifactArr[arrayPos * 5 + 1 + 3];
+                final String supportedVersionText = artifactArr[elementStartingPosition + 3];
                 final String supportedVersion = supportedVersionText.split(":")[1];
-                final String eolText = artifactArr[arrayPos * 5 + 1 + 4];
                 final var gavProd = toCamelCase(gid) + toCamelCase(aid) + "Prod";
                 if (variableMap.containsKey(gavProd)) {
                     if (!supportedVersion.stripLeading().startsWith("[")) {
