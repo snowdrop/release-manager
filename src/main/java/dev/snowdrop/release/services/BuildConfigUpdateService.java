@@ -135,14 +135,14 @@ public class BuildConfigUpdateService {
                 final String productVersionText = artifactArr[elementStartingPosition + 2];
                 final String productVersion = productVersionText.split(":")[1];
                 final String supportedVersionText = artifactArr[elementStartingPosition + 3];
-                final String supportedVersion = supportedVersionText.split(":")[1];
+                final String supportedVersion = supportedVersionText.split(":")[1].stripLeading().stripTrailing();
                 final var gavProd = toCamelCase(gid) + toCamelCase(aid) + "Prod";
                 if (variableMap.containsKey(gavProd)) {
-                    if (!supportedVersion.stripLeading().startsWith("[")) {
-                        variableMap.put(gavProd, supportedVersion.stripLeading().stripTrailing());
+                    if (!supportedVersion.startsWith("[")) {
+                        variableMap.put(gavProd, supportedVersion);
                     }
                 } else {
-                    variableMap.put(gavProd, (supportedVersion != null ? supportedVersion : "").stripLeading().stripTrailing());
+                    variableMap.put(gavProd, (supportedVersion != null ? supportedVersion : ""));
                 }
                 final var gavUpstream = toCamelCase(gid) + toCamelCase(aid) + "Upstream";
                 if (variableMap.containsKey(gavUpstream)) {
