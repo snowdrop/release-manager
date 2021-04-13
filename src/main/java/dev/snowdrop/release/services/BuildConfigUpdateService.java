@@ -133,9 +133,9 @@ public class BuildConfigUpdateService {
                 final String gid = GAV_NAME_REGEX_PATTERN.group(2);
                 final String aid = GAV_NAME_REGEX_PATTERN.group(3);
                 final String productVersionText = artifactArr[elementStartingPosition + 2];
-                final String productVersion = productVersionText.split(":")[1];
+                final String productVersion = productVersionText.split(":")[1].trim();
                 final String supportedVersionText = artifactArr[elementStartingPosition + 3];
-                final String supportedVersion = supportedVersionText.split(":")[1].stripLeading().stripTrailing();
+                final String supportedVersion = supportedVersionText.split(":")[1].trim();
                 final var gavProd = toCamelCase(gid) + toCamelCase(aid) + "Prod";
                 if (variableMap.containsKey(gavProd)) {
                     if (!supportedVersion.startsWith("[")) {
@@ -146,11 +146,11 @@ public class BuildConfigUpdateService {
                 }
                 final var gavUpstream = toCamelCase(gid) + toCamelCase(aid) + "Upstream";
                 if (variableMap.containsKey(gavUpstream)) {
-                    if (!productVersion.stripLeading().startsWith("[")) {
-                        variableMap.put(gavUpstream, productVersion.stripLeading().stripTrailing());
+                    if (!productVersion.startsWith("[")) {
+                        variableMap.put(gavUpstream, productVersion);
                     }
                 } else {
-                    variableMap.put(gavUpstream, (productVersion != null ? productVersion : "").stripLeading().stripTrailing());
+                    variableMap.put(gavUpstream, (productVersion != null ? productVersion : ""));
                 }
             } else {
                 LOG.warnf("NO MATCH: ,%s---", gavText);
