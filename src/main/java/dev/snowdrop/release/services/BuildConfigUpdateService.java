@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
-public class AutoUpdateService {
-    private static final Logger LOG = Logger.getLogger(AutoUpdateService.class);
+public class BuildConfigUpdateService {
+    private static final Logger LOG = Logger.getLogger(BuildConfigUpdateService.class);
     private static final String GAV_CAMEL_CASE_REGEX_PATTERN = "[ -\\.]";
     Matcher GAV_NAME_REGEX_PATTERN = Pattern.compile("([\\*\\+\\s]*)([0-9a-zA-Z\\.\\-]*)(:)([0-9a-zA-Z\\-]*)(\\s\\(.*[\\r\\n]?)").matcher("");
     @Inject

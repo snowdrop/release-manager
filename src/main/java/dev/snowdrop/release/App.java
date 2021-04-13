@@ -1,8 +1,7 @@
 package dev.snowdrop.release;
 
 import dev.snowdrop.release.services.GitService.GitConfig;
-import java.io.File;
-import java.io.FileWriter;
+
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,7 +46,7 @@ public class App implements QuarkusApplication {
     @Inject
     ReportingService reportingService;
     @Inject
-    AutoUpdateService autoupdateService;
+    BuildConfigUpdateService autoupdateService;
     @CommandLine.Option(
         names = {"-u", "--user"},
         description = "JIRA user",
