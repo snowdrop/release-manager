@@ -4,8 +4,12 @@ based on Spring Boot *{{version}}*.
 Some of our artifacts depend on your product and we need to know which product version we should be using for this new
 release.
 
-We will support this new release until *{{endOfSupportDate}}* so it's important that you let us know until when your
-product is supported so that we can plan future releases accordingly.
+{{#starter}}
+We don't require a new release of your component as long as the artifacts you provide us with are tested and supported
+against the following Spring Boot *{{version}}*.
+{{/starter}}
+It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly.
+For reference, we will support this new release until *{{endOfSupportDate}}*.
 
 Thank you in advance for your help!
 
@@ -18,5 +22,11 @@ Thank you in advance for your help!
 
 - product name: {{name}}
 - upstream version: [ _replace by associated project version e.g. 5.3.1_ ]
-- supported version: [ _replace by appropriate product version_ ]
+- supported version: [ _replace by appropriate -redhat version_ ]
 - end of support: [ _replace by end of support date in yyyy-mm-dd format_ ]
+{{#artifacts}}
+    * +*{{name}} (our current upstream version is {{version}}):*+
+    - component name: [ _replace by associated product name e.g. JWS_ ]
+    - upstream version: [ _replace by associated project version e.g. 5.3.1_ ]
+    - supported version: [ _replace by appropriate -redhat version_ ]
+{{/artifacts}}
