@@ -46,7 +46,7 @@ public class App implements QuarkusApplication {
     @Inject
     ReportingService reportingService;
     @Inject
-    BuildConfigUpdateService autoupdateService;
+    BuildConfigUpdateService buildConfigUpdateService;
     @CommandLine.Option(
         names = {"-u", "--user"},
         description = "JIRA user",
@@ -262,7 +262,8 @@ public class App implements QuarkusApplication {
         GitConfig config = GitConfig.gitlabConfig("snowdrop/build-configurations", release, gluser, gltoken);
         git.initRepository(config);
 
-        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> autoupdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
+        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> buildConfigUpdateService
+            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
