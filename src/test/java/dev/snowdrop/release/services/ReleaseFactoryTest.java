@@ -235,7 +235,7 @@ public class ReleaseFactoryTest {
 
     @Test
     public void creatingFromNonExistentGitRefShouldFail() {
-        assertThrows(IOException.class, () -> ReleaseFactory.getStreamFromGitRef("foo/bar", "release_template.yml"));
+        assertThrows(IllegalArgumentException.class, () -> ReleaseFactory.getStreamFromGitRef("foo/bar", "release_template.yml"));
     }
 
     @Test

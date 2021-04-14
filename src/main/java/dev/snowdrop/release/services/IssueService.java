@@ -161,6 +161,26 @@ public class IssueService {
         return key;
     }
 
+    public Issue getIssue(IssueSource source) {
+        final IssueRestClient cl = restClient.getIssueClient();
+
+        final var key = source.getJira().getKey();
+        if (!Utility.isStringNullOrBlank(key)) {
+            Issue componentIssue;
+            try {
+                componentIssue = cl.getIssue(source.getJira().getKey()).claim();
+            } catch (Exception e) {
+                LOG.errorf("Couldn't find request for %s", source);
+                throw e;
+            }
+            final var created = componentIssue.getKey();
+            LOG.infof("Issue %s retrieved successfully for %s component", getURLFor(created), source.getName());
+            return componentIssue;
+        }
+        LOG.infof("Issue %s doesn't exists for %s component, skipping it", getURLFor(key), source.getName());
+        return null;
+    }
+
     private static IssueInput getIssueInput(IssueSource source) {
         IssueInputBuilder iib = new IssueInputBuilder();
         final var jira = source.getJira();

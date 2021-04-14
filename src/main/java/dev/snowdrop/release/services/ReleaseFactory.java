@@ -13,6 +13,7 @@
  */
 package dev.snowdrop.release.services;
 
+import dev.snowdrop.release.services.GitService.GitConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,12 +36,8 @@ import dev.snowdrop.release.model.Release;
  */
 @Singleton
 public class ReleaseFactory {
-
     @Inject
     JiraRestClient restClient;
-
-    @Inject
-    GitService git;
 
     private static final YAMLMapper MAPPER = new YAMLMapper();
 
@@ -77,17 +74,34 @@ public class ReleaseFactory {
         }
     }
 
-    public void pushChanges(Release release) throws IOException {
+    public Release createFromGitRef(
+        String gitRef,
+        boolean skipProductRequests,
+        boolean skipScheduleValidation,
+        String version) throws Throwable {
+        try (InputStream releaseIS = getStreamFromGitRef(gitRef, "release" + "-" + version + ".yml");
+             InputStream pomIS = getStreamFromGitRef(gitRef, "pom.xml")) {
+
+            final var release = createFrom(releaseIS, pomIS, skipProductRequests, skipScheduleValidation);
+            release.setGitRef(gitRef);
+            System.out.println("Loaded release " + release.getVersion() + " from " + release.getGitRef());
+            return release;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public File updateRelease(File repo, Release release) {
         if (!release.isTestMode()) {
             final var gitRef = release.getGitRef();
             if (Utility.isStringNullOrBlank(gitRef)) {
                 throw new IllegalArgumentException("Cannot push changes to Release not associated with a git ref");
             }
             String releaseFileName = "release" + "-" + release.getVersion() + ".yml";
-            final var releaseFile = new File(git.getRepositoryDirectory(), releaseFileName);
+            final var releaseFile = new File(repo, releaseFileName);
             saveTo(release, releaseFile);
-            git.commitAndPush("chore: update release issues' key [issues-manager]", releaseFile);
         }
+        return repo;
     }
 
     Release createFrom(InputStream releaseIS, InputStream pomIS) throws Throwable {
@@ -130,12 +144,16 @@ public class ReleaseFactory {
         }
     }
 
-    void saveTo(Release release, File to) throws IOException {
+    void saveTo(Release release, File to) {
         final var writer = MAPPER.writerFor(Release.class);
-        writer.writeValue(to, release);
+        try {
+            writer.writeValue(to, release);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
-        return GitService.getStreamFrom(gitRef, relativePath);
+        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null), relativePath);
     }
 }
