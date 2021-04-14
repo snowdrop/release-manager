@@ -72,4 +72,5 @@ public class BuildConfigFactory {
         System.out.println("Loaded release " + buildConfig.getVersion() + "." + buildConfig.getMilestone());
         return buildConfig;
     }
+
 }

@@ -1,0 +1,53 @@
+The Snowdrop team is pleased to inform you that we're planning to release a new Snowdrop BOM on *30 Jun 2021*
+ based on Spring Boot *2.4.3*.
+
+Some of our artifacts depend on your product and we need to know which product version we should be using for this new
+ release.
+
+While we don't require a new release of your product as long as the artifacts you provide us with are tested and supported
+ on Spring Boot *2.4.3*, it's important that you let us know until when your product is supported so that we can plan
+ future releases accordingly. For reference, we will support this new release until *31 Aug 2022*.
+
+Thank you in advance for your help!
+
++*Instructions:*+
+ - Please provide the required information by replacing, in the section below, the text between [ and ], removing both [ and ] characters, *{color:#FF0000}without changing the format as it's automatically processed on our side{color}*.
+ - Please provide this information before *30 May 2021*, date at which we expect to start testing our new release.
+ - *{color:#FF0000}Please only resolve this issue when all the information is provided below and the associated artifacts are available.{color}*
+
+===
+ * +*org.hibernate:hibernate-core (upstream version is 5.4.28.Final):*+
+ - product name: hibernate
+ - product version: 5.3.20.Final
+ - supported version: 5.3.20.Final-redhat-00001
+ - end of support: 2021-01-01
+ * +*org.hibernate:hibernate-entitymanager (upstream version is 5.4.28.Final):*+
+ - product name: hibernate
+ - product version: 5.3.20.Final
+ - supported version: 5.3.20.Final-redhat-00001
+ - end of support: 2021-01-01
+ * +*org.hibernate.validator:hibernate-validator (upstream version is 6.1.7.Final):*+
+ - product name: hibernate-validator
+ - product version: 6.0.21.Final
+ - supported version: 6.0.21.Final-redhat-00001
+ - end of support: 2021-01-01
+ * +*io.undertow:undertow-core (upstream version is 2.2.4.Final):*+
+ - product name: [ _replace by associated product name e.g. JWS_ ]
+ - product version: [ _replace by associated project version e.g. 5.3.1_ ]
+ - supported version: 2.0.33.SP2-redhat-00001
+ - end of support: [ _replace by end of support date in yyyy-mm-dd format_ ]
+ * +*io.undertow:undertow-servlet (upstream version is 2.2.4.Final):*+
+ - product name: [ _replace by associated product name e.g. JWS_ ]
+ - product version: [ _replace by associated project version e.g. 5.3.1_ ]
+ - supported version: 2.0.33.SP2-redhat-00001
+ - end of support: [ _replace by end of support date in yyyy-mm-dd format_ ]
+ * +*io.undertow:undertow-websockets-jsr (upstream version is 2.2.4.Final):*+
+ - product name: [ _replace by associated product name e.g. JWS_ ]
+ - product version: [ _replace by associated project version e.g. 5.3.1_ ]
+ - supported version: 2.0.33.SP2-redhat-00001
+ - end of support: [ _replace by end of support date in yyyy-mm-dd format_ ]
+ * +*org.jboss.resteasy:resteasy-jaxrs (upstream version is 3.14.0.Final):*+
+ - product name: resteasy
+ - product version: 3.11.3.Final
+ - supported version: 3.11.3.Final-redhat-00001
+ - end of support: [ _replace by end of support date in yyyy-mm-dd format_ ]
