@@ -170,14 +170,16 @@ public class App implements QuarkusApplication {
         if (!test) {
             git.commitAndPush("chore: update release issues' key [issues-manager]", bomGitConfig, repo -> {
                 LOG.infof("repo-> %s", repo.getAbsolutePath());
-                final File dir = new File(repo.getAbsolutePath());
                 FileFilter fileFilter = new WildcardFileFilter("release-*.yml");
-                File[] files = dir.listFiles(fileFilter);
-                return Arrays.stream(files).map(file-> {
-                    LOG.infof("file-> %s", file.getAbsoluteFile());
-                    file.delete();
-                    return file;
-                });
+                File[] files = repo.listFiles(fileFilter);
+                if (files != null) {
+                    return Arrays.stream(files).map(file-> {
+                        LOG.infof("file-> %s", file.getAbsoluteFile());
+                        file.delete();
+                        return file;
+                    });
+                }
+                return Stream.empty();
             });
         }
 //        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,"snowdrop/build-configurations",Optional.of("master"));
