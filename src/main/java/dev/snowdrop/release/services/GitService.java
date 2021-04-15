@@ -10,6 +10,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 
 import org.eclipse.jgit.api.Git;
@@ -60,7 +61,7 @@ public class GitService {
                 final File repository = g.getRepository().getWorkTree();
                 try {
                     // process the potential changes
-                    var files = Arrays.stream(changed).map(fm -> fm.modify(repository)).collect(Collectors.toList());
+                    var files = Arrays.stream(changed).flatMap(fm -> fm.modify(repository)).collect(Collectors.toList());
                     final var status = g.status().call();
                     final var uncommittedChanges = status.getUncommittedChanges();
                     final var untracked = status.getUntracked();
@@ -100,7 +101,7 @@ public class GitService {
     @FunctionalInterface
     public interface FileModifier {
 
-        File modify(File repo);
+        Stream<File> modify(File repo);
     }
 
     public static class GitHubConfig extends GitConfig {

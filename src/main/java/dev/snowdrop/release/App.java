@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
@@ -172,11 +173,11 @@ public class App implements QuarkusApplication {
                 final File dir = new File(repo.getAbsolutePath());
                 FileFilter fileFilter = new WildcardFileFilter("release-*.yml");
                 File[] files = dir.listFiles(fileFilter);
-                Arrays.stream(files).forEach(file-> {
+                return Arrays.stream(files).map(file-> {
                     LOG.infof("file-> %s", file.getAbsoluteFile());
                     file.delete();
+                    return file;
                 });
-                return files;
             });
         }
 //        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,"snowdrop/build-configurations",Optional.of("master"));
@@ -267,7 +268,8 @@ public class App implements QuarkusApplication {
         }
 
         if (!release.isTestMode()) {
-            git.commitAndPush("chore: update release issues' key [issues-manager]", config, repo -> factory.updateRelease(repo, release));
+            git.commitAndPush("chore: update release issues' key [issues-manager]", config, repo -> Stream
+                .of(factory.updateRelease(repo, release)));
         }
         System.out.println(issue);
     }
@@ -320,8 +322,8 @@ public class App implements QuarkusApplication {
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, "snowdrop/build-configurations", Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
         git.initRepository(config);
 
-        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> buildConfigUpdateService
-            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
+        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> Stream.of(buildConfigUpdateService
+            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
