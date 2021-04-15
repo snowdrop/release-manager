@@ -15,12 +15,18 @@ import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
@@ -135,6 +141,58 @@ public class App implements QuarkusApplication {
     }
 
     @CommandLine.Command(
+        name = "new-maj-min",
+        description = "Initialize repositories for a new Major.Minor release.")
+    public void newMajorMinor(
+        @CommandLine.Option(
+            names = {"-g", "--git"},
+            description = "Git reference in the <github org>/<github repo>/<branch> format",
+            required = true) String gitRef,
+        @CommandLine.Option(
+            names = {"-t", "--test"},
+            description = "Create a test release ticket using the SB project for all requests") boolean test,
+        @CommandLine.Option(
+            names = {"-o", "--token"},
+            description = "Github API token",
+            required = true) String token,
+        @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
+        @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
+        @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
+        @CommandLine.Option(
+            names = {"-pr", "--previous-release"},
+            description = "Previous release",
+            required = true) String previousRelease
+    ) throws Throwable {
+        String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
+        final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
+        git.initRepository(bomGitConfig);
+        if (!test) {
+            git.commitAndPush("chore: update release issues' key [issues-manager]", bomGitConfig, repo -> {
+                LOG.infof("repo-> %s", repo.getAbsolutePath());
+                final File dir = new File(repo.getAbsolutePath());
+                FileFilter fileFilter = new WildcardFileFilter("release-*.yml");
+                File[] files = dir.listFiles(fileFilter);
+                Arrays.stream(files).forEach(file-> {
+                    LOG.infof("file-> %s", file.getAbsoluteFile());
+                    file.delete();
+                });
+                return files;
+            });
+        }
+//        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,"snowdrop/build-configurations",Optional.of("master"));
+//        git.initRepository(buildConfigGitlabConfig);
+//        if (!test) {
+//            git.commitAndPush("chore: update release issues' key [issues-manager]", buildConfigGitlabConfig, repo -> { LOG.infof("%s", repo); return repo;});
+//        }
+//        final GitConfig cpaasGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,"snowdrop/springboot",Optional.of(GitConfig.getDetaultBranchName(previousRelease)));
+//        git.initRepository(cpaasGitlabConfig);
+//        if (!test) {
+//            git.commitAndPush("chore: update release issues' key [issues-manager]", cpaasGitlabConfig, repo -> { LOG.infof("%s", repo); return repo;});
+//        }
+    }
+
+
+    @CommandLine.Command(
         name = "start-release",
         description = "Start the release process for the release associated with the specified git reference")
     public void startRelease(
@@ -160,7 +218,7 @@ public class App implements QuarkusApplication {
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
             required = true) String eolDate) throws Throwable {
-        final GitConfig config = GitConfig.githubConfig(gitRef, token);
+        final GitConfig config = GitConfig.githubConfig(gitRef, token, Optional.empty());
         if (!test) {
             git.initRepository(config); // init git repository to be able to update release
         }
@@ -259,7 +317,7 @@ public class App implements QuarkusApplication {
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-        GitConfig config = GitConfig.gitlabConfig("snowdrop/build-configurations", release, gluser, gltoken);
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, "snowdrop/build-configurations", Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> buildConfigUpdateService

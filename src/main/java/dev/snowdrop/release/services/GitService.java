@@ -5,10 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
@@ -110,8 +107,8 @@ public class GitService {
 
         private final String token;
 
-        public GitHubConfig(String org, String repo, String branch, String token) {
-            super(org, repo, branch);
+        public GitHubConfig(String org, String repo, String branch, String token, Optional<String> previousBranch) {
+            super(org, repo, branch, previousBranch);
             this.token = token;
         }
 
@@ -140,8 +137,8 @@ public class GitService {
         private final String user;
         private final String token;
 
-        private GitLabConfig(String org, String repo, String branch, String user, String token) {
-            super(org, repo, branch);
+        private GitLabConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
+            super(org, repo, branch, previousBranch);
             this.user = user;
             this.token = token;
         }
@@ -172,10 +169,14 @@ public class GitService {
         protected final String org;
         protected final String repo;
         protected final String branch;
+        protected String cloneFromBranch="master";
         private final CompletableFuture<Boolean> branchMissing;
 
 
-        private GitConfig(String org, String repo, String branch) {
+        private GitConfig(String org, String repo, String branch, Optional<String> cloneFromBranch) {
+            if (cloneFromBranch.isPresent()) {
+                this.cloneFromBranch = cloneFromBranch.get();
+            }
             this.org = org;
             this.repo = repo;
             this.branch = branch;
@@ -191,23 +192,28 @@ public class GitService {
             }).thenApplyAsync(branches -> branches.stream().noneMatch(ref -> ref.getName().contains(branch)));
         }
 
-        public static GitConfig githubConfig(String gitRef, String token) {
+        public static GitConfig githubConfig(String gitRef, String token, Optional<String> cloneFromGitRef) {
             final var split = gitRef.split("/");
             if (split.length != 3) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository/branch format.");
             }
-            return new GitHubConfig(split[0], split[1], split[2], token);
+            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromGitRef);
         }
 
-        public static GitConfig gitlabConfig(String gitRef, String release, String username, String token) {
+        public static String getDetaultBranchName(final String release) {
+            final String[] releaseMajorMinorFix = release.split("\\.");
+            return String.format("sb-%s.%s.x", releaseMajorMinorFix[0], releaseMajorMinorFix[1]);
+        }
+
+        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef) {
             final var split = gitRef.split("/");
             if (split.length != 2) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository format.");
             }
             final var branch = "snowdrop-issues-manager-" + release;
-            return new GitLabConfig(split[0], split[1], branch, username, token);
+            return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
 
         abstract CredentialsProvider getCredentialProvider();
@@ -223,11 +229,11 @@ public class GitService {
         }
 
         CompletableFuture<String> cloneFrom() {
-            return branchMissing.thenApplyAsync(missing -> "refs/heads/" + (missing ? defaultBranch() : branch));
+            return branchMissing.thenApplyAsync(missing -> "refs/heads/" + (missing ? cloneFromBranch() : branch));
         }
 
-        protected String defaultBranch() {
-            return "master";
+        protected String cloneFromBranch() {
+            return cloneFromBranch;
         }
 
         public Git checkout(Git git) {

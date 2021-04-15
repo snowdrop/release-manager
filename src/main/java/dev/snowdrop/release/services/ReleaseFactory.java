@@ -17,6 +17,7 @@ import dev.snowdrop.release.services.GitService.GitConfig;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -154,6 +155,6 @@ public class ReleaseFactory {
     }
 
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
-        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null), relativePath);
+        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null, Optional.empty()), relativePath);
     }
 }
