@@ -1,21 +1,20 @@
-# JIRA Tools
+# Release Manager Tool
 
 ## Table of Contents
 
-   * [JIRA Tools](#jira-tools)
-      * [Table of Contents](#table-of-contents)
-      * [Introduction](#introduction)
-      * [Issues manager](#issues-manager)
-         * [Release definition](#release-definition)
-         * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
-         * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
-         * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
-         * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
-         * [List CVE](#list-cve)
-      * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
-         * [Get](#get)
-         * [Post](#post)
-
+  * [Table of Contents](#table-of-contents)
+  * [Introduction](#introduction)
+  * [Issues manager](#issues-manager)
+      * [Release definition](#release-definition)
+      * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
+      * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
+      * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
+      * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
+      * [List CVE](#list-cve)
+      * [Update Build Config](#update-build-config)
+  * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
+      * [Get](#get)
+      * [Post](#post)
 
 ## Introduction
 
@@ -23,7 +22,7 @@ This project has been designed to investigate different technology able to manag
 tickets as documented under the table of content. They could be used to automate Job's action or for your own personal needs to
 get a Jira issue, change the status, ...
 
-## Issues manager
+## Release & issues manager
 
 Instructions:
 
@@ -32,6 +31,15 @@ Instructions:
 ```bash
 mvn clean package 
 ```
+
+- Build the container image
+```bash
+docker build -f src/main/docker/Dockerfile.jvm -t snowdrop/release-manager:1.0 .
+docker tag snowdrop/release-manager:1.0 quay.io/snowdrop/release-manager:1.0
+docker push quay.io/snowdrop/release-manager:1.0
+```
+**Remark**: No `ENTRYPOINT` has been defined within the container in order to be able to execute the script `/deployments/run-java.sh` manually, using a Jenkins Pipeline Job. The UID of the user
+is `1000` like also the UID of the Jenkins JNLP Agent !
 
 ### Release definition
 
