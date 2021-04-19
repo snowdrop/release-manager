@@ -65,27 +65,43 @@ public class GitService {
                     final var status = g.status().call();
                     final var uncommittedChanges = status.getUncommittedChanges();
                     final var untracked = status.getUntracked();
+                    final var statusChanged = status.getChanged();
                     final var removed = status.getRemoved();
-                    final var hasChanges = new boolean[]{false};
+                    final var missing = status.getMissing();
+                    final var hasAdd = new boolean[]{false};
+                    final var hasRm = new boolean[]{false};
+                    LOG.debugf("getAdded %s", status.getAdded());
+                    LOG.debugf("getChanged %s", status.getChanged());
+                    LOG.debugf("getRemoved %s", removed);
+                    LOG.debugf("getModified %s", status.getModified());
+                    LOG.debugf("getMissing %s", status.getMissing());
+                    LOG.debugf("getUntracked %s", untracked);
+                    LOG.debugf("getUncommittedChanges %s", uncommittedChanges);
                     if (!uncommittedChanges.isEmpty() || !untracked.isEmpty() || !removed.isEmpty()) {
                         final var addCommand = g.add();
                         final var rmCommand = g.rm();
                         files.forEach(file -> {
                             final var path = file.getAbsolutePath().replace(repository.getAbsolutePath() + "/", "");
-                            if (uncommittedChanges.contains(path) || untracked.contains(path)) {
+                            if (untracked.contains(path) || statusChanged.contains(path)) {
                                 // only add file to be committed if it's part of the modified set or untracked
                                 LOG.infof("Added %s", path);
                                 addCommand.addFilepattern(path);
-                                hasChanges[0] = true;
+                                hasAdd[0] = true;
                             }
-                            if (removed.contains(path)) {
+                            if (removed.contains(path) || missing.contains(path)) {
                                 LOG.infof("Removed %s", path);
                                 rmCommand.addFilepattern(path);
-                                hasChanges[0] = true;
+//                                hasChanges[0] = true;
+                                hasRm[0] = true;
                             }
                         });
-                        if (hasChanges[0]) {
-                            addCommand.call();
+                        if (hasAdd[0] || hasRm[0]) {
+                            if (hasAdd[0]) {
+                                addCommand.call();
+                            }
+                            if (hasRm[0]) {
+                                rmCommand.call();
+                            }
                             final var commit = g.commit().setMessage(commitMessage).call();
                             LOG.infof("Committed: %s", commit.getFullMessage());
                             final String branch = config.getBranch();
