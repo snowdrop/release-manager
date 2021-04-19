@@ -2,20 +2,21 @@
 
 ## Table of Contents
 
-   * [JIRA Tools](#jira-tools)
+  * [JIRA Tools](#jira-tools)
       * [Table of Contents](#table-of-contents)
       * [Introduction](#introduction)
       * [Issues manager](#issues-manager)
          * [Release definition](#release-definition)
+         * [Init release repositories for a new Major.Minor](#init-release-repositories-for-a-new-majorminor)
          * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
          * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
          * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
          * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
          * [List CVE](#list-cve)
+         * [Update Build Config](#update-build-config)
       * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
          * [Get](#get)
          * [Post](#post)
-
 
 ## Introduction
 
@@ -43,6 +44,38 @@ evolve concurrently as needed and be kept in sync. This file should be updated e
 release.
 
 An example of such `release.yml` can be found at: https://github.com/snowdrop/spring-boot-bom/blob/sb-2.3.x/release.yml
+
+### Init release repositories for a new Major.Minor
+
+Whenever a new Major.Minor release occur some of the git repositories used in the release process need some restructuring.  
+For instance, a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repostory and a new
+folder in the `middleware/build-configurations` gitlab repository must also be created.
+
+This command performs these operations automatically.  
+
+```bash
+java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+    -u <jira user> -p <jira password> 
+    new-maj-min 
+    -g <github org>/<github repo>/<git reference: branch, tag, hash> \ 
+    -o <github token> \
+    -glu <gitlab user> \
+    -glt <gitlab token> \ 
+    -r <new release> \
+    -pr <previous release>
+```
+
+e.g.
+
+```bash
+java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+    -u my_user -p my_secret \
+    new-maj-min 
+    -g snowdrop/spring-boot-bom/sb-2.4.x \
+    -o my_github_token 
+    -glu my_gitlab_user -glt my_gitlab_token 
+    -r 2.4.3 -pr 2.3.6.RELEASE
+```
 
 ### Start a new Snowdrop release
 
