@@ -175,7 +175,7 @@ public class ReleaseFactoryTest {
     }
 
     @Test
-    public void validReleaseShouldWork() throws Throwable {
+    public void validReleaseProductShouldWork() throws Throwable {
         final Release release = factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream(
                 "pom.xml"));
         validate(release);
@@ -187,7 +187,7 @@ public class ReleaseFactoryTest {
         assertEquals(expectedSBVersion, release.getVersion());
 
         final List<Component> components = release.getComponents();
-        assertEquals(11, components.size());
+        assertEquals(10, components.size());
 
         var component = components.get(0);
         assertNotNull(component.getParent());
@@ -209,28 +209,41 @@ public class ReleaseFactoryTest {
         var description = component.getDescription();
         assertTrue(description.contains(component.getParent().getVersion()));
         assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
+        assertTrue(description.contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
+        assertFalse(description.contains("tested and supported"));
+        assertTrue(description.contains("- product name:"));
         for (Artifact artifact : artifacts) {
             assertTrue(description.contains(artifact.getName()));
             assertTrue(description.contains(artifact.getVersion()));
         }
 
-        component = components.get(7);
+        component = components.get(2);
+        assertEquals("AMQP", component.getName());
+        assertTrue(component.getDescription().contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
+        assertTrue(component.getDescription().contains("tested and supported"),component.toString() + component.getDescription());
+        assertFalse(component.getDescription().contains("- product name:"),component.toString() + component.getDescription());
+        component = components.get(6);
         assertEquals("Narayana starter", component.getName());
+        assertTrue(component.getDescription().contains("tested and supported"));
+        assertFalse(component.getDescription().contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
+        assertFalse(component.getDescription().contains("- product name:"));
+        component = components.get(7);
+        assertEquals("Vert.X starter", component.getName());
         final var product = component.getProduct();
         assertNotNull(product);
-        assertEquals("Narayana", product.getName());
-        assertEquals("Currently supported Narayana version information", product.getTitle());
+        assertEquals("Vert.X", product.getName());
+        assertEquals("Currently supported Vert.X version information", product.getTitle());
         final var jbtmAssignee = product.getJira().getAssignee().get();
-        assertEquals("mmusgrov", jbtmAssignee);
+        assertEquals("rruss", jbtmAssignee);
         assertEquals(jbtmAssignee, component.getProductIssue().getAssignee().get());
         final var jira = component.getJira();
         assertEquals("gytis", jira.getAssignee().get());
         final var endOfSupportDate = product.getEndOfSupportDate();
         assertEquals(component.getParent().getSchedule().getFormattedEOLDate(), endOfSupportDate);
         description = product.getDescription();
-        assertTrue(description.contains(endOfSupportDate));
-        assertTrue(description.contains(expectedSBVersion));
-        assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
+        assertTrue(component.getDescription().contains(endOfSupportDate));
+        assertTrue(component.getDescription().contains(expectedSBVersion));
+        assertFalse(component.getDescription().contains("**")); // this would happen if some substitutions didn't happen
     }
 
     @Test

@@ -20,6 +20,9 @@ components:
     # List of JIRA Projects contributing to a Snowdrop release
     # They will be used to create a component or starter
     -   name: Hibernate / Hibernate Validator / Undertow / RESTEasy
+        starter: false
+        release: true
+        inProduct: true
         jira:
             project: EAPSUP
             issueTypeId: 10600
@@ -29,22 +32,22 @@ components:
             - hibernate-validator
             - undertow
             - resteasy
+            - narayana
 
     -   name: Tomcat
+        starter: false
+        release: true
+        inProduct: true
         jira:
             project: JWS
             assignee: csutherl
         properties:
             - tomcat
 
-    -   name: Keycloak
-        jira:
-            project: KEYCLOAK
-            assignee: bdaw
-        properties:
-            - keycloak
-
     -   name: AMQP
+        starter: true
+        release: true
+        inProduct: false
         jira:
             project: ENTMQCL
             assignee: justi9
@@ -52,6 +55,9 @@ components:
             - amqp-10-starter
 
     -   name: RESTEasy
+        starter: true
+        release: false
+        inProduct: false
         jira:
             project: RESTEASY
             assignee: weinanli
@@ -59,6 +65,9 @@ components:
             - resteasy-spring-boot-starter
 
     -   name: OpenTracing / Jaeger
+        starter: true
+        release: false
+        inProduct: false
         jira:
             project: ENTSBT
             assignee: gandrian
@@ -69,6 +78,9 @@ components:
             - opentracing-spring-jaeger-web-starter
 
     -   name: Infinispan / DataGrid
+        starter: true
+        release: true
+        inProduct: true
         jira:
             project: JDG
             assignee: nadirx
@@ -77,16 +89,19 @@ components:
             - infinispan-starter
 
     -   name: Narayana starter
+        starter: true
+        release: false
+        inProduct: false
         jira:
             project: ENTSBT
             assignee: gytis
-        product:
-            project: JBTM
-            assignee: mmusgrov
         properties:
             - narayana-starter
 
     -   name: Vert.X starter
+        starter: true
+        release: false
+        inProduct: false
         jira:
             project: ENTSBT
             assignee: gytis
@@ -97,6 +112,9 @@ components:
             - vertx-spring-boot
 
     -   name: Spring Cloud Kubernetes
+        starter: true
+        release: false
+        inProduct: false
         jira:
             project: ENTSBT
             assignee: iocanel
@@ -104,6 +122,9 @@ components:
             - spring-cloud-kubernetes
 
     -   name: Dekorate
+        starter: false
+        release: false
+        inProduct: false
         jira:
             project: ENTSBT
             assignee: iocanel

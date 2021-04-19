@@ -17,7 +17,9 @@ import dev.snowdrop.release.services.Utility;
 @JsonPropertyOrder({"name", "jira", "product", "properties"})
 public class Component implements IssueSource {
     private static final String COMPONENT_TEMPLATE = "component.mustache";
-    
+    private static final String PRODUCT_TEMPLATE = "product.mustache";
+
+
     @JsonProperty
     private Issue jira;
     
@@ -26,7 +28,7 @@ public class Component implements IssueSource {
     
     @JsonProperty
     private String name;
-    
+
     @JsonProperty
     private List<String> properties;
     
@@ -35,7 +37,17 @@ public class Component implements IssueSource {
     
     @JsonIgnore
     private Release parent;
-    
+
+    @JsonProperty
+    private Boolean starter;
+
+    @JsonProperty
+    private Boolean release;
+
+    @JsonProperty
+    private Boolean inProduct;
+
+
     @Override
     public Release getParent() {
         return parent;
@@ -90,7 +102,11 @@ public class Component implements IssueSource {
     public String getDescription() {
         StringWriter writer = new StringWriter();
         try {
-            Utility.mf.compile(COMPONENT_TEMPLATE).execute(writer, this).flush();
+            if (this.inProduct) {
+                Utility.mf.compile(PRODUCT_TEMPLATE).execute(writer, this).flush();
+            } else {
+                Utility.mf.compile(COMPONENT_TEMPLATE).execute(writer, this).flush();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,10 +132,22 @@ public class Component implements IssueSource {
     public String getVersion() {
         return getParent().getVersion();
     }
-    
+
+    public Boolean getStarter() {
+        return starter;
+    }
+
+    public Boolean getRelease() {
+        return release;
+    }
+
+    public Boolean getInProduct() {
+        return inProduct;
+    }
+
     @Override
     public String toString() {
-        return "Component '" + name + "': project => " + jira + " / product => " + product;
+        return "Component '" + name + "': project => " + jira + " / product => " + product+ " / starter => " + starter+ " / release => " + release+ " / inProduct => " + inProduct;
     }
     
     public List<String> validate(JiraRestClient restClient) {
