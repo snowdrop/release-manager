@@ -4,14 +4,8 @@ import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.reporting.ReportingService;
-import dev.snowdrop.release.services.BuildConfigUpdateService;
-import dev.snowdrop.release.services.CVEService;
-import dev.snowdrop.release.services.GitHubService;
-import dev.snowdrop.release.services.GitService;
+import dev.snowdrop.release.services.*;
 import dev.snowdrop.release.services.GitService.GitConfig;
-import dev.snowdrop.release.services.IssueService;
-import dev.snowdrop.release.services.ReleaseFactory;
-import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
@@ -19,6 +13,9 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +25,7 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
@@ -36,6 +34,10 @@ import picocli.CommandLine;
 @QuarkusMain
 public class App implements QuarkusApplication {
     public final static String CVE_REPORT_REPO_NAME = "snowdrop/reports";
+
+    @Inject
+    @ConfigProperty(name = "gitlab.buildconfig.fork.repo", defaultValue = "snowdrop/build-configurations")
+    String buildConfigFormRepoName;
 
     static final Logger LOG = Logger.getLogger(App.class);
     @Inject
@@ -54,6 +56,9 @@ public class App implements QuarkusApplication {
     ReportingService reportingService;
     @Inject
     BuildConfigUpdateService buildConfigUpdateService;
+    @Inject
+    SpringBootBomUpdateService springBootBomUpdateService;
+
     @CommandLine.Option(
         names = {"-u", "--user"},
         description = "JIRA user",
@@ -159,39 +164,21 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
-        @CommandLine.Option(
-            names = {"-pr", "--previous-release"},
-            description = "Previous release",
-            required = true) String previousRelease
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease
     ) throws Throwable {
-        String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
+        final String[] releaseMajorMinorFix = release.split("\\.");
+        final String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
         final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
         git.initRepository(bomGitConfig);
         if (!test) {
-            git.commitAndPush("chore: update release issues' key [issues-manager]", bomGitConfig, repo -> {
-                LOG.infof("repo-> %s", repo.getAbsolutePath());
-                FileFilter fileFilter = new WildcardFileFilter("release-*.yml");
-                File[] files = repo.listFiles(fileFilter);
-                if (files != null) {
-                    return Arrays.stream(files).map(file-> {
-                        LOG.infof("file-> %s", file.getAbsoluteFile());
-                        file.delete();
-                        return file;
-                    });
-                }
-                return Stream.empty();
-            });
+            springBootBomUpdateService.newMajorMinor(bomGitConfig);
         }
-//        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,"snowdrop/build-configurations",Optional.of("master"));
-//        git.initRepository(buildConfigGitlabConfig);
-//        if (!test) {
-//            git.commitAndPush("chore: update release issues' key [issues-manager]", buildConfigGitlabConfig, repo -> { LOG.infof("%s", repo); return repo;});
-//        }
-//        final GitConfig cpaasGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,"snowdrop/springboot",Optional.of(GitConfig.getDetaultBranchName(previousRelease)));
-//        git.initRepository(cpaasGitlabConfig);
-//        if (!test) {
-//            git.commitAndPush("chore: update release issues' key [issues-manager]", cpaasGitlabConfig, repo -> { LOG.infof("%s", repo); return repo;});
-//        }
+
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigFormRepoName,Optional.of("master"));
+        git.initRepository(buildConfigGitlabConfig);
+        if (!test) {
+            buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
+        }
     }
 
 
@@ -321,7 +308,7 @@ public class App implements QuarkusApplication {
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, "snowdrop/build-configurations", Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigFormRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> Stream.of(buildConfigUpdateService
