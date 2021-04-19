@@ -91,7 +91,6 @@ public class GitService {
                             if (removed.contains(path) || missing.contains(path)) {
                                 LOG.infof("Removed %s", path);
                                 rmCommand.addFilepattern(path);
-//                                hasChanges[0] = true;
                                 hasRm[0] = true;
                             }
                         });
