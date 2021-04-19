@@ -2,7 +2,11 @@
 
 ## Table of Contents
 
+<<<<<<< HEAD
    * [Release Manager Tool](#release-manager-tool)
+=======
+  * [JIRA Tools](#jira-tools)
+>>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
       * [Table of Contents](#table-of-contents)
       * [Introduction](#introduction)
       * [Release process](#release-process)
@@ -15,12 +19,19 @@
          * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
          * [List CVE](#list-cve)
          * [Update Build Config](#update-build-config)
+<<<<<<< HEAD
       * [Testing](#testing)
          * [Profiles](#profiles)
       * [Tricks](#tricks)
          * [Get JIRA issue](#get-jira-issue)
          * [Post a new JIRA ticket](#post-a-new-jira-ticket)
     
+=======
+      * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
+         * [Get](#get)
+         * [Post](#post)
+
+>>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
 ## Introduction
 
 This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA
@@ -58,6 +69,7 @@ An example of such `release.yml` can be found at: https://github.com/snowdrop/sp
 
 ### Init release repositories for a new Major.Minor
 
+<<<<<<< HEAD
 Whenever a new Major.Minor release occurs:  
 * a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repository 
 * a new folder in the `middleware/build-configurations` gitlab repository must be created.
@@ -67,11 +79,22 @@ This command performs these operations automatically.
 > NOTE: The previous release is used as a source of information. It is used as the source for the new 
 `snowdrop/spring-boot-bom` github repository branch and as the source for the new `build-configurations`
 configuration.
+=======
+Whenever a new Major.Minor release occur some of the git repositories used in the release process need some restructuring.  
+For instance, a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repostory and a new
+folder in the `middleware/build-configurations` gitlab repository must also be created.
+
+This command performs these operations automatically.  
+>>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
 
 ```bash
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u <jira user> -p <jira password> 
+<<<<<<< HEAD
     new-build-config-version 
+=======
+    new-maj-min 
+>>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
     -g <github org>/<github repo>/<git reference: branch, tag, hash> \ 
     -o <github token> \
     -glu <gitlab user> \
@@ -85,16 +108,23 @@ e.g.
 ```bash
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u my_user -p my_secret \
+<<<<<<< HEAD
     new-build-config-version
+=======
+    new-maj-min 
+>>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
     -g snowdrop/spring-boot-bom/sb-2.4.x \
     -o my_github_token 
     -glu my_gitlab_user -glt my_gitlab_token 
     -r 2.4.3 -pr 2.3.6.RELEASE
 ```
 
+<<<<<<< HEAD
 > NOTE: The release and previous release versions are the versions SpringBoot releases 
 > (see https://github.com/spring-projects/spring-boot/releases). 
 
+=======
+>>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
 ### Start a new Snowdrop release
 
 Starting a release means cloning the template issue, creating stakeholder requests, linking them to the master release ticket
