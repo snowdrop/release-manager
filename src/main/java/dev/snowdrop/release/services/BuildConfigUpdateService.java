@@ -14,10 +14,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @ApplicationScoped
 public class BuildConfigUpdateService {
@@ -30,6 +34,32 @@ public class BuildConfigUpdateService {
 
     @Inject
     IssueService issueSvc;
+
+    @Inject
+    GitService git;
+
+    public void newMajorMinor(GitService.GitConfig buildConfigGitlabConfig, final String releaseMajorVersion, final String releaseMinorVersion, final String prevReleaseMajorVersion, final String prevReleaseMinorVersion) throws IOException {
+            git.commitAndPush("chore: update release issues' key [issues-manager]", buildConfigGitlabConfig, repo -> {
+                final String repoPath = repo.getAbsolutePath();
+                LOG.infof("repo-> %s", repo.getAbsolutePath());
+                final Path destPath = Paths.get(String.format(repoPath+"/spring-boot/%s.%s", releaseMajorVersion, releaseMinorVersion));
+                final Path destFile = Paths.get(String.format(repoPath+"/spring-boot/%s.%s/build-config.yaml", releaseMajorVersion, releaseMinorVersion));
+                if (!destFile.toFile().exists()) {
+                    final Path sourceFile = Paths.get(String.format(repoPath + "/spring-boot/%s.%s/build-config.yaml", prevReleaseMajorVersion, prevReleaseMinorVersion));
+                    try {
+                        Files.createDirectories(destPath);
+                        LOG.infof("sourceFile-> %s", sourceFile);
+                        LOG.infof("destFile-> %s", destFile);
+                        Files.copy(sourceFile, destFile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return Stream.of(destFile.toFile());
+                } else {
+                    return Stream.empty();
+                }
+            });
+    }
 
     /**
      * <p>Parses the comments from the yaml file to obtain variable definitions. These start with #!.</p>
