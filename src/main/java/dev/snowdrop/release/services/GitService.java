@@ -153,7 +153,7 @@ public class GitService {
 
         @Override
         String directoryPrefix() {
-            return "issues-manager-" + org + "-" + repo;
+            return "release-manager-" + org + "-" + repo;
         }
 
         @Override
@@ -206,7 +206,7 @@ public class GitService {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository format.");
             }
-            final var branch = "snowdrop-issues-manager-" + release;
+            final var branch = "snowdrop-release-manager-" + release;
             return new GitLabConfig(split[0], split[1], branch, username, token);
         }
 

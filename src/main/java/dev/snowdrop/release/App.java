@@ -24,7 +24,7 @@ import javax.inject.Inject;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0")
+@CommandLine.Command(name = "release-manager", mixinStandardHelpOptions = true, version = "release-manager 1.0.0")
 @ApplicationScoped
 @QuarkusMain
 public class App implements QuarkusApplication {
@@ -209,7 +209,7 @@ public class App implements QuarkusApplication {
         }
 
         if (!release.isTestMode()) {
-            git.commitAndPush("chore: update release issues' key [issues-manager]", config, repo -> factory.updateRelease(repo, release));
+            git.commitAndPush("chore: update release issues' key [release-manager]", config, repo -> factory.updateRelease(repo, release));
         }
         System.out.println(issue);
     }
@@ -262,7 +262,7 @@ public class App implements QuarkusApplication {
         GitConfig config = GitConfig.gitlabConfig("snowdrop/build-configurations", release, gluser, gltoken);
         git.initRepository(config);
 
-        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> buildConfigUpdateService
+        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> buildConfigUpdateService
             .updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
     }
     

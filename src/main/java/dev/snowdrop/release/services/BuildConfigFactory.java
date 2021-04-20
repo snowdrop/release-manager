@@ -50,7 +50,7 @@ public class BuildConfigFactory {
         outStream.write("###############################################################################\r\n");
         outStream.write("\r\n");
         outStream.write("# Variable definition\r\n");
-        outStream.write("# WARNING: this section is updated automatically with the issues-manager\r\n");
+        outStream.write("# WARNING: this section is updated automatically with the release-manager\r\n");
         outStream.write("\r\n");
         outStream.write(variableMap);
         outStream.write("\r\n");
