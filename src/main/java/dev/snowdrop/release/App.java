@@ -164,17 +164,25 @@ public class App implements QuarkusApplication {
     ) throws Throwable {
         final String[] releaseMajorMinorFix = release.split("\\.");
         final String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
+<<<<<<< HEAD
         final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef,ghuser, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
+=======
+        final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef, token, GitConfig.getDefaultBranchName(previousRelease));
+>>>>>>> c145217 (refactor: clean-up code)
         git.initRepository(bomGitConfig);
         if (!test) {
             springBootBomUpdateService.newMajorMinor(bomGitConfig);
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"), Optional.empty());
 =======
         final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"));
 >>>>>>> 2a6f481 (fix: typo on the buildConfigForkRepoName variable name)
+=======
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigFormRepoName, null);
+>>>>>>> c145217 (refactor: clean-up code)
         git.initRepository(buildConfigGitlabConfig);
         if (!test) {
             buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
@@ -211,7 +219,11 @@ public class App implements QuarkusApplication {
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
             required = true) String eolDate) throws Throwable {
+<<<<<<< HEAD
         final GitConfig config = GitConfig.githubConfig(gitRef, ghuser, token, Optional.empty());
+=======
+        final GitConfig config = GitConfig.githubConfig(gitRef, token, null);
+>>>>>>> c145217 (refactor: clean-up code)
         if (!test) {
             git.initRepository(config); // init git repository to be able to update release
         }
@@ -307,15 +319,19 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone)
         throws Throwable {
         LOG.infof("release: %s; qualifier: %s; milestone: %s", release, qualifier, milestone);
-        String[] releaseMMF = release.split("\\.");
-        final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
+        final String branchName = GitConfig.getDefaultBranchName(release);
+        final String gitFullRef = String.format("%s/%s", gitRef, branchName);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
 =======
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
 >>>>>>> 2a6f481 (fix: typo on the buildConfigForkRepoName variable name)
+=======
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigFormRepoName, branchName);
+>>>>>>> c145217 (refactor: clean-up code)
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
