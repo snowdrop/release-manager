@@ -227,7 +227,7 @@ public class GitService {
         }
 
         protected String defaultBranch() {
-            return "master";
+            return "main";
         }
 
         public Git checkout(Git git) {
