@@ -168,6 +168,15 @@ $ java -jar target/quarkus-app/quarkus-run.jar \
   update-build-config \
   -g snowdrop/spring-boot-bom -o ${GITHUB_TOKEN} -glu ${GITLAB_USER} -glt ${GITLAB_TOKEN} -r 2.4.3  -q Alpha1 -m "DR*"
 ```
+
+## Testing
+
+The unit tests require the providing of 2 parameters to be able to login to the JIRA REST API.
+
+```bash
+$ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD} -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
 ## Tricks
 
 To query the JIRA server using `HTTP` requests (GET, POST, ...), you can execute the following commands
