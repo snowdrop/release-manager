@@ -1,0 +1,31 @@
+version: 9.9.9
+
+# JIRA Project where the release issue should be created
+project: SB
+
+
+# If already created, provide the issue number of the Release, otherwise keep it empty.
+# It will be used by the command create-component to link the stakeholder issues
+#key:         # SB-1484
+
+schedule:
+    # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
+    release: 2050-06-30
+    # Due date for the component/starter owner to release their new components, QE signoff it
+    due: 2050-05-31
+    # EOL of the Snowdrop release
+    eol: 2051-12-31
+
+components:
+    # List of JIRA Projects contributing to a Snowdrop release
+    # They will be used to create a component or starter
+    -   name: Hibernate / Hibernate Validator / Undertow / RESTEasy
+        jira:
+            project: SB
+            issueTypeId: 3
+            assignee: antcosta
+        properties:
+            - hibernate
+            - hibernate-validator
+            - undertow
+            - resteasy

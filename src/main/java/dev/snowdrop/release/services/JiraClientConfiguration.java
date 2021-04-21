@@ -20,6 +20,8 @@ import javax.enterprise.inject.Produces;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import io.quarkus.arc.DefaultBean;
+import io.quarkus.arc.properties.IfBuildProperty;
 import picocli.CommandLine;
 
 /**
@@ -28,6 +30,7 @@ import picocli.CommandLine;
 @ApplicationScoped
 public class JiraClientConfiguration {
     @Produces
+    @DefaultBean
     @ApplicationScoped
     public JiraRestClient client(CommandLine.ParseResult parseResult) {
         final var user = parseResult.commandSpec().findOption('u').getValue().toString();

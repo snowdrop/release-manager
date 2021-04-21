@@ -137,7 +137,7 @@ public class IssueService {
         }
     }
 
-    private String createIssue(IssueSource source, List<String> watchers) {
+    public String createIssue(IssueSource source, List<String> watchers) {
         final IssueRestClient cl = restClient.getIssueClient();
 
         // if the source has already an issue assigned to it, skip it (it should be

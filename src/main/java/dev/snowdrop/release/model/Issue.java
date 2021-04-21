@@ -46,10 +46,10 @@ import static dev.snowdrop.release.services.Utility.isStringNullOrBlank;
 public class Issue {
     private static final Logger LOG = Logger.getLogger(Issue.class);
     public static final String DEFAULT_JIRA_PROJECT = "ENTSBT";
-    static final String TEST_JIRA_PROJECT = "SB";
+    public static final String TEST_JIRA_PROJECT = "SB";
     static final String TEST_ASSIGNEE = "snowdrop-test-user";
-    static final String TEST_ISSUE_KEY = "SB-1611";
-    private static final Long DEFAULT_ISSUE_TYPE_ID = 3L;
+    public static final String TEST_ISSUE_KEY = "SB-1611";
+    public static final Long DEFAULT_ISSUE_TYPE_ID = 3L;
     @JsonProperty
     private String project;
     @JsonProperty
