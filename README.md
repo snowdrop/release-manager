@@ -175,7 +175,7 @@ $ java -jar target/quarkus-app/quarkus-run.jar \
 The unit tests require the providing of 2 parameters to be able to login to the JIRA REST API.
 
 ```bash
-$ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD} -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
 ## Tricks
