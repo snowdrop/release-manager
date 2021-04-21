@@ -13,6 +13,7 @@
       * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
       * [List CVE](#list-cve)
       * [Update Build Config](#update-build-config)
+  * [Testing](#testing)
   * [Tricks](#tricks)
       * [Get JIRA issue](#get-jira-issue)
       * [Post a new JIRA ticket](#post-a-new-jira-ticket)
