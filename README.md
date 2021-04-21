@@ -60,7 +60,7 @@ with the code base that has been updated from upstream Spring Boot, which contai
 needed operations. This is done by running the following command:
 
 ```bash
-java -jar target/release-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+java -jar target/quarkus-app/quarkus-run.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     start-release \
@@ -77,7 +77,7 @@ have been created.
 To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command:
 
 ```bash
-java -jar target/release-manager-1.0.0-SNAPSHOT-runner.jar \
+java -jar target/quarkus-app/quarkus-run.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     create-component \
@@ -104,7 +104,7 @@ the `hibernate-validator` property.
 To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:
 
 ```bash
-java -jar target/release-manager-1.0.0-SNAPSHOT-runner.jar \
+java -jar target/quarkus-app/quarkus-run.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     link \
@@ -120,7 +120,7 @@ parameter.
 To clone a Release issue and their sub-tasks
 
 ```bash
- java -jar target/release-manager-1.0.0-SNAPSHOT-runner.jar \
+ java -jar target/quarkus-app/quarkus-run.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     clone \
@@ -134,7 +134,7 @@ Generate a list of CVE. This process will print the list of CVE in a report.
 If the `-r` option is used this list will also be pushed to GitHub, being the `-o` option required for that.
 
 ```bash
- java -jar target/release-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+ java -jar target/quarkus-app/quarkus-run.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     list-cves \
@@ -163,7 +163,7 @@ The required parameters are the following:
 Execution example: 
 
 ```bash
-$ java -jar target/release-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+$ java -jar target/quarkus-app/quarkus-run.jar \
   -u ${JBOSS_JIRA_USER} -p ${JBOSS_JIRA_PWD} \
   update-build-config \
   -g snowdrop/spring-boot-bom -o ${GITHUB_TOKEN} -glu ${GITLAB_USER} -glt ${GITLAB_TOKEN} -r 2.4.3  -q Alpha1 -m "DR*"
