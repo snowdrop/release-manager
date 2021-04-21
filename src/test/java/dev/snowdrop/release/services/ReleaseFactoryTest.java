@@ -19,11 +19,16 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
 import dev.snowdrop.release.model.Artifact;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.Release;
+import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.mockito.InjectMock;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -41,20 +46,25 @@ public class ReleaseFactoryTest {
     @Inject
     ReleaseFactory factory;
 
-    private static InputStream getResourceAsStream(String s) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
+    @BeforeAll
+    public static void setup() {
+        JiraRestClient mock = Mockito.mock(JiraRestClient.class);
+        Mockito.when(mock.getIssueClient()).thenReturn(new MockIssueRestClient());
+        Mockito.when(mock.getUserClient()).thenReturn(new MockUserRestClient());
+        Mockito.when(mock.getProjectClient()).thenReturn(new MockProjectRestClient());
+        QuarkusMock.installMockForType(mock, JiraRestClient.class);
     }
 
     @Test
     public void missingVersionShouldNotFail() throws Throwable {
-        factory.createFrom(getResourceAsStream("missing_version_template.yml"), getResourceAsStream("pom.xml"), true,
+        factory.createFrom(HelperFunctions.getResourceAsStream("missing_version_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"), true,
                 false);
     }
 
     @Test
     public void missingScheduleShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("missing_schedule_template.yml"), getResourceAsStream("pom.xml"),
+            factory.createFrom(HelperFunctions.getResourceAsStream("missing_schedule_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),
                     true, false);
             fail("should have failed on missing schedule");
         } catch (IllegalArgumentException e) {
@@ -68,7 +78,7 @@ public class ReleaseFactoryTest {
     @Test
     public void wrongScheduleShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_schedule_template.yml"), getResourceAsStream("pom.xml"),
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_schedule_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),
                     true, false);
             fail("should have failed on invalid schedule");
         } catch (IllegalArgumentException e) {
@@ -83,7 +93,7 @@ public class ReleaseFactoryTest {
     @Test
     public void mismatchedPOMVersionsShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream("mismatched-pom.xml"),
+            factory.createFrom(HelperFunctions.getResourceAsStream("release_template.yml"), HelperFunctions.getResourceAsStream("mismatched-pom.xml"),
                     true, false);
             fail("should have failed on mismatched POM versions");
         } catch (IllegalArgumentException e) {
@@ -98,7 +108,7 @@ public class ReleaseFactoryTest {
     @Test
     public void invalidComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_project_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_project_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on invalid component project");
         } catch (IllegalArgumentException e) {
@@ -119,7 +129,7 @@ public class ReleaseFactoryTest {
     @Test
     public void emptyComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_empty_project_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_empty_project_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on empty component project");
         } catch (IllegalArgumentException e) {
@@ -135,14 +145,14 @@ public class ReleaseFactoryTest {
 
     @Test
     public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid_component_project_template.yml"), getResourceAsStream(
+        factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_project_template.yml"), HelperFunctions.getResourceAsStream(
                 "pom.xml"), true, false);
     }
 
     @Test
     public void invalidComponentIssueTypeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_issuetypeid_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_issuetypeid_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on invalid component issue type");
         } catch (IllegalArgumentException e) {
@@ -155,14 +165,14 @@ public class ReleaseFactoryTest {
 
     @Test
     public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid_component_issuetypeid_template.yml"), getResourceAsStream(
+        factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_issuetypeid_template.yml"), HelperFunctions.getResourceAsStream(
                 "pom.xml"), true, false);
     }
 
     @Test
     public void invalidComponentAssigneeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_assignee_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_assignee_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on invalid component assignee");
         } catch (IllegalArgumentException e) {
@@ -176,7 +186,7 @@ public class ReleaseFactoryTest {
 
     @Test
     public void validReleaseShouldWork() throws Throwable {
-        final Release release = factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream(
+        final Release release = factory.createFrom(HelperFunctions.getResourceAsStream("release_template.yml"), HelperFunctions.getResourceAsStream(
                 "pom.xml"));
         validate(release);
     }
