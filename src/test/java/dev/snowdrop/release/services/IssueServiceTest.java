@@ -13,37 +13,30 @@
  */
 package dev.snowdrop.release.services;
 
-import com.atlassian.jira.rest.client.api.IssueRestClient;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import dev.snowdrop.release.exception.JiraGavDescriptionNotParsableException;
 import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.POM;
 import dev.snowdrop.release.model.Release;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import javax.inject.Inject;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
  */
 @QuarkusTest
+@TestProfile(TestProfiles.IntegrationTests.class)
 public class IssueServiceTest {
 
     private static final YAMLMapper MAPPER = new YAMLMapper();

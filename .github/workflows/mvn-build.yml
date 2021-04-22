@@ -19,5 +19,5 @@ jobs:
                 with:
                     java-version: 11
             -   name: Build
-                run: mvn clean package -X
+                run: mvn clean package -X -Dquarkus.test.profile.tags=core
 
