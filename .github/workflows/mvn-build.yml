@@ -34,8 +34,8 @@ jobs:
                         snowdrop/release-manager
                         quay.io/snowdrop/release-manager
                     # generate Docker tags based on the following events/attributes
+                    # Dont tag using type=ref,event=branch as cannot be pushed
                     tags: |
-                        type=ref,event=branch
                         type=semver,pattern={{version}}
                         type=semver,pattern={{major}}.{{minor}}
                         type=semver,pattern={{major}}
