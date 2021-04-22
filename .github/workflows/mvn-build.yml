@@ -54,5 +54,5 @@ jobs:
                     push: ${{ github.event_name != 'pull_request' }}
                     tags: ${{ steps.container_meta.outputs.tags }}
             -   name: Image digest
-                run: echo ${{ steps.docker_build.outputs.digest }}
+                run: echo ${{ steps.container_build.outputs.digest }}
 
