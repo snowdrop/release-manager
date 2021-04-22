@@ -1,4 +1,4 @@
-version: 9.9.9
+version: 2.3.2
 
 # JIRA Project where the release issue should be created
 project: SB

@@ -21,6 +21,7 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.exception.JiraGavDescriptionNotParsableException;
 import dev.snowdrop.release.model.Issue;
+import dev.snowdrop.release.model.POM;
 import dev.snowdrop.release.model.Release;
 import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -69,29 +70,14 @@ public class IssueServiceTest {
     public void createAndDeleteIssue() throws Throwable {
         InputStream releaseIS = HelperFunctions.getResourceAsStream("release_template_int_tests.yml");
         Release releaseObj = MAPPER.readValue(releaseIS, Release.class);
-//        service.clone(releaseObj, Issue.TEST_ISSUE_KEY,);
-//        final var cl = service.restClient.getIssueClient();
-//        try {
-//            factory.extractGAVArrayForProduct("");
-//            assertFalse(true);
-//        } catch (JiraGavDescriptionNotParsableException ex) {
-//            assertFalse(false);
-//        }
+        releaseObj.setPom(POM.createFrom(HelperFunctions.getResourceAsStream("pom.xml")));
         BasicIssue issueKey = service.clone(releaseObj,Issue.TEST_ISSUE_KEY,List.of());
-//        createIssue(releaseObj.getComponents().get(0),
         assertTrue(issueKey != null && issueKey.getKey() != null && issueKey.getKey().length() > 0, issueKey.getKey());
         try {
             service.deleteIssues(List.of(issueKey.getKey()));
-//        IssueInputBuilder iib = new IssueInputBuilder();
-//        iib.setProjectKey(Issue.TEST_JIRA_PROJECT);
-//        iib.setDescription("Test issue created from Unit Tests. Should be deleted automatically.");
-//        iib.setSummary("DELETE: Test issue created from Unit Tests");
-//        iib.setIssueTypeId(Issue.DEFAULT_ISSUE_TYPE_ID);
-//        BasicIssue testIssue = service.createIssue().claim();
-//        cl.deleteIssue(testIssue.getKey(), true).claim();
             assertTrue(true);
         } catch (Throwable e) {
-            fail(e);
+            assertTrue(false, e.getMessage());
         }
     }
 
