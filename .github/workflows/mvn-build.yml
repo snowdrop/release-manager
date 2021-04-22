@@ -50,7 +50,7 @@ jobs:
                 id: container_build
                 uses: docker/build-push-action@v2
                 with:
-                    context: ./ci
+                    context: ci
                     file: ./ci/Dockerfile.jvm
                     push: ${{ github.event_name != 'pull_request' }}
                     tags: ${{ steps.container_meta.outputs.tags }}
