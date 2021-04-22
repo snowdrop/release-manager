@@ -43,6 +43,7 @@ jobs:
             -   name: Login to DockerHub
                 uses: docker/login-action@v1
                 with:
+                  registry: quay.io
                   username: ${{ secrets.QUAY_USERNAME }}
                   password: ${{ secrets.QUAY_ROBOT_TOKEN }}
             -   name: Build and push
