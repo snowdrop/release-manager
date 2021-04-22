@@ -20,11 +20,11 @@ jobs:
                     java-version: 11
             -   name: Build
                 run: mvn clean package -X
-    build-image:
-        needs: build-jdk11
-        name: "Container image build"
-        runs-on: ubuntu-20.04 #See tools installed: https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
-        steps:
+    #build-image:
+    #    needs: build-jdk11
+    #    name: "Container image build"
+    #    runs-on: ubuntu-20.04 #See tools installed: https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
+    #    steps:
             -   name: Container meta
                 id: container_meta
                 uses: crazy-max/ghaction-docker-meta@v2
@@ -50,7 +50,7 @@ jobs:
                 id: container_build
                 uses: docker/build-push-action@v2
                 with:
-                    context: ci
+                    context: .
                     file: ./ci/Dockerfile.jvm
                     push: ${{ github.event_name != 'pull_request' }}
                     tags: ${{ steps.container_meta.outputs.tags }}
