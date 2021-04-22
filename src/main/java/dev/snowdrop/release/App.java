@@ -200,7 +200,7 @@ public class App implements QuarkusApplication {
         }
 
         // link CVEs
-        for (var cve : cveService.listCVEs(Optional.of(release.getVersion().replace(".RELEASE", "")), false)) {
+        for (var cve : cveService.listCVEs(Optional.of(release.getVersion()), false)) {
             service.linkIssue(issue.getKey(), cve.getKey());
         }
 
