@@ -8,7 +8,7 @@ ENV LANG='en_US.UTF-8' LANGUAGE='en_US:en'
 # Install java and the run-java script
 # Set up permissions for user `1000` as this is needed by the 
 # jenkins kubernetes plugin: https://github.com/jenkinsci/kubernetes-plugin#pipeline-sh-step-hangs-when-multiple-containers-are-used
-RUN microdnf install curl ca-certificates ${JAVA_PACKAGE} \
+RUN microdnf install curl wget ca-certificates ${JAVA_PACKAGE} \
     && microdnf update \
     && microdnf clean all \
     && mkdir /deployments \
