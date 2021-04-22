@@ -53,9 +53,9 @@ jobs:
                     context: .
                     file: ./ci/Dockerfile.jvm
                     # push: ${{ github.event_name != 'pull_request' }}
-                    push: quay.io/snowdrop/release-manager
+                    push: true
+                    tags: quay.io/snowdrop/release-manager:latest
                     # tags: ${{ steps.container_meta.outputs.tags }}
-                    tags: latest
             -   name: Image digest
                 run: echo ${{ steps.container_build.outputs.digest }}
 
