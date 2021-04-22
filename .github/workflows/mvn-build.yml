@@ -26,7 +26,7 @@ jobs:
         runs-on: ubuntu-20.04 #See tools installed: https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-README.md
         steps:
             -   name: Container meta
-                id: Container meta
+                id: Container_meta
                 uses: crazy-max/ghaction-docker-meta@v2
                 with:
                     # list of Docker images to use as base name for tags
