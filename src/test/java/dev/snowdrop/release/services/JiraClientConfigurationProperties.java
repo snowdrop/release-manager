@@ -16,6 +16,7 @@ package dev.snowdrop.release.services;
 import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import io.quarkus.arc.profile.IfBuildProfile;
+import io.quarkus.test.junit.TestProfile;
 import org.eclipse.microprofile.config.ConfigProvider;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -26,6 +27,7 @@ import java.net.URI;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 @ApplicationScoped
+@TestProfile(TestProfiles.IntegrationTests.class)
 public class JiraClientConfigurationProperties {
 
     @Produces

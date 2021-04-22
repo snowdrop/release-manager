@@ -13,42 +13,26 @@
  */
 package dev.snowdrop.release.services;
 
-import com.atlassian.jira.rest.client.api.JiraRestClient;
 import dev.snowdrop.release.exception.JiraGavDescriptionNotParsableException;
-import dev.snowdrop.release.model.Artifact;
-import dev.snowdrop.release.model.Component;
-import dev.snowdrop.release.model.Release;
-import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
-import org.junit.jupiter.api.BeforeAll;
+import io.quarkus.test.junit.TestProfile;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import javax.inject.Inject;
-import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
  */
 @QuarkusTest
+@TestProfile(TestProfiles.CoreTags.class)
 public class JiraIssueFactoryTest {
 
     @Inject
     JiraIssueFactory factory;
-
-    @BeforeAll
-    public static void setup() {
-        JiraRestClient mock = Mockito.mock(JiraRestClient.class);
-        Mockito.when(mock.getIssueClient()).thenReturn(new MockIssueRestClient());
-        Mockito.when(mock.getUserClient()).thenReturn(new MockUserRestClient());
-        Mockito.when(mock.getProjectClient()).thenReturn(new MockProjectRestClient());
-        QuarkusMock.installMockForType(mock, JiraRestClient.class);
-    }
 
     @Test
     public void emptyDescriptionShouldRaiseSpecificException() throws Throwable {
