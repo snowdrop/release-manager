@@ -177,12 +177,12 @@ To query the JIRA server using `HTTP` requests (GET, POST, ...), you can execute
 ### Get JIRA issue
 
 ```bash
-http --verify=no --follow --auth user:pwd https://issues.jboss.org/rest/api/2/issue/SB-889
+http --verify=no --follow --auth user:pwd https://issues.redhat.com/rest/api/2/issue/SB-889
 ```
 
 ### Post a new JIRA ticket
 
 ```bash
-http --verify=no --follow  --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
+http --verify=no --follow  --auth user:pwd POST https://issues.redhat.com/rest/api/2/issue/ < jira.json
 ```
 
