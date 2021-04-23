@@ -20,7 +20,7 @@ jobs:
                     java-version: 11
 
             -   name: Build
-                run: mvn clean package -X
+                run: ./mvnw clean package -X
 
             -   name: Container meta
                 id: container_meta

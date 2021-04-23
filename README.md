@@ -29,7 +29,7 @@ tickets as documented under the table of content. It is being also used to autom
 - Build the code
 
 ```bash
-mvn clean package 
+./mvnw clean package 
 ```
 
 - Build the container image
