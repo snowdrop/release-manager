@@ -42,9 +42,10 @@ jobs:
                 uses: actions/download-artifact@v2
                 with:
                   name: release-manager-jar-files
+                  path: target/
  
-            -  name: Display structure of downloaded files
-               run: ls -R
+            #-  name: Display structure of downloaded files
+            #   run: ls -R
   
             -   name: Container meta
                 id: container_meta
