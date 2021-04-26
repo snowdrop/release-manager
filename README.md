@@ -70,6 +70,7 @@ An example of such `release.yml` can be found at: https://github.com/snowdrop/sp
 ### Init release repositories for a new Major.Minor
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 Whenever a new Major.Minor release occurs:  
 * a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repository 
 * a new folder in the `middleware/build-configurations` gitlab repository must be created.
@@ -86,6 +87,17 @@ folder in the `middleware/build-configurations` gitlab repository must also be c
 
 This command performs these operations automatically.  
 >>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
+=======
+Whenever a new Major.Minor release occurs:  
+* a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repostory 
+* a new folder in the `middleware/build-configurations` gitlab repository must be created.
+
+This command performs these operations automatically.
+
+> NOTE: The previous release is used as a source of information. It is used as the source for the new 
+`snowdrop/spring-boot-bom` github repostory branch and as the source for the new `build-configurations`
+configuration.
+>>>>>>> 75f9b3e (docs: better described tasks executed on new major.minor performed actions)
 
 ```bash
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
@@ -120,11 +132,17 @@ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 > NOTE: The release and previous release versions are the versions SpringBoot releases 
 > (see https://github.com/spring-projects/spring-boot/releases). 
 
 =======
 >>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
+=======
+> NOTE: The release and previous release versions are the versions SpringBoot releases 
+> (see https://github.com/spring-projects/spring-boot/releases). 
+
+>>>>>>> 75f9b3e (docs: better described tasks executed on new major.minor performed actions)
 ### Start a new Snowdrop release
 
 Starting a release means cloning the template issue, creating stakeholder requests, linking them to the master release ticket
