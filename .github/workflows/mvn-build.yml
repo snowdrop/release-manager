@@ -76,6 +76,7 @@ jobs:
                   context: .
                   file: ./ci/Dockerfile.jvm
                   # tags: quay.io/snowdrop/release-manager:latest
+                  push: true
                   tags: ${{ steps.container_meta.outputs.tags }}
                   labels: ${{ steps.container_meta.outputs.labels }}
 
