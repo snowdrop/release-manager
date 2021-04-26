@@ -47,11 +47,15 @@ An example of such `release.yml` can be found at: https://github.com/snowdrop/sp
 
 ### Init release repositories for a new Major.Minor
 
-Whenever a new Major.Minor release occur some of the git repositories used in the release process need some restructuring.  
-For instance, a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repostory and a new
-folder in the `middleware/build-configurations` gitlab repository must also be created.
+Whenever a new Major.Minor release occurs:  
+* a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repostory 
+* a new folder in the `middleware/build-configurations` gitlab repository must be created.
 
-This command performs these operations automatically.  
+This command performs these operations automatically.
+
+> NOTE: The previous release is used as a source of information. It is used as the source for the new 
+`snowdrop/spring-boot-bom` github repostory branch and as the source for the new `build-configurations`
+configuration.
 
 ```bash
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
@@ -76,6 +80,9 @@ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml
     -glu my_gitlab_user -glt my_gitlab_token 
     -r 2.4.3 -pr 2.3.6.RELEASE
 ```
+
+> NOTE: The release and previous release versions are the versions SpringBoot releases 
+> (see https://github.com/spring-projects/spring-boot/releases). 
 
 ### Start a new Snowdrop release
 
