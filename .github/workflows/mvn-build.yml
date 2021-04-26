@@ -27,8 +27,9 @@ jobs:
                 with:
                   name: release-manager-jar-files
                   path: |
-                    ./target/lib/
-                    ./target/*-runner.jar
+                    ${{ github.workspace }}/target/lib/
+                    ${{ github.workspace }}/target/*-runner.jar
+                  if-no-files-found: error
 
     build-container:
         name: "Build container image"
