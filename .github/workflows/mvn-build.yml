@@ -42,6 +42,10 @@ jobs:
                 uses: actions/download-artifact@v2
                 with:
                   name: release-manager-jar-files
+ 
+            -  name: Display structure of downloaded files
+               run: ls -R
+  
             -   name: Container meta
                 id: container_meta
                 uses: crazy-max/ghaction-docker-meta@v2
