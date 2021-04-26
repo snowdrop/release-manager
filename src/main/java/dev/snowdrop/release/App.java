@@ -170,7 +170,11 @@ public class App implements QuarkusApplication {
             springBootBomUpdateService.newMajorMinor(bomGitConfig);
         }
 
+<<<<<<< HEAD
         final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"), Optional.empty());
+=======
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"));
+>>>>>>> 2a6f481 (fix: typo on the buildConfigForkRepoName variable name)
         git.initRepository(buildConfigGitlabConfig);
         if (!test) {
             buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
@@ -307,7 +311,11 @@ public class App implements QuarkusApplication {
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
+<<<<<<< HEAD
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
+=======
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
+>>>>>>> 2a6f481 (fix: typo on the buildConfigForkRepoName variable name)
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
