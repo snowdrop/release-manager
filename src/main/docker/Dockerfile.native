@@ -3,15 +3,15 @@
 #
 # Before building the docker image run:
 #
-# mvn package -Pnative -Dquarkus.native.container-build=true
+# ./mvnw package -Pnative -Dquarkus.native.container-build=true
 #
 # Then, build the image with:
 #
-# docker build -f src/main/docker/Dockerfile.native -t quarkus/issues-manager .
+# docker build -f src/main/docker/Dockerfile.native -t quarkus/release-manager .
 #
 # Then run the container using:
 #
-# docker run -i --rm -p 8080:8080 quarkus/issues-manager
+# docker run -i --rm -p 8080:8080 quarkus/release-manager
 #
 ###
 FROM registry.access.redhat.com/ubi8/ubi-minimal:8.1

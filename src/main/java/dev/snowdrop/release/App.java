@@ -22,7 +22,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
-@CommandLine.Command(name = "issue-manager", mixinStandardHelpOptions = true, version = "issues-manager 1.0.0")
+@CommandLine.Command(name = "release-manager", mixinStandardHelpOptions = true, version = "release-manager 1.0.0")
 @ApplicationScoped
 @QuarkusMain
 public class App implements QuarkusApplication {

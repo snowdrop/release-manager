@@ -2,7 +2,6 @@
 
 ## Table of Contents
 
-* [Table of Contents](#table-of-contents)
 * [Introduction](#introduction)
 * [Release &amp; issues manager](#release--issues-manager)
   * [Instructions](#instructions)
@@ -21,17 +20,16 @@
 ## Introduction
 
 This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA
-tickets as documented under the table of content. They could be used to automate Job's action or for your own personal needs to
-get a Jira issue, change the status, ...
+tickets as documented under the table of content. It is being also used to automate release process tasks.
 
-## Release & issues manager
+## Release process
 
 ### Instructions
 
 - Build the code
 
 ```bash
-mvn clean package 
+./mvnw clean package 
 ```
 
 - Build the container image
@@ -101,7 +99,7 @@ with the code base that has been updated from upstream Spring Boot, which contai
 needed operations. This is done by running the following command:
 
 ```bash
-java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+java -jar target/release-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     start-release \
@@ -118,7 +116,7 @@ have been created.
 To create a bulk of issues for a component/starter which are blocking a JIRA Issue release, use the following command:
 
 ```bash
-java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
+java -jar target/release-manager-1.0.0-SNAPSHOT-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     create-component \
@@ -134,7 +132,7 @@ Each component is identified by its associated JIRA project name (which is used 
 set of properties used to identify which artifacts are linked to this particular component. The name of the component's
 properties follow the name version properties defined in the POM. For example, for Hibernate, the version property is
 named `hibernate.version` and the associated component property is named `hibernate`
-(`issues-manager` takes care of matching that property to the one used in the POM). If we also want to associate other
+(`release-manager` takes care of matching that property to the one used in the POM). If we also want to associate other
 properties to the same component, we can add more. For example, the Hibernate component is associated with
 the `hibernate-validator` property.
 
@@ -145,7 +143,7 @@ the `hibernate-validator` property.
 To Link different issues to a JIRA issue using as relation type `Is Blocked By`, then execute the following command:
 
 ```bash
-java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
+java -jar target/release-manager-1.0.0-SNAPSHOT-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     link \
@@ -161,7 +159,7 @@ parameter.
 To clone a Release issue and their sub-tasks
 
 ```bash
- java -jar target/issues-manager-1.0.0-SNAPSHOT-runner.jar \
+ java -jar target/release-manager-1.0.0-SNAPSHOT-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     clone \
@@ -175,7 +173,7 @@ Generate a list of CVE. This process will print the list of CVE in a report.
 If the `-r` option is used this list will also be pushed to GitHub, being the `-o` option required for that.
 
 ```bash
- java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+ java -jar target/release-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u JBOSS_JIRA_USER \
     -p JBOSS_JIRA_PWD \
     list-cves \
@@ -204,7 +202,7 @@ The required parameters are the following:
 Execution example: 
 
 ```bash
-$ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+$ java -jar target/release-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
   -u ${JBOSS_JIRA_USER} -p ${JBOSS_JIRA_PWD} \
   update-build-config \
   -g snowdrop/spring-boot-bom -o ${GITHUB_TOKEN} -glu ${GITLAB_USER} -glt ${GITLAB_TOKEN} -r 2.4.3  -q Alpha1 -m "DR*"
@@ -218,12 +216,12 @@ To query the JIRA server using `HTTP` requests (GET, POST, ...), you can execute
 ### Get JIRA issue
 
 ```bash
-http --verify=no --follow --auth user:pwd https://issues.jboss.org/rest/api/2/issue/SB-889
+http --verify=no --follow --auth user:pwd https://issues.redhat.com/rest/api/2/issue/SB-889
 ```
 
 ### Post a new JIRA ticket
 
 ```bash
-http --verify=no --follow  --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
+http --verify=no --follow  --auth user:pwd POST https://issues.redhat.com/rest/api/2/issue/ < jira.json
 ```
 

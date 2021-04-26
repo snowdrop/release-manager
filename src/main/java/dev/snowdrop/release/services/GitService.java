@@ -173,7 +173,7 @@ public class GitService {
 
         @Override
         String directoryPrefix() {
-            return "issues-manager-" + org + "-" + repo;
+            return "release-manager-" + org + "-" + repo;
         }
 
         @Override
