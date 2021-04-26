@@ -22,12 +22,22 @@ jobs:
             -   name: Build
                 run: ./mvnw clean package -X
 
+            -   name: Upload jar file created
+                uses: actions/upload-artifact@v2
+                with:
+                    name: release-manager-jar-file
+                    path: ./target/*-runner.jar
+
     build-container:
         name: "Build container image"
         runs-on: ubuntu-latest
         if: ${{ github.ref == 'refs/heads/main' }}
         steps:
             -   uses: actions/checkout@v2
+            -   name: Upload jar file built
+                uses: actions/download-artifact@v2
+                with:
+                    name: release-manager-jar-file
             -   name: Container meta
                 id: container_meta
                 uses: crazy-max/ghaction-docker-meta@v2
