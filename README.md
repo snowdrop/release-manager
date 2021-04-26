@@ -178,6 +178,35 @@ The unit tests require the providing of 2 parameters to be able to login to the 
 $ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
+Test profiles have been implemented to differenciate unit tests and integration tests (testing against the actual JIRA API).
+
+### Profiles
+
+The following profiles have been created:
+* core - core tests
+* it - integration tests
+
+Executing a specific profile is as simple as passing the profile tag name in the test maven command line. More information on
+running specific Quarkus test profiles [here](https://quarkus.io/guides/getting-started-testing#running-specific-tests).
+
+```bash
+$ mvn test -Dquarkus.test.profile.tags=<test profile tag [core,it]> -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
+The `quarkus.test.profile.tags` is optional and if no profile tag is included all the tests are executed. 
+
+To launch the core tests without executing the integration tests use the following command.
+
+```bash
+$ mvn test -Dquarkus.test.profile.tags=core -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
+Integration tests can also be executed specifically. 
+
+```bash
+$ mvn test -Dquarkus.test.profile.tags=it -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
 ## Tricks
 
 To query the JIRA server using `HTTP` requests (GET, POST, ...), you can execute the following commands
