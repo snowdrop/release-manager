@@ -155,6 +155,6 @@ public class ReleaseFactory {
     }
 
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
-        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null, null), relativePath);
+        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null, Optional.empty()), relativePath);
     }
 }

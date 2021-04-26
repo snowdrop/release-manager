@@ -130,7 +130,7 @@ public class GitService {
 
         private final String token;
 
-        GitHubConfig(String org, String repo, String branch, String token, String previousBranch) {
+        public GitHubConfig(String org, String repo, String branch, String token, Optional<String> previousBranch) {
             super(org, repo, branch, previousBranch);
             this.token = token;
         }
@@ -160,7 +160,7 @@ public class GitService {
         private final String user;
         private final String token;
 
-        private GitLabConfig(String org, String repo, String branch, String user, String token, String previousBranch) {
+        private GitLabConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
             super(org, repo, branch, previousBranch);
             this.user = user;
             this.token = token;
@@ -197,9 +197,9 @@ public class GitService {
         private final CompletableFuture<Boolean> branchMissing;
 
 
-        private GitConfig(String org, String repo, String branch, String cloneFromBranch) {
-            if (cloneFromBranch != null) {
-                this.cloneFromBranch = cloneFromBranch;
+        private GitConfig(String org, String repo, String branch, Optional<String> cloneFromBranch) {
+            if (cloneFromBranch.isPresent()) {
+                this.cloneFromBranch = cloneFromBranch.get();
             }
             this.org = org;
             this.repo = repo;
@@ -224,18 +224,18 @@ public class GitService {
          * @param gitRef          a String in the {@code organization/repository/branch} format where {@code branch} can point
          *                        to a non-existing branch
          * @param token           the GitHub token to use for the operations
-         * @param cloneFromBranch the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
+         * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
          *                        If {@code null} is specified, then {@link #DEFAULT_CLONE_FROM_BRANCH} will be used if the
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
-        public static GitConfig githubConfig(String gitRef, String token, String cloneFromBranch) {
+        public static GitConfig githubConfig(String gitRef, String token, Optional<String> cloneFromGitRef) {
             final var split = gitRef.split("/");
             if (split.length != 3) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository/branch format.");
             }
-            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromBranch);
+            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromGitRef);
         }
 
         /**
@@ -251,7 +251,7 @@ public class GitService {
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
-        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, String cloneFromGitRef) {
+        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef) {
             final var split = gitRef.split("/");
             if (split.length != 2) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
