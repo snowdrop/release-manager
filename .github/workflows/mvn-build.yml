@@ -22,6 +22,12 @@ jobs:
             -   name: Build
                 run: ./mvnw clean package -X
 
+    build-container:
+        name: "Build container image"
+        runs-on: ubuntu-latest
+        if: github.event_name != 'push'
+        steps:
+            -   uses: actions/checkout@v2
             -   name: Container meta
                 id: container_meta
                 uses: crazy-max/ghaction-docker-meta@v2
