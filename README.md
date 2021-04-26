@@ -2,21 +2,23 @@
 
 ## Table of Contents
 
-  * [Table of Contents](#table-of-contents)
-  * [Introduction](#introduction)
-  * [Release process](#release-process)
-      * [Instructions](#instructions)
-      * [Release definition](#release-definition)
-      * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
-      * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
-      * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
-      * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
-      * [List CVE](#list-cve)
-      * [Update Build Config](#update-build-config)
-  * [Testing](#testing)
-  * [Tricks](#tricks)
-      * [Get JIRA issue](#get-jira-issue)
-      * [Post a new JIRA ticket](#post-a-new-jira-ticket)
+   * [Release Manager Tool](#release-manager-tool)
+      * [Table of Contents](#table-of-contents)
+      * [Introduction](#introduction)
+      * [Release process](#release-process)
+         * [Instructions](#instructions)
+         * [Release definition](#release-definition)
+         * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
+         * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
+         * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
+         * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
+         * [List CVE](#list-cve)
+         * [Update Build Config](#update-build-config)
+      * [Testing](#testing)
+         * [Profiles](#profiles)
+      * [Tricks](#tricks)
+         * [Get JIRA issue](#get-jira-issue)
+         * [Post a new JIRA ticket](#post-a-new-jira-ticket)
     
 ## Introduction
 
