@@ -235,6 +235,12 @@ public class GitService {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository format.");
             }
+            final var validateRelease = release.split("/.");
+            if (validateRelease.length != 3) {
+                throw new IllegalArgumentException("Invalid release: " + release
+                    + ". Must follow Major.Minor.Fix format.");
+            }
+
             final var branch = "snowdrop-issues-manager-" + release;
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
