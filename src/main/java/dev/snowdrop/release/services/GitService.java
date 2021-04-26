@@ -174,10 +174,14 @@ public class GitService {
         private final String token;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         public GitHubConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
 =======
         GitHubConfig(String org, String repo, String branch, String token, String previousBranch) {
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+        public GitHubConfig(String org, String repo, String branch, String token, Optional<String> previousBranch) {
+>>>>>>> be28354 (fix: changes lost in the previous conflict merge)
             super(org, repo, branch, previousBranch);
             this.user = user;
             this.token = token;
@@ -208,7 +212,7 @@ public class GitService {
         private final String user;
         private final String token;
 
-        private GitLabConfig(String org, String repo, String branch, String user, String token, String previousBranch) {
+        private GitLabConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
             super(org, repo, branch, previousBranch);
             this.user = user;
             this.token = token;
@@ -249,9 +253,9 @@ public class GitService {
         protected String cloneFromBranch = DEFAULT_CLONE_FROM_BRANCH;
 
 
-        private GitConfig(String org, String repo, String branch, String cloneFromBranch) {
-            if (cloneFromBranch != null) {
-                this.cloneFromBranch = cloneFromBranch;
+        private GitConfig(String org, String repo, String branch, Optional<String> cloneFromBranch) {
+            if (cloneFromBranch.isPresent()) {
+                this.cloneFromBranch = cloneFromBranch.get();
             }
             this.org = org;
             this.repo = repo;
@@ -281,27 +285,39 @@ public class GitService {
          * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
 =======
          * @param token           the GitHub token to use for the operations
+<<<<<<< HEAD
          * @param cloneFromBranch the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+         * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
+>>>>>>> be28354 (fix: changes lost in the previous conflict merge)
          *                        If {@code null} is specified, then {@link #DEFAULT_CLONE_FROM_BRANCH} will be used if the
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
 <<<<<<< HEAD
+<<<<<<< HEAD
         public static GitConfig githubConfig(String gitRef, String user, String token, Optional<String> cloneFromGitRef) {
 =======
         public static GitConfig githubConfig(String gitRef, String token, String cloneFromBranch) {
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+        public static GitConfig githubConfig(String gitRef, String token, Optional<String> cloneFromGitRef) {
+>>>>>>> be28354 (fix: changes lost in the previous conflict merge)
             final var split = gitRef.split("/");
             if (split.length != 3) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository/branch format.");
             }
 <<<<<<< HEAD
+<<<<<<< HEAD
             return new GitHubConfig(split[0], split[1], split[2], user, token, cloneFromGitRef);
 =======
             return new GitHubConfig(split[0], split[1], split[2], token, cloneFromBranch);
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromGitRef);
+>>>>>>> be28354 (fix: changes lost in the previous conflict merge)
         }
 
         /**
@@ -318,10 +334,14 @@ public class GitService {
          * @return the {@link GitConfig} needed to operate on the repository
          */
 <<<<<<< HEAD
+<<<<<<< HEAD
         public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef, Optional<String> newBranch) {
 =======
         public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, String cloneFromGitRef) {
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef) {
+>>>>>>> be28354 (fix: changes lost in the previous conflict merge)
             final var split = gitRef.split("/");
             if (split.length != 2) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef

@@ -156,9 +156,13 @@ public class ReleaseFactory {
 
     static InputStream getStreamFromGitRef(String gitRef, String relativePath) throws IOException {
 <<<<<<< HEAD
+<<<<<<< HEAD
         return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null, null, Optional.empty()), relativePath);
 =======
         return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null, null), relativePath);
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+        return GitService.getStreamFrom(GitConfig.githubConfig(gitRef, null, Optional.empty()), relativePath);
+>>>>>>> be28354 (fix: changes lost in the previous conflict merge)
     }
 }
