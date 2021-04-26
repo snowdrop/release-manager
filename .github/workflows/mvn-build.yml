@@ -27,8 +27,8 @@ jobs:
                 with:
                   name: release-manager-jar-files
                   path: |
-                    ${{ github.workspace }}/target/lib/
-                    ${{ github.workspace }}/target/*-runner.jar
+                    ${{ github.workspace }}/target/quarkus-app/lib
+                    ${{ github.workspace }}/target/quarkus-app/*.jar
                   if-no-files-found: error
 
     build-container:
