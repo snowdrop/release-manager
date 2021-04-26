@@ -37,7 +37,7 @@ public class App implements QuarkusApplication {
 
     @Inject
     @ConfigProperty(name = "gitlab.buildconfig.fork.repo", defaultValue = "snowdrop/build-configurations")
-    String buildConfigFormRepoName;
+    String buildConfigForkRepoName;
 
     static final Logger LOG = Logger.getLogger(App.class);
     @Inject
@@ -174,7 +174,7 @@ public class App implements QuarkusApplication {
             springBootBomUpdateService.newMajorMinor(bomGitConfig);
         }
 
-        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigFormRepoName,Optional.of("master"));
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"));
         git.initRepository(buildConfigGitlabConfig);
         if (!test) {
             buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
@@ -308,7 +308,7 @@ public class App implements QuarkusApplication {
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigFormRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> Stream.of(buildConfigUpdateService
