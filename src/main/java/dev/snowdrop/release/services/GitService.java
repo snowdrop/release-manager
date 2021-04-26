@@ -130,7 +130,7 @@ public class GitService {
 
         private final String token;
 
-        public GitHubConfig(String org, String repo, String branch, String token, Optional<String> previousBranch) {
+        GitHubConfig(String org, String repo, String branch, String token, String previousBranch) {
             super(org, repo, branch, previousBranch);
             this.token = token;
         }
@@ -160,7 +160,7 @@ public class GitService {
         private final String user;
         private final String token;
 
-        private GitLabConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
+        private GitLabConfig(String org, String repo, String branch, String user, String token, String previousBranch) {
             super(org, repo, branch, previousBranch);
             this.user = user;
             this.token = token;
@@ -189,16 +189,17 @@ public class GitService {
 
     public abstract static class GitConfig {
 
+        public static final String DEFAULT_CLONE_FROM_BRANCH = "master";
         protected final String org;
         protected final String repo;
         protected final String branch;
-        protected String cloneFromBranch="master";
+        protected String cloneFromBranch = DEFAULT_CLONE_FROM_BRANCH;
         private final CompletableFuture<Boolean> branchMissing;
 
 
-        private GitConfig(String org, String repo, String branch, Optional<String> cloneFromBranch) {
-            if (cloneFromBranch.isPresent()) {
-                this.cloneFromBranch = cloneFromBranch.get();
+        private GitConfig(String org, String repo, String branch, String cloneFromBranch) {
+            if (cloneFromBranch != null) {
+                this.cloneFromBranch = cloneFromBranch;
             }
             this.org = org;
             this.repo = repo;
@@ -215,21 +216,42 @@ public class GitService {
             }).thenApplyAsync(branches -> branches.stream().noneMatch(ref -> ref.getName().contains(branch)));
         }
 
-        public static GitConfig githubConfig(String gitRef, String token, Optional<String> cloneFromGitRef) {
+        /**
+         * Returns a {@link GitConfig} adapted to connect to a GitHub repository identified by the specified {@code gitRef},
+         * with the specified token and optionally cloning from the specified branch if the specified {@code gitRef} points to a
+         * non-existing branch.
+         *
+         * @param gitRef          a String in the {@code organization/repository/branch} format where {@code branch} can point
+         *                        to a non-existing branch
+         * @param token           the GitHub token to use for the operations
+         * @param cloneFromBranch the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
+         *                        If {@code null} is specified, then {@link #DEFAULT_CLONE_FROM_BRANCH} will be used if the
+         *                        desired branch needs to be created
+         * @return the {@link GitConfig} needed to operate on the repository
+         */
+        public static GitConfig githubConfig(String gitRef, String token, String cloneFromBranch) {
             final var split = gitRef.split("/");
             if (split.length != 3) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository/branch format.");
             }
-            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromGitRef);
+            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromBranch);
         }
 
-        public static String getDetaultBranchName(final String release) {
-            final String[] releaseMajorMinorFix = release.split("\\.");
-            return String.format("sb-%s.%s.x", releaseMajorMinorFix[0], releaseMajorMinorFix[1]);
-        }
-
-        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef) {
+        /**
+         * Creates a {@link GitConfig} adapted to operate on the GitLab repository identified by the specified parameters,
+         * creating the associated branch if needed.
+         *
+         * @param release         the Spring Boot release
+         * @param username        the GitLab user name
+         * @param token           the GitLab token
+         * @param gitRef          the git reference identifying the repository in the {@code organization/repository} format
+         * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
+         *                        If {@code null} is specified, then {@link #DEFAULT_CLONE_FROM_BRANCH} will be used if the
+         *                        desired branch needs to be created
+         * @return the {@link GitConfig} needed to operate on the repository
+         */
+        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, String cloneFromGitRef) {
             final var split = gitRef.split("/");
             if (split.length != 2) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
@@ -243,6 +265,17 @@ public class GitService {
 
             final var branch = "snowdrop-issues-manager-" + release;
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
+        }
+
+        /**
+         * Retrieves the default branch name associated with the specified Spring Boot release.
+         *
+         * @param release the Spring Boot release to derive a branch name from, in the {@code Major.Minor.Micro} format
+         * @return the default branch name in the {@code sb-Major.Minor.x} format
+         */
+        public static String getDefaultBranchName(final String release) {
+            final String[] releaseMajorMinorFix = release.split("\\.");
+            return String.format("sb-%s.%s.x", releaseMajorMinorFix[0], releaseMajorMinorFix[1]);
         }
 
         abstract CredentialsProvider getCredentialProvider();

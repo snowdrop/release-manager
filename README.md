@@ -1,38 +1,47 @@
-# JIRA Tools
+# Release Manager Tool
 
 ## Table of Contents
 
-  * [JIRA Tools](#jira-tools)
-      * [Table of Contents](#table-of-contents)
-      * [Introduction](#introduction)
-      * [Issues manager](#issues-manager)
-         * [Release definition](#release-definition)
-         * [Init release repositories for a new Major.Minor](#init-release-repositories-for-a-new-majorminor)
-         * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
-         * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
-         * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
-         * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
-         * [List CVE](#list-cve)
-         * [Update Build Config](#update-build-config)
-      * [HTTP Request to get or create JIRA tickets](#http-request-to-get-or-create-jira-tickets)
-         * [Get](#get)
-         * [Post](#post)
-
+* [Table of Contents](#table-of-contents)
+* [Introduction](#introduction)
+* [Release &amp; issues manager](#release--issues-manager)
+  * [Instructions](#instructions)
+  * [Release definition](#release-definition)
+  * [Init release repositories for a new Major.Minor](#init-release-repositories-for-a-new-majorminor)
+  * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
+  * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
+  * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
+  * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
+  * [List CVE](#list-cve)
+  * [Update Build Config](#update-build-config)
+* [Tricks](#tricks)
+  * [Get JIRA issue](#get-jira-issue)
+  * [Post a new JIRA ticket](#post-a-new-jira-ticket)
+    
 ## Introduction
 
 This project has been designed to investigate different technology able to manage the creation, update or deletion of the JIRA
 tickets as documented under the table of content. They could be used to automate Job's action or for your own personal needs to
 get a Jira issue, change the status, ...
 
-## Issues manager
+## Release & issues manager
 
-Instructions:
+### Instructions
 
 - Build the code
 
 ```bash
 mvn clean package 
 ```
+
+- Build the container image
+```bash
+docker build -f src/main/docker/Dockerfile.jvm -t snowdrop/release-manager:1.0 .
+docker tag snowdrop/release-manager:1.0 quay.io/snowdrop/release-manager:1.0
+docker push quay.io/snowdrop/release-manager:1.0
+```
+**Remark**: No `ENTRYPOINT` has been defined within the container in order to be able to execute the script `/deployments/run-java.sh` manually, using a Jenkins Pipeline Job. The UID of the user
+is `1000` like also the UID of the Jenkins JNLP Agent !
 
 ### Release definition
 
@@ -200,17 +209,19 @@ $ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.x
   update-build-config \
   -g snowdrop/spring-boot-bom -o ${GITHUB_TOKEN} -glu ${GITLAB_USER} -glt ${GITLAB_TOKEN} -r 2.4.3  -q Alpha1 -m "DR*"
 ```
-## HTTP Request to get or create JIRA tickets
+## Tricks
 
-Atlassian REST API v2 doc: https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/
+To query the JIRA server using `HTTP` requests (GET, POST, ...), you can execute the following commands
 
-### Get
+**Reference documentation** is available here at Atlassian [REST API v2 doc](https://docs.atlassian.com/software/jira/docs/api/REST/8.10.0/)
+
+### Get JIRA issue
 
 ```bash
 http --verify=no --follow --auth user:pwd https://issues.jboss.org/rest/api/2/issue/SB-889
 ```
 
-### Post
+### Post a new JIRA ticket
 
 ```bash
 http --verify=no --follow  --auth user:pwd POST https://issues.jboss.org/rest/api/2/issue/ < jira.json
