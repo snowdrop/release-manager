@@ -302,15 +302,24 @@ public class GitService {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository format.");
             }
+<<<<<<< HEAD
             final var validateRelease = release.split("\\.");
+=======
+            final var validateRelease = release.split("/.");
+>>>>>>> 6efa731 (feat: added validation to the gitlab config release name)
             if (validateRelease.length != 3) {
                 throw new IllegalArgumentException("Invalid release: " + release
                     + ". Must follow Major.Minor.Fix format.");
             }
+<<<<<<< HEAD
             var branch = "snowdrop-release-manager-" + release;
             if (newBranch.isPresent()) {
                 branch = newBranch.get();
             }
+=======
+
+            final var branch = "snowdrop-issues-manager-" + release;
+>>>>>>> 6efa731 (feat: added validation to the gitlab config release name)
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
 
