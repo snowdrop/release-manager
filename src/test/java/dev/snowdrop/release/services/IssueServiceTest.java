@@ -60,7 +60,7 @@ public class IssueServiceTest {
     }
 
     @Test
-    public void createAndDeleteIssue() throws Throwable {
+    public void cloneAndDeleteIssue() throws Throwable {
         InputStream releaseIS = HelperFunctions.getResourceAsStream("release_template_int_tests.yml");
         Release releaseObj = MAPPER.readValue(releaseIS, Release.class);
         releaseObj.setPom(POM.createFrom(HelperFunctions.getResourceAsStream("pom.xml")));
