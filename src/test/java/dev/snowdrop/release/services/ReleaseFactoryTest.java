@@ -228,11 +228,11 @@ public class ReleaseFactoryTest {
         assertFalse(component.getDescription().contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
         assertFalse(component.getDescription().contains("- product name:"));
         component = components.get(7);
-        assertEquals("Vert.X starter", component.getName());
+        assertEquals("Vert.x starter", component.getName());
         final var product = component.getProduct();
         assertNotNull(product);
-        assertEquals("Vert.X", product.getName());
-        assertEquals("Currently supported Vert.X version information", product.getTitle());
+        assertEquals("Vert.x", product.getName());
+        assertEquals("Currently supported Vert.x version information", product.getTitle());
         final var jbtmAssignee = product.getJira().getAssignee().get();
         assertEquals("rruss", jbtmAssignee);
         assertEquals(jbtmAssignee, component.getProductIssue().getAssignee().get());

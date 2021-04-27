@@ -98,7 +98,7 @@ components:
         properties:
             - narayana-starter
 
-    -   name: Vert.X starter
+    -   name: Vert.x starter
         starter: true
         release: false
         inProduct: false
