@@ -9,8 +9,6 @@ import java.util.Set;
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
  */
 public class TestProfiles  {
-    public static class NoTags implements QuarkusTestProfile {
-    }
 
     public static class CoreTags implements QuarkusTestProfile {
         @Override

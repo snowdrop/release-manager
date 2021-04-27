@@ -31,7 +31,6 @@ import java.net.URI;
 public class JiraClientConfigurationProperties {
 
     @Produces
-    @IfBuildProfile("test")
     @ApplicationScoped
     public JiraRestClient client() {
         final String user = ConfigProvider.getConfig().getValue("jboss.jira.user", String.class);
