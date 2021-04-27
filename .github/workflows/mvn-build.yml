@@ -27,6 +27,8 @@ jobs:
                 with:
                   name: release-manager-jar-files
                   path: |
+                    ${{ github.workspace }}/target/quarkus-app/app
+                    ${{ github.workspace }}/target/quarkus-app/quarkus
                     ${{ github.workspace }}/target/quarkus-app/lib
                     ${{ github.workspace }}/target/quarkus-app/*.jar
                   if-no-files-found: error
@@ -44,8 +46,8 @@ jobs:
                   name: release-manager-jar-files
                   path: target/
  
-            -   name: Display structure of downloaded files
-                run: ls -R
+            -   name: Display structure of directories and files
+                run: find . -type d
   
             -   name: Container meta
                 id: container_meta
