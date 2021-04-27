@@ -42,16 +42,7 @@ public class IssueServiceTest {
     private static final YAMLMapper MAPPER = new YAMLMapper();
 
     @Inject
-    JiraIssueFactory factory;
-
-
-    @Inject
     IssueService service;
-
-    private static JiraRestClient client(final String jiraUser, final String jiraPw) {
-        AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-        return factory.createWithBasicHttpAuthentication(URI.create(Utility.JIRA_SERVER), jiraUser, jiraPw);
-    }
 
     @Test
     public void getIssue() throws Throwable {
