@@ -69,7 +69,7 @@ configuration.
 ```bash
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u <jira user> -p <jira password> 
-    new-maj-min 
+    new-build-config-version 
     -g <github org>/<github repo>/<git reference: branch, tag, hash> \ 
     -o <github token> \
     -glu <gitlab user> \
@@ -83,7 +83,7 @@ e.g.
 ```bash
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u my_user -p my_secret \
-    new-maj-min 
+    new-build-config-version
     -g snowdrop/spring-boot-bom/sb-2.4.x \
     -o my_github_token 
     -glu my_gitlab_user -glt my_gitlab_token 

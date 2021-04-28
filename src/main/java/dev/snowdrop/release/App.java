@@ -140,7 +140,7 @@ public class App implements QuarkusApplication {
     }
 
     @CommandLine.Command(
-        name = "new-maj-min",
+        name = "new-build-config-version",
         description = "Initialize repositories for a new Major.Minor release.")
     public void newMajorMinor(
         @CommandLine.Option(
