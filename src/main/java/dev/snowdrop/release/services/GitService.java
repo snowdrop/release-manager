@@ -363,8 +363,12 @@ public class GitService {
             }
 =======
 
+<<<<<<< HEAD
             final var branch = "snowdrop-issues-manager-" + release;
 >>>>>>> 6efa731 (feat: added validation to the gitlab config release name)
+=======
+            final var branch = "snowdrop-release-manager-" + release;
+>>>>>>> 36e9fd0 (fix: replaced references to issues-manager with references to release-manager)
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
 
