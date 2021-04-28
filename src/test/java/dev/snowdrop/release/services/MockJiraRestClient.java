@@ -13,93 +13,80 @@
  */
 package dev.snowdrop.release.services;
 
-import java.io.IOException;
+import com.atlassian.jira.rest.client.api.*;
 
+import javax.enterprise.inject.Alternative;
 import javax.inject.Singleton;
-
-import com.atlassian.jira.rest.client.api.AuditRestClient;
-import com.atlassian.jira.rest.client.api.ComponentRestClient;
-import com.atlassian.jira.rest.client.api.GroupRestClient;
-import com.atlassian.jira.rest.client.api.IssueRestClient;
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.MetadataRestClient;
-import com.atlassian.jira.rest.client.api.MyPermissionsRestClient;
-import com.atlassian.jira.rest.client.api.ProjectRestClient;
-import com.atlassian.jira.rest.client.api.ProjectRolesRestClient;
-import com.atlassian.jira.rest.client.api.SearchRestClient;
-import com.atlassian.jira.rest.client.api.SessionRestClient;
-import com.atlassian.jira.rest.client.api.UserRestClient;
-import com.atlassian.jira.rest.client.api.VersionRestClient;
-import io.quarkus.test.Mock;
+import java.io.IOException;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
-@Mock
 @Singleton
+@Alternative
 public class MockJiraRestClient implements JiraRestClient {
     @Override
     public IssueRestClient getIssueClient() {
         return new MockIssueRestClient();
     }
-    
+
     @Override
     public SessionRestClient getSessionClient() {
         return null;
     }
-    
+
     @Override
     public UserRestClient getUserClient() {
         return new MockUserRestClient();
     }
-    
+
     @Override
     public GroupRestClient getGroupClient() {
         return null;
     }
-    
+
     @Override
     public ProjectRestClient getProjectClient() {
         return new MockProjectRestClient();
     }
-    
+
     @Override
     public ComponentRestClient getComponentClient() {
         return null;
     }
-    
+
     @Override
     public MetadataRestClient getMetadataClient() {
         return null;
     }
-    
+
     @Override
     public SearchRestClient getSearchClient() {
         return null;
     }
-    
+
     @Override
     public VersionRestClient getVersionRestClient() {
         return null;
     }
-    
+
     @Override
     public ProjectRolesRestClient getProjectRolesRestClient() {
         return null;
     }
-    
+
     @Override
     public AuditRestClient getAuditRestClient() {
         return null;
     }
-    
+
     @Override
     public MyPermissionsRestClient getMyPermissionsRestClient() {
         return null;
     }
-    
+
     @Override
     public void close() throws IOException {
-    
+
     }
 }

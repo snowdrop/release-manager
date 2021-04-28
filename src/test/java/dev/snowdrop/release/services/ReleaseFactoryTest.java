@@ -13,48 +13,38 @@
  */
 package dev.snowdrop.release.services;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import dev.snowdrop.release.model.Artifact;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.Release;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import javax.inject.Inject;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 @QuarkusTest
+@TestProfile(TestProfiles.CoreTags.class)
 public class ReleaseFactoryTest {
 
     @Inject
     ReleaseFactory factory;
 
-    private static InputStream getResourceAsStream(String s) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
-    }
-
     @Test
     public void missingVersionShouldNotFail() throws Throwable {
-        factory.createFrom(getResourceAsStream("missing_version_template.yml"), getResourceAsStream("pom.xml"), true,
+        factory.createFrom(HelperFunctions.getResourceAsStream("missing_version_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"), true,
                 false);
     }
 
     @Test
     public void missingScheduleShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("missing_schedule_template.yml"), getResourceAsStream("pom.xml"),
+            factory.createFrom(HelperFunctions.getResourceAsStream("missing_schedule_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),
                     true, false);
             fail("should have failed on missing schedule");
         } catch (IllegalArgumentException e) {
@@ -68,7 +58,7 @@ public class ReleaseFactoryTest {
     @Test
     public void wrongScheduleShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_schedule_template.yml"), getResourceAsStream("pom.xml"),
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_schedule_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),
                     true, false);
             fail("should have failed on invalid schedule");
         } catch (IllegalArgumentException e) {
@@ -83,7 +73,7 @@ public class ReleaseFactoryTest {
     @Test
     public void mismatchedPOMVersionsShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream("mismatched-pom.xml"),
+            factory.createFrom(HelperFunctions.getResourceAsStream("release_template.yml"), HelperFunctions.getResourceAsStream("mismatched-pom.xml"),
                     true, false);
             fail("should have failed on mismatched POM versions");
         } catch (IllegalArgumentException e) {
@@ -98,7 +88,7 @@ public class ReleaseFactoryTest {
     @Test
     public void invalidComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_project_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_project_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on invalid component project");
         } catch (IllegalArgumentException e) {
@@ -119,7 +109,7 @@ public class ReleaseFactoryTest {
     @Test
     public void emptyComponentProjectShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_empty_project_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_empty_project_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on empty component project");
         } catch (IllegalArgumentException e) {
@@ -135,14 +125,14 @@ public class ReleaseFactoryTest {
 
     @Test
     public void invalidComponentProjectShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid_component_project_template.yml"), getResourceAsStream(
+        factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_project_template.yml"), HelperFunctions.getResourceAsStream(
                 "pom.xml"), true, false);
     }
 
     @Test
     public void invalidComponentIssueTypeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_issuetypeid_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_issuetypeid_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on invalid component issue type");
         } catch (IllegalArgumentException e) {
@@ -155,14 +145,14 @@ public class ReleaseFactoryTest {
 
     @Test
     public void invalidComponentIssueTypeShouldNotFailIfProductsAreSkipped() throws Throwable {
-        factory.createFrom(getResourceAsStream("invalid_component_issuetypeid_template.yml"), getResourceAsStream(
+        factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_issuetypeid_template.yml"), HelperFunctions.getResourceAsStream(
                 "pom.xml"), true, false);
     }
 
     @Test
     public void invalidComponentAssigneeShouldFail() {
         try {
-            factory.createFrom(getResourceAsStream("invalid_component_assignee_template.yml"), getResourceAsStream(
+            factory.createFrom(HelperFunctions.getResourceAsStream("invalid_component_assignee_template.yml"), HelperFunctions.getResourceAsStream(
                     "pom.xml"), false, false);
             fail("should have failed on invalid component assignee");
         } catch (IllegalArgumentException e) {
@@ -176,7 +166,7 @@ public class ReleaseFactoryTest {
 
     @Test
     public void validReleaseShouldWork() throws Throwable {
-        final Release release = factory.createFrom(getResourceAsStream("release_template.yml"), getResourceAsStream(
+        final Release release = factory.createFrom(HelperFunctions.getResourceAsStream("release_template.yml"), HelperFunctions.getResourceAsStream(
                 "pom.xml"));
         validate(release);
     }
@@ -187,7 +177,7 @@ public class ReleaseFactoryTest {
         assertEquals(expectedSBVersion, release.getVersion());
 
         final List<Component> components = release.getComponents();
-        assertEquals(11, components.size());
+        assertEquals(10, components.size());
 
         var component = components.get(0);
         assertNotNull(component.getParent());
@@ -209,28 +199,41 @@ public class ReleaseFactoryTest {
         var description = component.getDescription();
         assertTrue(description.contains(component.getParent().getVersion()));
         assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
+        assertTrue(description.contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
+        assertFalse(description.contains("tested and supported"));
+        assertTrue(description.contains("- product name:"));
         for (Artifact artifact : artifacts) {
             assertTrue(description.contains(artifact.getName()));
             assertTrue(description.contains(artifact.getVersion()));
         }
 
-        component = components.get(7);
+        component = components.get(2);
+        assertEquals("AMQP", component.getName());
+        assertTrue(component.getDescription().contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
+        assertTrue(component.getDescription().contains("tested and supported"),component.toString() + component.getDescription());
+        assertFalse(component.getDescription().contains("- product name:"),component.toString() + component.getDescription());
+        component = components.get(6);
         assertEquals("Narayana starter", component.getName());
+        assertTrue(component.getDescription().contains("tested and supported"));
+        assertFalse(component.getDescription().contains("It is important that you also communicate the EOL of your product so that we can plan our future releases accordingly."));
+        assertFalse(component.getDescription().contains("- product name:"));
+        component = components.get(7);
+        assertEquals("Vert.x starter", component.getName());
         final var product = component.getProduct();
         assertNotNull(product);
-        assertEquals("Narayana", product.getName());
-        assertEquals("Currently supported Narayana version information", product.getTitle());
+        assertEquals("Vert.x", product.getName());
+        assertEquals("Currently supported Vert.x version information", product.getTitle());
         final var jbtmAssignee = product.getJira().getAssignee().get();
-        assertEquals("mmusgrov", jbtmAssignee);
+        assertEquals("rruss", jbtmAssignee);
         assertEquals(jbtmAssignee, component.getProductIssue().getAssignee().get());
         final var jira = component.getJira();
         assertEquals("gytis", jira.getAssignee().get());
         final var endOfSupportDate = product.getEndOfSupportDate();
         assertEquals(component.getParent().getSchedule().getFormattedEOLDate(), endOfSupportDate);
         description = product.getDescription();
-        assertTrue(description.contains(endOfSupportDate));
-        assertTrue(description.contains(expectedSBVersion));
-        assertFalse(description.contains("**")); // this would happen if some substitutions didn't happen
+        assertTrue(component.getDescription().contains(endOfSupportDate));
+        assertTrue(component.getDescription().contains(expectedSBVersion));
+        assertFalse(component.getDescription().contains("**")); // this would happen if some substitutions didn't happen
     }
 
     @Test
