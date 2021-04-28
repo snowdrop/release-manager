@@ -14,43 +14,25 @@
 package dev.snowdrop.release.services;
 
 import dev.snowdrop.release.exception.JiraGavDescriptionNotParsableException;
-import dev.snowdrop.release.model.Artifact;
-import dev.snowdrop.release.model.Component;
-import dev.snowdrop.release.model.Release;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
-import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
  */
 @QuarkusTest
+@TestProfile(TestProfiles.CoreTags.class)
 public class JiraIssueFactoryTest {
 
     @Inject
     JiraIssueFactory factory;
-
-    private static InputStream getResourceAsStream(String s) {
-        return Thread.currentThread().getContextClassLoader().getResourceAsStream(s);
-    }
-
-    private static String getStreamContents(InputStream inputStream) {
-        String contents = "";
-        @SuppressWarnings("resource")
-        Scanner s = new Scanner(inputStream);
-        s.useDelimiter("\\A");
-        if (s.hasNext()) {
-            contents = s.next();
-        }
-        return contents;
-    }
 
     @Test
     public void emptyDescriptionShouldRaiseSpecificException() throws Throwable {
@@ -63,7 +45,7 @@ public class JiraIssueFactoryTest {
     }
 
     @Test
-    public void descriptionWithOnlySplitterShouldRaiseSpecificException() throws Throwable {
+    public void descriptionWithOnlySplitterShouldRaiseSpecificException() {
         try {
             factory.extractGAVArrayForProduct("===");
             assertFalse(true);
@@ -74,7 +56,7 @@ public class JiraIssueFactoryTest {
 
     @Test
     public void checkProductResult() throws Throwable {
-        final String jiraDescription = getStreamContents(getResourceAsStream("jira_description_eap.txt"));
+        final String jiraDescription = HelperFunctions.getStreamContents(HelperFunctions.getResourceAsStream("jira_description_eap.txt"));
         try {
             factory.extractGAVArrayForProduct(jiraDescription);
             Map<String, String> gavMap = factory.getInfoForProductGroup(0);

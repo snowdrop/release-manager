@@ -13,31 +13,29 @@
  */
 package dev.snowdrop.release.services;
 
-import java.net.URI;
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import io.quarkus.arc.profile.IfBuildProfile;
+import io.quarkus.test.junit.TestProfile;
+import org.eclipse.microprofile.config.ConfigProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
-
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
-import io.quarkus.arc.DefaultBean;
-import picocli.CommandLine;
+import java.net.URI;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 @ApplicationScoped
-public class JiraClientConfiguration {
+@TestProfile(TestProfiles.IntegrationTests.class)
+public class JiraClientConfigurationProperties {
+
     @Produces
-    @DefaultBean
     @ApplicationScoped
-    public JiraRestClient client(CommandLine.ParseResult parseResult) {
-        final var user = parseResult.commandSpec().findOption('u').getValue().toString();
-        final var password = parseResult.commandSpec().findOption('p').getValue().toString();
-        // url is optional but with a default value, getting it from the command spec gets the resolved default value
-        //if no value was provided. See: https://github.com/remkop/picocli/issues/1148#issuecomment-675753434
-        final var jiraServerUri = parseResult.commandSpec().findOption("url").getValue().toString();
+    public JiraRestClient client() {
+        final String user = ConfigProvider.getConfig().getValue("jboss.jira.user", String.class);
+        final String password = ConfigProvider.getConfig().getValue("jboss.jira.password", String.class);
         AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-        return factory.createWithBasicHttpAuthentication(URI.create(jiraServerUri), user, password);
+        return factory.createWithBasicHttpAuthentication(URI.create(Utility.JIRA_SERVER), user, password);
     }
 }

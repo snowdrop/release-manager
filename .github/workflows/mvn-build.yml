@@ -3,9 +3,9 @@ name: "CI - JDK 11 Build"
 on:
     push:
         branches: [ main ]
-        tags: ['*.*']
     pull_request:
         branches: [ main ]
+
 
 jobs:
     build-jdk11:
@@ -18,9 +18,8 @@ jobs:
                 uses: joschi/setup-jdk@v2.3.0
                 with:
                     java-version: 11
-
             -   name: Build
-                run: ./mvnw clean package -X
+                run: ./mvnw clean package -X -Dquarkus.test.profile.tags=core
 
             -   name: Upload jar file created
                 uses: actions/upload-artifact@v2

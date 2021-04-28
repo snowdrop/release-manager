@@ -2,20 +2,23 @@
 
 ## Table of Contents
 
-  * [Table of Contents](#table-of-contents)
-  * [Introduction](#introduction)
-  * [Release process](#release-process)
-      * [Instructions](#instructions)
-      * [Release definition](#release-definition)
-      * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
-      * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
-      * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
-      * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
-      * [List CVE](#list-cve)
-      * [Update Build Config](#update-build-config)
-  * [Tricks](#tricks)
-      * [Get JIRA issue](#get-jira-issue)
-      * [Post a new JIRA ticket](#post-a-new-jira-ticket)
+   * [Release Manager Tool](#release-manager-tool)
+      * [Table of Contents](#table-of-contents)
+      * [Introduction](#introduction)
+      * [Release process](#release-process)
+         * [Instructions](#instructions)
+         * [Release definition](#release-definition)
+         * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
+         * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
+         * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
+         * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
+         * [List CVE](#list-cve)
+         * [Update Build Config](#update-build-config)
+      * [Testing](#testing)
+         * [Profiles](#profiles)
+      * [Tricks](#tricks)
+         * [Get JIRA issue](#get-jira-issue)
+         * [Post a new JIRA ticket](#post-a-new-jira-ticket)
     
 ## Introduction
 
@@ -168,6 +171,44 @@ $ java -jar target/quarkus-app/quarkus-run.jar \
   update-build-config \
   -g snowdrop/spring-boot-bom -o ${GITHUB_TOKEN} -glu ${GITLAB_USER} -glt ${GITLAB_TOKEN} -r 2.4.3  -q Alpha1 -m "DR*"
 ```
+
+## Testing
+
+The unit tests require the providing of 2 parameters to be able to login to the JIRA REST API.
+
+```bash
+$ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
+Test profiles have been implemented to differenciate unit tests and integration tests (testing against the actual JIRA API).
+
+### Profiles
+
+The following profiles have been created:
+* core - core tests
+* it - integration tests
+
+Executing a specific profile is as simple as passing the profile tag name in the test maven command line. More information on
+running specific Quarkus test profiles [here](https://quarkus.io/guides/getting-started-testing#running-specific-tests).
+
+```bash
+$ mvn test -Dquarkus.test.profile.tags=<test profile tag [core,it]> -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
+The `quarkus.test.profile.tags` is optional and if no profile tag is included all the tests are executed. 
+
+To launch the core tests without executing the integration tests use the following command.
+
+```bash
+$ mvn test -Dquarkus.test.profile.tags=core -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
+Integration tests can also be executed specifically. 
+
+```bash
+$ mvn test -Dquarkus.test.profile.tags=it -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+```
+
 ## Tricks
 
 To query the JIRA server using `HTTP` requests (GET, POST, ...), you can execute the following commands
