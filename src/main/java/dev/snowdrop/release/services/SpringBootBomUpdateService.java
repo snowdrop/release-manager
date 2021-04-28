@@ -19,7 +19,7 @@ public class SpringBootBomUpdateService {
     GitService git;
 
     public void newMajorMinor(GitService.GitConfig bomGitConfig) throws IOException {
-        git.commitAndPush("chore: update release issues' key [issues-manager]", bomGitConfig, repo -> {
+        git.commitAndPush("chore: update release issues' key [release-manager]", bomGitConfig, repo -> {
             LOG.infof("repo-> %s", repo.getAbsolutePath());
             FileFilter fileFilter = new WildcardFileFilter("release-*.yml");
             File[] files = repo.listFiles(fileFilter);

@@ -39,7 +39,7 @@ public class BuildConfigUpdateService {
     GitService git;
 
     public void newMajorMinor(GitService.GitConfig buildConfigGitlabConfig, final String releaseMajorVersion, final String releaseMinorVersion, final String prevReleaseMajorVersion, final String prevReleaseMinorVersion) throws IOException {
-            git.commitAndPush("chore: update release issues' key [issues-manager]", buildConfigGitlabConfig, repo -> {
+            git.commitAndPush("chore: update release issues' key [release-manager]", buildConfigGitlabConfig, repo -> {
                 final String repoPath = repo.getAbsolutePath();
                 LOG.infof("repo-> %s", repo.getAbsolutePath());
                 final Path destPath = Paths.get(String.format(repoPath+"/spring-boot/%s.%s", releaseMajorVersion, releaseMinorVersion));

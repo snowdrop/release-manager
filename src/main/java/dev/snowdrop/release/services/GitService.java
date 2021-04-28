@@ -263,7 +263,7 @@ public class GitService {
                     + ". Must follow Major.Minor.Fix format.");
             }
 
-            final var branch = "snowdrop-issues-manager-" + release;
+            final var branch = "snowdrop-release-manager-" + release;
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
 

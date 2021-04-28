@@ -250,7 +250,7 @@ public class App implements QuarkusApplication {
         }
 
         if (!release.isTestMode()) {
-            git.commitAndPush("chore: update release issues' key [issues-manager]", config, repo -> Stream
+            git.commitAndPush("chore: update release issues' key [release-manager]", config, repo -> Stream
                 .of(factory.updateRelease(repo, release)));
         }
         System.out.println(issue);
@@ -304,7 +304,7 @@ public class App implements QuarkusApplication {
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
         git.initRepository(config);
 
-        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> Stream.of(buildConfigUpdateService
+        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
             .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
     }
     
