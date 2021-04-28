@@ -103,10 +103,14 @@ configuration.
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u <jira user> -p <jira password> 
 <<<<<<< HEAD
+<<<<<<< HEAD
     new-build-config-version 
 =======
     new-maj-min 
 >>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
+=======
+    new-build-config-version 
+>>>>>>> 0990d4a (chore: changed the command name)
     -g <github org>/<github repo>/<git reference: branch, tag, hash> \ 
     -o <github token> \
     -glu <gitlab user> \
@@ -121,10 +125,14 @@ e.g.
 java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
     -u my_user -p my_secret \
 <<<<<<< HEAD
+<<<<<<< HEAD
     new-build-config-version
 =======
     new-maj-min 
 >>>>>>> 58aeda0 (docs: information on the execution of the New Major Minor command)
+=======
+    new-build-config-version
+>>>>>>> 0990d4a (chore: changed the command name)
     -g snowdrop/spring-boot-bom/sb-2.4.x \
     -o my_github_token 
     -glu my_gitlab_user -glt my_gitlab_token 
