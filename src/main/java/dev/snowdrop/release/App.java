@@ -155,7 +155,8 @@ public class App implements QuarkusApplication {
             description = "Github user name", required = true) String ghuser,
         @CommandLine.Option(
             names = {"-o", "--token"},
-            description = "Github API token",
+            description = "Gi" +
+                "thub API token",
             required = true) String token,
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
@@ -176,6 +177,7 @@ public class App implements QuarkusApplication {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"), Optional.empty());
 =======
         final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"));
@@ -183,6 +185,9 @@ public class App implements QuarkusApplication {
 =======
         final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigFormRepoName, null);
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"), Optional.empty());
+>>>>>>> d7a3708 (feat: integration tests for new major.minor release)
         git.initRepository(buildConfigGitlabConfig);
         if (!test) {
             buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
@@ -325,6 +330,7 @@ public class App implements QuarkusApplication {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
 =======
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
@@ -332,6 +338,9 @@ public class App implements QuarkusApplication {
 =======
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigFormRepoName, branchName);
 >>>>>>> c145217 (refactor: clean-up code)
+=======
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
+>>>>>>> d7a3708 (feat: integration tests for new major.minor release)
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
