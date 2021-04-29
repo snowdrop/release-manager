@@ -177,7 +177,7 @@ $ java -jar target/quarkus-app/quarkus-run.jar \
 The unit tests require the providing of 2 parameters to be able to login to the JIRA REST API.
 
 ```bash
-$ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ ./mvnw test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
 Test profiles have been implemented to differentiate unit tests and integration tests (testing against the actual JIRA API).
@@ -192,7 +192,7 @@ Executing a specific profile is as simple as passing the profile tag name in the
 running specific Quarkus test profiles [here](https://quarkus.io/guides/getting-started-testing#running-specific-tests).
 
 ```bash
-$ mvn test -Dquarkus.test.profile.tags=<test profile tag [core,it]> -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ ./mvnw test -Dquarkus.test.profile.tags=<test profile tag [core,it]> -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
 The `quarkus.test.profile.tags` is optional and if no profile tag is included all the tests are executed. 
@@ -200,13 +200,13 @@ The `quarkus.test.profile.tags` is optional and if no profile tag is included al
 To launch the core tests without executing the integration tests use the following command.
 
 ```bash
-$ mvn test -Dquarkus.test.profile.tags=core -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ ./mvnw test -Dquarkus.test.profile.tags=core -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
 Integration tests can also be executed specifically. 
 
 ```bash
-$ mvn test -Dquarkus.test.profile.tags=it -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ ./mvnw test -Dquarkus.test.profile.tags=it -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
 ## Tricks
