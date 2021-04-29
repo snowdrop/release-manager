@@ -51,6 +51,19 @@ public class GitService {
         }).thenApplyAsync(config::checkout));
     }
 
+    protected Git getConfig(GitConfig config) throws ExecutionException, InterruptedException {
+        return repositories.get(config).get();
+    }
+
+    protected void deleteRemoteBranch(GitConfig config, final String branchName) throws ExecutionException, InterruptedException, GitAPIException {
+//        repositories.get(config).get().clean();
+//        repositories.get(config).get().getRepository().close();
+        repositories.get(config).get().branchList().call().forEach(x->{LOG.warnf("%s", x.getName());});
+        repositories.get(config).get().checkout().setName("origin/ymaster").call();
+//        g.push().setRefSpecs(new RefSpec(branch + ":" + branch))
+        repositories.get(config).get().branchDelete().setBranchNames(branchName).setForce(true).call();
+    }
+
     public void commitAndPush(String commitMessage, GitConfig config, FileModifier... changed) throws IOException {
         CompletableFuture<Git> git = repositories.get(config);
         if (git == null) {
@@ -151,7 +164,7 @@ public class GitService {
 
         @Override
         public String getURI(String relativePath) {
-            return "https://raw.githubusercontent.com/" + org + "/" + repo + "/" +  branch + "/" + relativePath;
+            return "https://raw.githubusercontent.com/" + org + "/" + repo + "/" + branch + "/" + relativePath;
         }
     }
 
@@ -193,8 +206,8 @@ public class GitService {
         protected final String org;
         protected final String repo;
         protected final String branch;
-        protected String cloneFromBranch = DEFAULT_CLONE_FROM_BRANCH;
         private final CompletableFuture<Boolean> branchMissing;
+        protected String cloneFromBranch = DEFAULT_CLONE_FROM_BRANCH;
 
 
         private GitConfig(String org, String repo, String branch, Optional<String> cloneFromBranch) {
@@ -251,7 +264,7 @@ public class GitService {
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
-        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef) {
+        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef, Optional<String> newBranch) {
             final var split = gitRef.split("/");
             if (split.length != 2) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
@@ -262,8 +275,10 @@ public class GitService {
                 throw new IllegalArgumentException("Invalid release: " + release
                     + ". Must follow Major.Minor.Fix format.");
             }
-
-            final var branch = "snowdrop-release-manager-" + release;
+            var branch = "snowdrop-release-manager-" + release;
+            if (newBranch.isPresent()) {
+                branch = newBranch.get();
+            }
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
 

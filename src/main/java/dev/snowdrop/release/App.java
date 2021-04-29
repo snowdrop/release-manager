@@ -152,7 +152,8 @@ public class App implements QuarkusApplication {
             description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(
             names = {"-o", "--token"},
-            description = "Github API token",
+            description = "Gi" +
+                "thub API token",
             required = true) String token,
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
@@ -167,7 +168,7 @@ public class App implements QuarkusApplication {
             springBootBomUpdateService.newMajorMinor(bomGitConfig);
         }
 
-        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"));
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"), Optional.empty());
         git.initRepository(buildConfigGitlabConfig);
         if (!test) {
             buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
@@ -301,7 +302,7 @@ public class App implements QuarkusApplication {
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])));
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
         git.initRepository(config);
 
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
