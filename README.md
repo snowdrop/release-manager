@@ -180,7 +180,7 @@ The unit tests require the providing of 2 parameters to be able to login to the 
 $ mvn test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
-Test profiles have been implemented to differenciate unit tests and integration tests (testing against the actual JIRA API).
+Test profiles have been implemented to differentiate unit tests and integration tests (testing against the actual JIRA API).
 
 ### Profiles
 
