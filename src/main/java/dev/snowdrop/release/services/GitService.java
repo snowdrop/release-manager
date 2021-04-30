@@ -13,12 +13,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 
-import org.eclipse.jgit.api.Git;
+import com.atlassian.httpclient.api.factory.Host;
+import com.atlassian.jira.rest.client.api.domain.Session;
+import com.google.common.collect.Lists;
+import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.transport.*;
 import org.jboss.logging.Logger;
 
 @ApplicationScoped
@@ -56,12 +57,17 @@ public class GitService {
     }
 
     protected void deleteRemoteBranch(GitConfig config, final String branchName) throws ExecutionException, InterruptedException, GitAPIException {
-//        repositories.get(config).get().clean();
-//        repositories.get(config).get().getRepository().close();
-        repositories.get(config).get().branchList().call().forEach(x->{LOG.warnf("%s", x.getName());});
-        repositories.get(config).get().checkout().setName("origin/ymaster").call();
-//        g.push().setRefSpecs(new RefSpec(branch + ":" + branch))
-        repositories.get(config).get().branchDelete().setBranchNames(branchName).setForce(true).call();
+        Git git = repositories.get(config).get();
+        try {
+            LOG.warnf("On branch: %s", git.getRepository().getFullBranch());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x->{LOG.warnf("%s", x.getName());});
+        git.checkout().setName("master").setCreateBranch(true).call();
+        git.branchDelete().setBranchNames("integration-test-2.4.x").setForce(true).call().forEach(x->LOG.warnf("- [deleted]   %s", x));
+        git.push().setRefSpecs(new RefSpec("refs/remotes/origin/integration-test-2.4.x")).setRemote("origin").setCredentialsProvider(config.getCredentialProvider()).call();
+        git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x->{LOG.warnf("%s", x.getName());});
     }
 
     public void commitAndPush(String commitMessage, GitConfig config, FileModifier... changed) throws IOException {
@@ -141,10 +147,12 @@ public class GitService {
 
     public static class GitHubConfig extends GitConfig {
 
+        private final String user;
         private final String token;
 
-        public GitHubConfig(String org, String repo, String branch, String token, Optional<String> previousBranch) {
+        public GitHubConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
             super(org, repo, branch, previousBranch);
+            this.user = user;
             this.token = token;
         }
 
@@ -160,6 +168,7 @@ public class GitService {
         @Override
         public String remoteURI() {
             return "https://github.com/" + org + "/" + repo + ".git";
+//            return "git@github.com:" + org + "/" + repo + ".git";
         }
 
         @Override
@@ -236,19 +245,20 @@ public class GitService {
          *
          * @param gitRef          a String in the {@code organization/repository/branch} format where {@code branch} can point
          *                        to a non-existing branch
+         * @param user            the GitLab user name
          * @param token           the GitHub token to use for the operations
          * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
          *                        If {@code null} is specified, then {@link #DEFAULT_CLONE_FROM_BRANCH} will be used if the
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
-        public static GitConfig githubConfig(String gitRef, String token, Optional<String> cloneFromGitRef) {
+        public static GitConfig githubConfig(String gitRef, String user, String token, Optional<String> cloneFromGitRef) {
             final var split = gitRef.split("/");
             if (split.length != 3) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository/branch format.");
             }
-            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromGitRef);
+            return new GitHubConfig(split[0], split[1], split[2], user, token, cloneFromGitRef);
         }
 
         /**

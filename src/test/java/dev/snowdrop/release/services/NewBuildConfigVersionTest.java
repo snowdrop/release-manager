@@ -62,9 +62,10 @@ public class NewBuildConfigVersionTest {
     @Test
     public void newBOMMajMin() {
         final String token = ConfigProvider.getConfig().getValue("github.token", String.class);
+        final String user = ConfigProvider.getConfig().getValue("github.user", String.class);
         final String[] releaseMajorMinorFix = NEW_SB_VERSION.split("\\.");
         final String[] prevReleaseMajorMinorFix = PREVIOUS_SB_VERSION.split("\\.");
-        final GitService.GitConfig bomGitConfig = GitService.GitConfig.githubConfig(String.format("%s/%s",GIT_REPO,GIT_BRANCH), token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
+        final GitService.GitConfig bomGitConfig = GitService.GitConfig.githubConfig(String.format("%s/%s",GIT_REPO,GIT_BRANCH), user, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
         try {
             git.initRepository(bomGitConfig);
             springBootBomUpdateService.newMajorMinor(bomGitConfig);

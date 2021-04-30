@@ -151,9 +151,11 @@ public class App implements QuarkusApplication {
             names = {"-t", "--test"},
             description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(
+            names = {"-ghu", "--ghuser"},
+            description = "Github user name", required = true) String ghuser,
+        @CommandLine.Option(
             names = {"-o", "--token"},
-            description = "Gi" +
-                "thub API token",
+            description = "Github API token",
             required = true) String token,
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
@@ -162,7 +164,7 @@ public class App implements QuarkusApplication {
     ) throws Throwable {
         final String[] releaseMajorMinorFix = release.split("\\.");
         final String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
-        final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
+        final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef,ghuser, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
         git.initRepository(bomGitConfig);
         if (!test) {
             springBootBomUpdateService.newMajorMinor(bomGitConfig);
@@ -191,6 +193,9 @@ public class App implements QuarkusApplication {
             names = {"-t", "--test"},
             description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(
+            names = {"-ghu", "--ghuser"},
+            description = "Github user name", required = true) String ghuser,
+        @CommandLine.Option(
             names = {"-o", "--token"},
             description = "Github API token",
             required = true) String token,
@@ -202,7 +207,7 @@ public class App implements QuarkusApplication {
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
             required = true) String eolDate) throws Throwable {
-        final GitConfig config = GitConfig.githubConfig(gitRef, token, Optional.empty());
+        final GitConfig config = GitConfig.githubConfig(gitRef, ghuser, token, Optional.empty());
         if (!test) {
             git.initRepository(config); // init git repository to be able to update release
         }
