@@ -67,7 +67,6 @@ public class GitService {
         return repositories.get(config).get();
     }
 
-<<<<<<< HEAD
     protected void deleteRemoteBranch(GitConfig config, final String branchName, final String revertToBranch) throws ExecutionException, InterruptedException, GitAPIException {
         Git git = repositories.get(config).get();
         try {
@@ -92,15 +91,6 @@ public class GitService {
                 throw new RuntimeException(e);
             }
         });
-=======
-    protected void deleteRemoteBranch(GitConfig config, final String branchName) throws ExecutionException, InterruptedException, GitAPIException {
-//        repositories.get(config).get().clean();
-//        repositories.get(config).get().getRepository().close();
-        repositories.get(config).get().branchList().call().forEach(x->{LOG.warnf("%s", x.getName());});
-        repositories.get(config).get().checkout().setName("origin/ymaster").call();
-//        g.push().setRefSpecs(new RefSpec(branch + ":" + branch))
-        repositories.get(config).get().branchDelete().setBranchNames(branchName).setForce(true).call();
->>>>>>> d7a3708 (feat: integration tests for new major.minor release)
     }
 
     public void commitAndPush(String commitMessage, GitConfig config, FileModifier... changed) throws IOException {
@@ -183,15 +173,7 @@ public class GitService {
         private final String user;
         private final String token;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         public GitHubConfig(String org, String repo, String branch, String user, String token, Optional<String> previousBranch) {
-=======
-        GitHubConfig(String org, String repo, String branch, String token, String previousBranch) {
->>>>>>> c145217 (refactor: clean-up code)
-=======
-        public GitHubConfig(String org, String repo, String branch, String token, Optional<String> previousBranch) {
->>>>>>> be28354 (fix: changes lost in the previous conflict merge)
             super(org, repo, branch, previousBranch);
             this.user = user;
             this.token = token;
@@ -255,13 +237,6 @@ public class GitService {
         protected final String org;
         protected final String repo;
         protected final String branch;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        protected String cloneFromBranch = DEFAULT_CLONE_FROM_BRANCH;
->>>>>>> c145217 (refactor: clean-up code)
-=======
->>>>>>> d7a3708 (feat: integration tests for new major.minor release)
         private final CompletableFuture<Boolean> branchMissing;
         protected String cloneFromBranch = DEFAULT_CLONE_FROM_BRANCH;
 
@@ -292,45 +267,20 @@ public class GitService {
          *
          * @param gitRef          a String in the {@code organization/repository/branch} format where {@code branch} can point
          *                        to a non-existing branch
-<<<<<<< HEAD
          * @param user            the GitLab user name
          * @param token           the GitHub token to use for the operations
          * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
-=======
-         * @param token           the GitHub token to use for the operations
-<<<<<<< HEAD
-         * @param cloneFromBranch the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
->>>>>>> c145217 (refactor: clean-up code)
-=======
-         * @param cloneFromGitRef the name of the branch to clone from if the branch specified by {@code gitRef} doesn't exist.
->>>>>>> be28354 (fix: changes lost in the previous conflict merge)
          *                        If {@code null} is specified, then {@link #DEFAULT_CLONE_FROM_BRANCH} will be used if the
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
-<<<<<<< HEAD
-<<<<<<< HEAD
         public static GitConfig githubConfig(String gitRef, String user, String token, Optional<String> cloneFromGitRef) {
-=======
-        public static GitConfig githubConfig(String gitRef, String token, String cloneFromBranch) {
->>>>>>> c145217 (refactor: clean-up code)
-=======
-        public static GitConfig githubConfig(String gitRef, String token, Optional<String> cloneFromGitRef) {
->>>>>>> be28354 (fix: changes lost in the previous conflict merge)
             final var split = gitRef.split("/");
             if (split.length != 3) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository/branch format.");
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
             return new GitHubConfig(split[0], split[1], split[2], user, token, cloneFromGitRef);
-=======
-            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromBranch);
->>>>>>> c145217 (refactor: clean-up code)
-=======
-            return new GitHubConfig(split[0], split[1], split[2], token, cloneFromGitRef);
->>>>>>> be28354 (fix: changes lost in the previous conflict merge)
         }
 
         /**
@@ -346,52 +296,21 @@ public class GitService {
          *                        desired branch needs to be created
          * @return the {@link GitConfig} needed to operate on the repository
          */
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef, Optional<String> newBranch) {
-=======
-        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, String cloneFromGitRef) {
->>>>>>> c145217 (refactor: clean-up code)
-=======
-        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef) {
->>>>>>> be28354 (fix: changes lost in the previous conflict merge)
-=======
-        public static GitConfig gitlabConfig(String release, String username, String token, String gitRef, Optional<String> cloneFromGitRef, Optional<String> newBranch) {
->>>>>>> d7a3708 (feat: integration tests for new major.minor release)
             final var split = gitRef.split("/");
             if (split.length != 2) {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository format.");
             }
-<<<<<<< HEAD
             final var validateRelease = release.split("\\.");
-=======
-            final var validateRelease = release.split("/.");
->>>>>>> 6efa731 (feat: added validation to the gitlab config release name)
             if (validateRelease.length != 3) {
                 throw new IllegalArgumentException("Invalid release: " + release
                     + ". Must follow Major.Minor.Fix format.");
             }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> d7a3708 (feat: integration tests for new major.minor release)
             var branch = "snowdrop-release-manager-" + release;
             if (newBranch.isPresent()) {
                 branch = newBranch.get();
             }
-<<<<<<< HEAD
-=======
-
-<<<<<<< HEAD
-            final var branch = "snowdrop-issues-manager-" + release;
->>>>>>> 6efa731 (feat: added validation to the gitlab config release name)
-=======
-            final var branch = "snowdrop-release-manager-" + release;
->>>>>>> 36e9fd0 (fix: replaced references to issues-manager with references to release-manager)
-=======
->>>>>>> d7a3708 (feat: integration tests for new major.minor release)
             return new GitLabConfig(split[0], split[1], branch, username, token, cloneFromGitRef);
         }
 
