@@ -1,5 +1,16 @@
 package dev.snowdrop.release.services;
 
+import org.eclipse.jgit.api.CreateBranchCommand;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.jboss.logging.Logger;
+
+import javax.enterprise.context.ApplicationScoped;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,16 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.enterprise.context.ApplicationScoped;
-
-import com.atlassian.httpclient.api.factory.Host;
-import com.atlassian.jira.rest.client.api.domain.Session;
-import com.google.common.collect.Lists;
-import org.eclipse.jgit.api.*;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.*;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class GitService {
@@ -56,16 +57,19 @@ public class GitService {
         return repositories.get(config).get();
     }
 
-    protected void deleteRemoteBranch(GitConfig config, final String branchName) throws ExecutionException, InterruptedException, GitAPIException {
+    protected void deleteRemoteBranch(GitConfig config, final String branchName, final String revertToBranch) throws ExecutionException, InterruptedException, GitAPIException {
         Git git = repositories.get(config).get();
         try {
             LOG.warnf("On branch: %s", git.getRepository().getFullBranch());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x->{LOG.warnf("%s", x.getName());});
-        git.checkout().setName("master").setCreateBranch(true).call();
-        git.branchDelete().setBranchNames(branchName).setForce(true).call().forEach(removedBranch-> {
+        git.fetch().setCredentialsProvider(config.getCredentialProvider()).setRemote("origin").setRefSpecs(String.format("+refs/heads/%s:refs/remotes/origin/%s", revertToBranch, revertToBranch)).call();
+        git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x -> {
+            LOG.warnf("%s", x.getName());
+        });
+        git.checkout().setName(String.format("origin/%s", revertToBranch)).setCreateBranch(false).setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.NOTRACK).setStartPoint(String.format("+refs/heads/%s:refs/remotes/origin/%s", revertToBranch, revertToBranch)).call();
+        git.branchDelete().setBranchNames(branchName).setForce(true).call().forEach(removedBranch -> {
             LOG.warnf("- [deleted]   %s", removedBranch);
             try {
                 git.push().setCredentialsProvider(config.getCredentialProvider()).setRefSpecs(new RefSpec().setSource(null).setDestination(removedBranch)).setRemote("origin").call();
@@ -285,7 +289,7 @@ public class GitService {
                 throw new IllegalArgumentException("Invalid git reference: " + gitRef
                     + ". Must follow organization/repository format.");
             }
-            final var validateRelease = release.split("/.");
+            final var validateRelease = release.split("\\.");
             if (validateRelease.length != 3) {
                 throw new IllegalArgumentException("Invalid release: " + release
                     + ". Must follow Major.Minor.Fix format.");

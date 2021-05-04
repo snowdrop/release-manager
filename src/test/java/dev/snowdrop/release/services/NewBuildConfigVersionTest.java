@@ -16,8 +16,8 @@ package dev.snowdrop.release.services;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import org.apache.commons.io.filefilter.NameFileFilter;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
-import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.Test;
@@ -26,15 +26,11 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
@@ -44,7 +40,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NewBuildConfigVersionTest {
 
     private static final String PREVIOUS_SB_VERSION = "2.3.2.RELEASE";
-    private static final String NEW_SB_VERSION = "2.4.3";
+    private static final String NEW_SB_VERSION = "9.9.9";
     private static final String GIT_REPO = "snowdrop/spring-boot-bom";
     private static final String GIT_BRANCH = "integration-test-2.4.x";
 
@@ -72,12 +68,13 @@ public class NewBuildConfigVersionTest {
             File repository = git.getConfig(bomGitConfig).getRepository().getWorkTree();
             FileFilter fileFilter = new WildcardFileFilter("release-*.yml");
             File[] files = repository.listFiles(fileFilter);
-            assertEquals(files.length, 0);
+            assertEquals(0,files.length );
         } catch (IOException | ExecutionException | InterruptedException ex) {
+            ex.printStackTrace();
             fail(ex);
         } finally {
             try {
-                git.deleteRemoteBranch(bomGitConfig, GIT_BRANCH);
+                git.deleteRemoteBranch(bomGitConfig, GIT_BRANCH, String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]));
             } catch (ExecutionException | InterruptedException | GitAPIException e) {
                 e.printStackTrace();
                 fail(e);
@@ -85,18 +82,31 @@ public class NewBuildConfigVersionTest {
         }
     }
 
-//    @Test
+    @Test
     public void newBuildConfigMajMin() {
         final String gluser = ConfigProvider.getConfig().getValue("gitlab.user", String.class);
         final String gltoken = ConfigProvider.getConfig().getValue("gitlab.token", String.class);
         final String[] releaseMajorMinorFix = NEW_SB_VERSION.split("\\.");
         final String[] prevReleaseMajorMinorFix = PREVIOUS_SB_VERSION.split("\\.");
-        final GitService.GitConfig buildConfigGitlabConfig = GitService.GitConfig.gitlabConfig(NEW_SB_VERSION, gluser, gltoken, "snowdrop/build-configurations", Optional.of("master"), Optional.empty());
+        final GitService.GitConfig buildConfigGitlabConfig = GitService.GitConfig.gitlabConfig(NEW_SB_VERSION, gluser, gltoken, "snowdrop/build-configurations", Optional.of("master"), Optional.of(String.format("%s",GIT_BRANCH)));
         try {
             git.initRepository(buildConfigGitlabConfig);
             buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig, releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
-        } catch (IOException e) {
-            e.printStackTrace();
+            File repository = git.getConfig(buildConfigGitlabConfig).getRepository().getWorkTree();
+            File sbFolder = new File(repository.getPath()+"/"+String.format("spring-boot/%s.%s", releaseMajorMinorFix[0], releaseMajorMinorFix[1]));
+            FileFilter fileFilter = new NameFileFilter("build-config.yaml");
+            File[] files = sbFolder.listFiles(fileFilter);
+            assertEquals(1, files.length );
+        } catch (IOException | ExecutionException | InterruptedException ex) {
+            ex.printStackTrace();
+            fail(ex);
+        } finally {
+            try {
+                git.deleteRemoteBranch(buildConfigGitlabConfig, GIT_BRANCH, "master");
+            } catch (ExecutionException | InterruptedException | GitAPIException e) {
+                e.printStackTrace();
+                fail(e);
+            }
         }
     }
 
