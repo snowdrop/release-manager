@@ -65,10 +65,10 @@ public class GitService {
         }
         git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x->{LOG.warnf("%s", x.getName());});
         git.checkout().setName("master").setCreateBranch(true).call();
-        git.branchDelete().setBranchNames(branchName).setForce(true).call().forEach(x-> {
-            LOG.warnf("- [deleted]   %s", x);
+        git.branchDelete().setBranchNames(branchName).setForce(true).call().forEach(removedBranch-> {
+            LOG.warnf("- [deleted]   %s", removedBranch);
             try {
-                git.push().setCredentialsProvider(config.getCredentialProvider()).setRefSpecs(new RefSpec().setSource(null).setDestination(x)).setRemote("origin").call();
+                git.push().setCredentialsProvider(config.getCredentialProvider()).setRefSpecs(new RefSpec().setSource(null).setDestination(removedBranch)).setRemote("origin").call();
             } catch (GitAPIException e) {
                 throw new RuntimeException(e);
             }
