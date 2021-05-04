@@ -65,9 +65,14 @@ public class GitService {
         }
         git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x->{LOG.warnf("%s", x.getName());});
         git.checkout().setName("master").setCreateBranch(true).call();
-        git.branchDelete().setBranchNames("integration-test-2.4.x").setForce(true).call().forEach(x->LOG.warnf("- [deleted]   %s", x));
-        git.push().setRefSpecs(new RefSpec("refs/remotes/origin/integration-test-2.4.x")).setRemote("origin").setCredentialsProvider(config.getCredentialProvider()).call();
-        git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x->{LOG.warnf("%s", x.getName());});
+        git.branchDelete().setBranchNames(branchName).setForce(true).call().forEach(x-> {
+            LOG.warnf("- [deleted]   %s", x);
+            try {
+                git.push().setCredentialsProvider(config.getCredentialProvider()).setRefSpecs(new RefSpec().setSource(null).setDestination(x)).setRemote("origin").call();
+            } catch (GitAPIException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     public void commitAndPush(String commitMessage, GitConfig config, FileModifier... changed) throws IOException {

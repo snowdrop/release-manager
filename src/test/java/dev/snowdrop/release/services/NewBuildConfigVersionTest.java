@@ -80,6 +80,7 @@ public class NewBuildConfigVersionTest {
                 git.deleteRemoteBranch(bomGitConfig, GIT_BRANCH);
             } catch (ExecutionException | InterruptedException | GitAPIException e) {
                 e.printStackTrace();
+                fail(e);
             }
         }
     }
