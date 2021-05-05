@@ -7,6 +7,7 @@
       * [Release process](#release-process)
          * [Instructions](#instructions)
          * [Release definition](#release-definition)
+         * [Init release repositories for a new Major.Minor](#init-release-repositories-for-a-new-majorminor)
          * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
          * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
          * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
@@ -45,7 +46,7 @@ is `1000` like also the UID of the Jenkins JNLP Agent !
 
 ### Release definition
 
-A release metadata is captured in a `release.yml` file. This metadata links the release to the components that constitute it.
+The `release.yml` release file contains the metadata for each release. This metadata links the release to the components that constitute it.
 This, in particular, allows for automated creation of stakeholder issue marking the beginning of a new release cycle.
 
 The `release.yml` file lives in the `snowdrop/spring-boot-bom` repository right next to the `pom.xml` file so that they can
@@ -57,7 +58,7 @@ An example of such `release.yml` can be found at: https://github.com/snowdrop/sp
 ### Init release repositories for a new Major.Minor
 
 Whenever a new Major.Minor release occurs:  
-* a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repostory 
+* a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repository 
 * a new folder in the `middleware/build-configurations` gitlab repository must be created.
 
 This command performs these operations automatically.
