@@ -8,6 +8,7 @@
       * [Release process](#release-process)
          * [Instructions](#instructions)
          * [Release definition](#release-definition)
+         * [Init release repositories for a new Major.Minor](#init-release-repositories-for-a-new-majorminor)
          * [Start a new Snowdrop release](#start-a-new-snowdrop-release)
          * [Create JIRA stakeholder request issues](#create-jira-stakeholder-request-issues)
          * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
@@ -46,7 +47,7 @@ is `1000` like also the UID of the Jenkins JNLP Agent !
 
 ### Release definition
 
-A release metadata is captured in a `release.yml` file. This metadata links the release to the components that constitute it.
+The `release.yml` release file contains the metadata for each release. This metadata links the release to the components that constitute it.
 This, in particular, allows for automated creation of stakeholder issue marking the beginning of a new release cycle.
 
 The `release.yml` file lives in the `snowdrop/spring-boot-bom` repository right next to the `pom.xml` file so that they can
@@ -54,6 +55,45 @@ evolve concurrently as needed and be kept in sync. This file should be updated e
 release.
 
 An example of such `release.yml` can be found at: https://github.com/snowdrop/spring-boot-bom/blob/sb-2.3.x/release.yml
+
+### Init release repositories for a new Major.Minor
+
+Whenever a new Major.Minor release occurs:  
+* a new `sb-<major>.<minor>.x` branch must be created in the `snowdrop/spring-boot-bom` github repository 
+* a new folder in the `middleware/build-configurations` gitlab repository must be created.
+
+This command performs these operations automatically.
+
+> NOTE: The previous release is used as a source of information. It is used as the source for the new 
+`snowdrop/spring-boot-bom` github repository branch and as the source for the new `build-configurations`
+configuration.
+
+```bash
+java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+    -u <jira user> -p <jira password> 
+    new-build-config-version 
+    -g <github org>/<github repo>/<git reference: branch, tag, hash> \ 
+    -o <github token> \
+    -glu <gitlab user> \
+    -glt <gitlab token> \ 
+    -r <new release> \
+    -pr <previous release>
+```
+
+e.g.
+
+```bash
+java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+    -u my_user -p my_secret \
+    new-build-config-version
+    -g snowdrop/spring-boot-bom/sb-2.4.x \
+    -o my_github_token 
+    -glu my_gitlab_user -glt my_gitlab_token 
+    -r 2.4.3 -pr 2.3.6.RELEASE
+```
+
+> NOTE: The release and previous release versions are the versions SpringBoot releases 
+> (see https://github.com/spring-projects/spring-boot/releases). 
 
 ### Start a new Snowdrop release
 
@@ -177,10 +217,10 @@ $ java -jar target/quarkus-app/quarkus-run.jar \
 The unit tests require the providing of 2 parameters to be able to login to the JIRA REST API.
 
 ```bash
-$ ./mvnw test -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ ./mvnw test -Dgithub.user=${GITHUB_USER} -Dgithub.token=${GITHUB_TOKEN} -Dgitlab.user=${JBOSS_JIRA_USER} -Dgitlab.token=${GITLAB_TOKEN}
 ```
 
-Test profiles have been implemented to differentiate unit tests and integration tests (testing against the actual JIRA API).
+Test profiles have been implemented to differenciate unit tests and integration tests (testing against the actual JIRA API).
 
 ### Profiles
 
@@ -192,7 +232,7 @@ Executing a specific profile is as simple as passing the profile tag name in the
 running specific Quarkus test profiles [here](https://quarkus.io/guides/getting-started-testing#running-specific-tests).
 
 ```bash
-$ ./mvnw test -Dquarkus.test.profile.tags=<test profile tag [core,it]> -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
+$ mvn test -Dquarkus.test.profile.tags=<test profile tag [core,it]> -Djboss.jira.user=${JBOSS_JIRA_USER} -Djboss.jira.password=${JBOSS_JIRA_PWD}
 ```
 
 The `quarkus.test.profile.tags` is optional and if no profile tag is included all the tests are executed. 
