@@ -64,7 +64,7 @@ Whenever a new Major.Minor release occurs:
 This command performs these operations automatically.
 
 > NOTE: The previous release is used as a source of information. It is used as the source for the new 
-`snowdrop/spring-boot-bom` github repostory branch and as the source for the new `build-configurations`
+`snowdrop/spring-boot-bom` github repository branch and as the source for the new `build-configurations`
 configuration.
 
 ```bash
