@@ -256,7 +256,11 @@ public class App implements QuarkusApplication {
         }
 
         if (!release.isTestMode()) {
+<<<<<<< HEAD
             git.commitAndPush("chore: update release issues' key [release-manager]", config, repo -> Stream
+=======
+            git.commitAndPush("chore: update release issues' key [issues-manager]", config, repo -> Stream
+>>>>>>> c410318 (feat: make FileModifier able to modify mulitple files at once)
                 .of(factory.updateRelease(repo, release)));
         }
         System.out.println(issue);
@@ -310,7 +314,11 @@ public class App implements QuarkusApplication {
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
         git.initRepository(config);
 
+<<<<<<< HEAD
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
+=======
+        git.commitAndPush("chore: update " + release + " release issues' key [issues-manager]", config, repo -> Stream.of(buildConfigUpdateService
+>>>>>>> c410318 (feat: make FileModifier able to modify mulitple files at once)
             .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
     }
     
