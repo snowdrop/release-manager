@@ -22,16 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.enterprise.context.ApplicationScoped;
-
-import com.atlassian.httpclient.api.factory.Host;
-import com.atlassian.jira.rest.client.api.domain.Session;
-import com.google.common.collect.Lists;
-import org.eclipse.jgit.api.*;
-import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.transport.*;
-import org.jboss.logging.Logger;
 
 @ApplicationScoped
 public class GitService {
@@ -75,13 +65,9 @@ public class GitService {
             e.printStackTrace();
         }
         git.fetch().setCredentialsProvider(config.getCredentialProvider()).setRemote("origin").setRefSpecs(String.format("+refs/heads/%s:refs/remotes/origin/%s", revertToBranch, revertToBranch)).call();
-//        git.pull().setCredentialsProvider(config.getCredentialProvider()).setRemote("origin").setRemoteBranchName("+refs/heads/master:refs/remotes/origin/master").call();
-//        LOG.warnf("%s", git.getRepository().getRemoteNames());
-//        LOG.warnf("%s", git.getRepository().getWorkTree());
         git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call().forEach(x -> {
             LOG.warnf("%s", x.getName());
         });
-//        git.checkout().setName(revertToBranch).setCreateBranch(false).setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.NOTRACK).setStartPoint("origin/" + revertToBranch).call();
         git.checkout().setName(String.format("origin/%s", revertToBranch)).setCreateBranch(false).setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.NOTRACK).setStartPoint(String.format("+refs/heads/%s:refs/remotes/origin/%s", revertToBranch, revertToBranch)).call();
         git.branchDelete().setBranchNames(branchName).setForce(true).call().forEach(removedBranch -> {
             LOG.warnf("- [deleted]   %s", removedBranch);
