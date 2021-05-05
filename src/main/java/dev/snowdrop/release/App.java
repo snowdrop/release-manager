@@ -4,23 +4,21 @@ import com.atlassian.jira.rest.client.api.domain.BasicIssue;
 import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.Release;
 import dev.snowdrop.release.reporting.ReportingService;
-import dev.snowdrop.release.services.BuildConfigUpdateService;
-import dev.snowdrop.release.services.CVEService;
-import dev.snowdrop.release.services.GitHubService;
-import dev.snowdrop.release.services.GitService;
+import dev.snowdrop.release.services.*;
 import dev.snowdrop.release.services.GitService.GitConfig;
-import dev.snowdrop.release.services.IssueService;
-import dev.snowdrop.release.services.ReleaseFactory;
-import dev.snowdrop.release.services.Utility;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import picocli.CommandLine;
 
@@ -29,6 +27,10 @@ import picocli.CommandLine;
 @QuarkusMain
 public class App implements QuarkusApplication {
     public final static String CVE_REPORT_REPO_NAME = "snowdrop/reports";
+
+    @Inject
+    @ConfigProperty(name = "gitlab.buildconfig.fork.repo", defaultValue = "snowdrop/build-configurations")
+    String buildConfigForkRepoName;
 
     static final Logger LOG = Logger.getLogger(App.class);
     @Inject
@@ -47,6 +49,9 @@ public class App implements QuarkusApplication {
     ReportingService reportingService;
     @Inject
     BuildConfigUpdateService buildConfigUpdateService;
+    @Inject
+    SpringBootBomUpdateService springBootBomUpdateService;
+
     @CommandLine.Option(
         names = {"-u", "--user"},
         description = "JIRA user",
@@ -135,6 +140,45 @@ public class App implements QuarkusApplication {
     }
 
     @CommandLine.Command(
+        name = "new-build-config-version",
+        description = "Initialize repositories for a new Major.Minor release.")
+    public void newMajorMinor(
+        @CommandLine.Option(
+            names = {"-g", "--git"},
+            description = "Git reference in the <github org>/<github repo>/<branch> format",
+            required = true) String gitRef,
+        @CommandLine.Option(
+            names = {"-t", "--test"},
+            description = "Create a test release ticket using the SB project for all requests") boolean test,
+        @CommandLine.Option(
+            names = {"-ghu", "--ghuser"},
+            description = "Github user name", required = true) String ghuser,
+        @CommandLine.Option(
+            names = {"-o", "--token"},
+            description = "Github API token",
+            required = true) String token,
+        @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
+        @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
+        @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease
+    ) throws Throwable {
+        final String[] releaseMajorMinorFix = release.split("\\.");
+        final String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
+        final GitConfig bomGitConfig = GitConfig.githubConfig(gitRef,ghuser, token, Optional.of(String.format("sb-%s.%s.x", prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1])));
+        git.initRepository(bomGitConfig);
+        if (!test) {
+            springBootBomUpdateService.newMajorMinor(bomGitConfig);
+        }
+
+        final GitConfig buildConfigGitlabConfig = GitConfig.gitlabConfig(release,gluser,gltoken,buildConfigForkRepoName,Optional.of("master"), Optional.empty());
+        git.initRepository(buildConfigGitlabConfig);
+        if (!test) {
+            buildConfigUpdateService.newMajorMinor(buildConfigGitlabConfig,  releaseMajorMinorFix[0], releaseMajorMinorFix[1], prevReleaseMajorMinorFix[0], prevReleaseMajorMinorFix[1]);
+        }
+    }
+
+
+    @CommandLine.Command(
         name = "start-release",
         description = "Start the release process for the release associated with the specified git reference")
     public void startRelease(
@@ -149,6 +193,9 @@ public class App implements QuarkusApplication {
             names = {"-t", "--test"},
             description = "Create a test release ticket using the SB project for all requests") boolean test,
         @CommandLine.Option(
+            names = {"-ghu", "--ghuser"},
+            description = "Github user name", required = true) String ghuser,
+        @CommandLine.Option(
             names = {"-o", "--token"},
             description = "Github API token",
             required = true) String token,
@@ -160,7 +207,7 @@ public class App implements QuarkusApplication {
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
             required = true) String eolDate) throws Throwable {
-        final GitConfig config = GitConfig.githubConfig(gitRef, token);
+        final GitConfig config = GitConfig.githubConfig(gitRef, ghuser, token, Optional.empty());
         if (!test) {
             git.initRepository(config); // init git repository to be able to update release
         }
@@ -209,7 +256,8 @@ public class App implements QuarkusApplication {
         }
 
         if (!release.isTestMode()) {
-            git.commitAndPush("chore: update release issues' key [release-manager]", config, repo -> factory.updateRelease(repo, release));
+            git.commitAndPush("chore: update release issues' key [release-manager]", config, repo -> Stream
+                .of(factory.updateRelease(repo, release)));
         }
         System.out.println(issue);
     }
@@ -259,11 +307,11 @@ public class App implements QuarkusApplication {
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
 
-        GitConfig config = GitConfig.gitlabConfig("snowdrop/build-configurations", release, gluser, gltoken);
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
         git.initRepository(config);
 
-        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> buildConfigUpdateService
-            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
+        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
+            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
