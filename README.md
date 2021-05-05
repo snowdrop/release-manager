@@ -69,7 +69,7 @@ This command performs these operations automatically.
 configuration.
 
 ```bash
-java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+java -jar target/quarkus-app/quarkus-run.jar \
     -u <jira user> -p <jira password> 
     new-build-config-version 
     -g <github org>/<github repo>/<git reference: branch, tag, hash> \ 
@@ -83,7 +83,7 @@ java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml
 e.g.
 
 ```bash
-java -jar target/issues-manager-$(xpath -q -e  "/project/version/text()" pom.xml)-runner.jar \
+java -jar target/quarkus-app/quarkus-run.jar \
     -u my_user -p my_secret \
     new-build-config-version
     -g snowdrop/spring-boot-bom/sb-2.4.x \
