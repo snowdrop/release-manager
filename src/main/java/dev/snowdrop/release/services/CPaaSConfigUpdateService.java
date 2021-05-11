@@ -2,10 +2,7 @@ package dev.snowdrop.release.services;
 
 import dev.snowdrop.release.model.cpaas.ReleaseMustache;
 import dev.snowdrop.release.model.cpaas.product.*;
-import dev.snowdrop.release.model.cpaas.release.CPaaSAdvisory;
 import dev.snowdrop.release.model.cpaas.release.CPaaSReleaseFile;
-import dev.snowdrop.release.model.cpaas.release.CPaaSTool;
-import org.eclipse.jgit.lib.Repository;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -13,7 +10,9 @@ import javax.inject.Inject;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @ApplicationScoped
@@ -44,7 +43,7 @@ public class CPaaSConfigUpdateService {
      */
     public void newRelease(GitService.GitConfig cpaasGitlabConfig, final String release, final String previousRelease, boolean isErDr, boolean isSecurityAdvisory) throws IOException {
         git.commitAndPush("chore: update configuration for release' key [release-manager]", cpaasGitlabConfig, repo -> {
-            Stream<File> fileStream = updateCPaaSFiles(release, repo, previousRelease, isErDr,isSecurityAdvisory);
+            Stream<File> fileStream = updateCPaaSFiles(release, repo, previousRelease, isErDr, isSecurityAdvisory);
             final String repoPath = repo.getAbsolutePath();
             final Path advisoryPath = Paths.get(String.format(repoPath + "/advisory_map.yml"));
             final File advisoryFile = advisoryPath.toFile();
@@ -68,7 +67,7 @@ public class CPaaSConfigUpdateService {
                 + ". Must follow major.minor.fix format (e.g. 2.4.3).");
         }
         final String repoPath = repo.getAbsolutePath();
-        List<File> fileList = new LinkedList();
+        List<File> fileList = new ArrayList(3);
         final Path productPath = Paths.get(String.format(repoPath + "/product.yml"));
         final File productFile = productPath.toFile();
         final Path releasePath = Paths.get(String.format(repoPath + "/release.yml"));
@@ -96,7 +95,7 @@ public class CPaaSConfigUpdateService {
             }
         }
         try {
-            ReleaseMustache releaseMustache = new ReleaseMustache(isErCr,isSecurityAdvisory,null,release,previousRelease);
+            ReleaseMustache releaseMustache = new ReleaseMustache(isErCr, isSecurityAdvisory, null, release, previousRelease);
             StringWriter writer = new StringWriter();
             Utility.mf.compile(RELEASE_TEMPLATE).execute(writer, releaseMustache).flush();
             CPaaSReleaseFile cpaasReleaseFile = factory.createCPaaSReleaseFromStream(new ByteArrayInputStream(writer.toString().getBytes()));
