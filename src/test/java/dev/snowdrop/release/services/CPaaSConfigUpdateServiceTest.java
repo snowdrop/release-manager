@@ -24,7 +24,6 @@ import dev.snowdrop.release.model.cpaas.release.CPaaSRelease;
 import dev.snowdrop.release.model.cpaas.release.CPaaSReleaseFile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +35,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,46 +63,30 @@ public class CPaaSConfigUpdateServiceTest {
     GitService git;
 
     @Test
-    public void testProduct() {
+    public void parseProductConfig() throws Throwable {
         final String token = ConfigProvider.getConfig().getValue("gitlab.token", String.class);
         final String user = ConfigProvider.getConfig().getValue("gitlab.user", String.class);
         GitService.GitConfig config = service.buildGitConfig(RELEASE, user, token, Optional.of(PREVIOUS_RELEASE), Optional.of(ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot")));
-        try {
-            git.initRepository(config);
-            Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, false, true);
-            Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
-            assertTrue(fileMap.containsKey(PRODUCT_FILE_NAME), fileMap.toString());
-            testProductFile(factory.createCPaaSProductFromStream(new FileInputStream(fileMap.get(PRODUCT_FILE_NAME))));
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            fail(e);
-        }
-    }
-
-    private void testProductFile(CPaaSProductFile productFile) {
+        git.initRepository(config);
+        Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, false, true);
+        Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
+        assertTrue(fileMap.containsKey(PRODUCT_FILE_NAME), fileMap.toString());
+        CPaaSProductFile productFile = factory.createCPaaSProductFromStream(new FileInputStream(fileMap.get(PRODUCT_FILE_NAME)));
         CPaaSProduct product = productFile.getProduct();
         assertEquals(RELEASE, product.getRelease().getVersion());
         assertEquals("spring-boot/2.4", product.getProjects().get(0).getComponents().get(0).getBuilds().get(0).getPigSource().getRoot());
     }
 
     @Test
-    public void testReleaseCommon() {
+    public void parseReleaseConfig() throws Throwable {
         final String token = ConfigProvider.getConfig().getValue("gitlab.token", String.class);
         final String user = ConfigProvider.getConfig().getValue("gitlab.user", String.class);
         GitService.GitConfig config = service.buildGitConfig(RELEASE, user, token, Optional.of(PREVIOUS_RELEASE), Optional.of(ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot")));
-        try {
-            git.initRepository(config);
-            Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, false, true);
-            Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
-            assertTrue(fileMap.containsKey(RELEASE_FILE_NAME), fileMap.toString());
-            testReleaseFile(factory.createCPaaSReleaseFromStream(new FileInputStream(fileMap.get(RELEASE_FILE_NAME))));
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            fail(e);
-        }
-    }
-
-    private void testReleaseFile(CPaaSReleaseFile releaseFile) {
+        git.initRepository(config);
+        Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, false, true);
+        Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
+        assertTrue(fileMap.containsKey(RELEASE_FILE_NAME), fileMap.toString());
+        CPaaSReleaseFile releaseFile = factory.createCPaaSReleaseFromStream(new FileInputStream(fileMap.get(RELEASE_FILE_NAME)));
         CPaaSRelease release = releaseFile.getRelease();
         List<CPaaSPipelines> pipelines = release.getPipelines();
         assertTrue("build".equalsIgnoreCase(pipelines.get(0).getName()));
@@ -115,59 +97,48 @@ public class CPaaSConfigUpdateServiceTest {
     }
 
     @Test
-    public void testReleaseDr() {
+    public void drReleaseShouldGenerateCpaasReleaseWithDisabledErrataAdvisoryCreation() throws Throwable {
         final String token = ConfigProvider.getConfig().getValue("gitlab.token", String.class);
         final String user = ConfigProvider.getConfig().getValue("gitlab.user", String.class);
         GitService.GitConfig config = service.buildGitConfig(RELEASE, user, token, Optional.of(PREVIOUS_RELEASE), Optional.of(ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot")));
-        try {
-            git.initRepository(config);
-            Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, false, true);
-            Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
-            CPaaSReleaseFile releaseFile = factory.createCPaaSReleaseFromStream(new FileInputStream(fileMap.get(RELEASE_FILE_NAME)));
-            CPaaSRelease release = releaseFile.getRelease();
-            List<CPaaSPipelines> pipelines = release.getPipelines();
-            pipelines.get(1).getStages().forEach(stage -> {
-                if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
-                    assertFalse(stage.getEnabled());
-                }
-            });
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            fail(e);
-        }
+        git.initRepository(config);
+        Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, false, true);
+        Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
+        CPaaSReleaseFile releaseFile = factory.createCPaaSReleaseFromStream(new FileInputStream(fileMap.get(RELEASE_FILE_NAME)));
+        CPaaSRelease release = releaseFile.getRelease();
+        List<CPaaSPipelines> pipelines = release.getPipelines();
+        pipelines.get(1).getStages().forEach(stage -> {
+            if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
+                assertFalse(stage.getEnabled());
+            }
+        });
     }
 
     @Test
-    public void testReleaseErCr() {
+    public void ercrReleaseShouldGenerateCpaasReleaseWithEnabledErrataAdvisoryCreation() throws Throwable {
         final String token = ConfigProvider.getConfig().getValue("gitlab.token", String.class);
         final String user = ConfigProvider.getConfig().getValue("gitlab.user", String.class);
         GitService.GitConfig config = service.buildGitConfig(RELEASE, user, token, Optional.of(PREVIOUS_RELEASE), Optional.of(ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot")));
-        try {
-            git.initRepository(config);
-            Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, true, true);
-            Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
-            CPaaSReleaseFile releaseFile = factory.createCPaaSReleaseFromStream(new FileInputStream(fileMap.get(RELEASE_FILE_NAME)));
-            CPaaSRelease release = releaseFile.getRelease();
-            List<CPaaSPipelines> pipelines = release.getPipelines();
-            pipelines.get(1).getStages().forEach(stage -> {
-                if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
-                    assertFalse(stage.getEnabled());
-                }
-            });
-        } catch (IOException | ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            fail(e);
-        }
+        git.initRepository(config);
+        Stream<File> files = service.updateCPaaSFiles(RELEASE, git.getConfig(config).getRepository().getWorkTree(), PREVIOUS_RELEASE, true, true);
+        Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
+        CPaaSReleaseFile releaseFile = factory.createCPaaSReleaseFromStream(new FileInputStream(fileMap.get(RELEASE_FILE_NAME)));
+        CPaaSRelease release = releaseFile.getRelease();
+        List<CPaaSPipelines> pipelines = release.getPipelines();
+        pipelines.get(1).getStages().forEach(stage -> {
+            if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
+                assertFalse(stage.getEnabled());
+            }
+        });
     }
 
     @Test
-    public void createNewBranch() throws Throwable {
+    public void shouldCreateNewBranchAndRemoveItAtTheEnd() throws Throwable {
         final String token = ConfigProvider.getConfig().getValue("gitlab.token", String.class);
         final String user = ConfigProvider.getConfig().getValue("gitlab.user", String.class);
         InputStream releaseIS = HelperFunctions.getResourceAsStream("release_template_int_tests.yml");
         Release releaseObj = MAPPER.readValue(releaseIS, Release.class);
         releaseObj.setPom(POM.createFrom(HelperFunctions.getResourceAsStream("pom.xml")));
-
         final String[] prevReleaseMajorMinorFix = PREVIOUS_RELEASE.split("\\.");
         String repoName = ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot");
         GitService.GitConfig config = service.buildGitConfig(RELEASE, user, token, Optional.of(PREVIOUS_RELEASE), Optional.of(repoName));
@@ -178,12 +149,7 @@ public class CPaaSConfigUpdateServiceTest {
             ex.printStackTrace();
             fail(ex);
         } finally {
-            try {
-                git.deleteRemoteBranch(config, config.branch, "master");
-            } catch (ExecutionException | InterruptedException | GitAPIException e) {
-                e.printStackTrace();
-                fail(e);
-            }
+            git.deleteRemoteBranch(config, config.branch, "master");
         }
     }
 
