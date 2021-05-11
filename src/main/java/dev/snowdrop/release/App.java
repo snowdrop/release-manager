@@ -269,9 +269,7 @@ public class App implements QuarkusApplication {
 
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release.getVersion(), gluser, gltoken, Optional.of(previousRelease), Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-            return cpaasCfgService.updateCPaaSFiles( release.getVersion(), repo, previousRelease, false, false);
-        });
+        cpaasCfgService.newRelease(cpaasConfigGitConfig, release.getVersion(), previousRelease, false, false);
     }
 
     @CommandLine.Command(
@@ -311,6 +309,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease,
         @CommandLine.Option(names = {"-q", "--qualifier"}, description = "qualifier", required = true) String qualifier,
         @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone)
         throws Throwable {
@@ -324,6 +323,12 @@ public class App implements QuarkusApplication {
 
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
             .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
+
+        GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release, gluser, gltoken, Optional.of(previousRelease), Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
+        git.initRepository(cpaasConfigGitConfig);
+        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
+            return cpaasCfgService.updateCPaaSFiles( release, repo, previousRelease, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false), false);
+        });
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
