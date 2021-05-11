@@ -1,0 +1,100 @@
+---
+release:
+  name: "Product release"
+  pipelines:                        # required, map, pipelines to be created, currently only "build" and "release" pipelines are supported
+    - name: "build"
+      timeout: 180                  # 180 is the default, in minutes
+      notifications:                # required, map, controls notifications settings
+        release-team:               # required, map, controls notifications sent to release team
+          recipients:               # required, list, list of recipients that would get the notifications for the results
+            - "amunozhe@redhat.com"
+            - 'antcosta@redhat.com'
+            - 'cmoullia@redhat.com'
+            - 'snowdrop-team@redhat.com'
+          send-when: "always"       # optional, string, one of ["always", "never", "on-success", "on-failure"], if missing defaults to "always"
+        component-owner:
+          send-when: "always"
+      stages:
+        - name: verify-brew-tags
+          enabled: false
+        - name: verify-brew-targets
+          enabled: false
+        - name: create-delivery-repo
+          enabled: false
+        - name: create-distgit-content
+          enabled: false
+        - name: post-build-checks
+          enabled: true
+        - name: middleware-extras
+          enabled: false
+        - name: trigger-smoke-testing
+          enabled: false
+        - name: trigger-release-pipeline
+          enabled: true
+    - name: "release"
+      timeout: 180                  # 180 is the default, in minutes
+      notifications:
+        release-team:
+          recipients:
+            - "amunozhe@redhat.com"
+            - 'antcosta@redhat.com'
+            - 'cmoullia@redhat.com'
+            - 'snowdrop-team@redhat.com'
+            - 'sraghupu@redhat.com'
+      stages:
+        - name: check-gate-result
+          enabled: false
+        - name: create-errata-tool-advisories
+          enabled: {{#isErDr}}true{{/isErDr}}{{^isErDr}}false{{/isErDr}}
+        - name: verify-brew-targets
+          enabled: false
+        - name: attach-builds-to-advisories
+          enabled: false
+        - name: move-advisories-to-qe-state
+          enabled: false
+        - name: verify-container-builds
+          enabled: false
+  tools:
+    - type: "errata"
+      advisories:
+        - name: "rhoar"
+          release-name: "RHOAR Text-Only"
+          package-maintainer: "claprun@redhat.com"
+          manager-contact: "mlittle@redhat.com"
+          qa-owner: "lfuka@redhat.com"
+          text-only: true
+          advisory-type: {{#isSecurityAdvisory}}"RHSA"{{/isSecurityAdvisory}}{{^isSecurityAdvisory}}RHBA{{/isSecurityAdvisory}}
+          {{#isSecurityAdvisory}}security-impact: "Important" # Low, Moderate, Important, Critical{{/isSecurityAdvisory}}
+          synopsis: "Important: Red Hat support for Spring Boot {{release}} security update"
+          description: "Red Hat support for Spring Boot provides an application platform that reduces
+  the complexity of developing and operating applications (monoliths and
+  microservices) for OpenShift as a containerized platform.
+
+  This release of Red Hat support for Spring Boot {{previousRelease}} serves as a
+  replacement for Red Hat support for Spring Boot {{release}}, and includes security
+  and bug fixes and enhancements. For further information, refer to the release
+  notes linked to in the References section.
+
+{{#isSecurityAdvisory}}
+  Security Fix(es):
+
+{{cveList}}
+  * hibernate-core: SQL injection vulnerability when both hibernate.use_sql_comments and JPQL String literals are used (CVE-2020-25638)
+
+  * tomcat: specially crafted sequence of HTTP/2 requests can lead to DoS (CVE-2020-11996)
+
+  For more details about the security issue(s), including the impact, a CVSS
+  score, acknowledgments, and other related information, refer to the CVE page(s)
+  listed in the References section."
+          topic: "An update is now available for Red Hat OpenShift Application Runtimes.
+
+  Red Hat Product Security has rated this update as having a security impact of
+  Important. A Common Vulnerability Scoring System (CVSS) base score, which gives
+  a detailed severity rating, is available for each vulnerability from the CVE
+  link(s) in the References section."
+          solution: "Before applying the update, back up your existing installation, including all
+  applications, configuration files, databases and database settings, and so on.
+{{/isSecurityAdvisory}}
+
+  The References section of this erratum contains a download link (you must log in
+  to download the update)."
