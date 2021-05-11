@@ -69,16 +69,10 @@ public class CPaaSConfigUpdateService {
         }
         final String repoPath = repo.getAbsolutePath();
         List<File> fileList = new LinkedList();
-//        final Path advisoryPath = Paths.get(String.format(repoPath + "/advisory_map.yml"));
-//        final File advisoryFile = advisoryPath.toFile();
         final Path productPath = Paths.get(String.format(repoPath + "/product.yml"));
         final File productFile = productPath.toFile();
         final Path releasePath = Paths.get(String.format(repoPath + "/release.yml"));
         final File releaseFile = releasePath.toFile();
-//        if (advisoryFile.exists()) {
-//            advisoryFile.delete();
-//            fileList.add(advisoryFile);
-//        }
         if (productFile.exists()) {
             try {
                 InputStream productIS = new FileInputStream(productFile);
