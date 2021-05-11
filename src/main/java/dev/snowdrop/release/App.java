@@ -301,9 +301,9 @@ public class App implements QuarkusApplication {
     }
 
     @CommandLine.Command(
-        name = "update-build-config",
+        name = "update-config-for-release",
         description = "updates the build-config.yml file in build-configurations repo")
-    public void updateBuildConfig(
+    public void updateConfigForRelease(
         @CommandLine.Option(names = {"-g", "--git"}, description = "Git reference in the <github org>/<github repo> format", required = true, defaultValue = "snowdrop/spring-boot-bom") String gitRef,
         @CommandLine.Option(names = {"-o", "--token"}, description = "Github API token", required = true) String token,
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
