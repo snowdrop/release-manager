@@ -36,6 +36,8 @@ public class App implements QuarkusApplication {
     @Inject
     ReleaseFactory factory;
     @Inject
+    CPaaSConfigUpdateService cpaasCfgService;
+    @Inject
     IssueService service;
     @Inject
     GitHubService github;
@@ -199,6 +201,8 @@ public class App implements QuarkusApplication {
             names = {"-o", "--token"},
             description = "Github API token",
             required = true) String token,
+        @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
+        @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(
             names = {"-r", "--release-date"},
             description = "Release Date(yyyy-mm-dd)",
@@ -206,7 +210,9 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
-            required = true) String eolDate) throws Throwable {
+            required = true) String eolDate,
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease
+    ) throws Throwable {
         final GitConfig config = GitConfig.githubConfig(gitRef, ghuser, token, Optional.empty());
         if (!test) {
             git.initRepository(config); // init git repository to be able to update release
@@ -260,6 +266,12 @@ public class App implements QuarkusApplication {
                 .of(factory.updateRelease(repo, release)));
         }
         System.out.println(issue);
+
+        GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release.getVersion(), gluser, gltoken, Optional.of(previousRelease), Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
+        git.initRepository(cpaasConfigGitConfig);
+        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
+            return cpaasCfgService.updateCPaaSFiles( release.getVersion(), repo, previousRelease, false, false);
+        });
     }
 
     @CommandLine.Command(
