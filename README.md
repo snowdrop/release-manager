@@ -104,7 +104,7 @@ Starting a release means executing the following tasks:
 * linking any CVE associated with the release
 * initializing the CPaaS repository for the version
   * new branch for the release
-  * update the configuration files
+  * update the configuration files (`release.yml`, `product.yml`)
   * remove the advisory file
  
 This process consumes a `release.yml` file associated
