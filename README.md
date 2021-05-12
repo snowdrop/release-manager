@@ -103,9 +103,12 @@ Starting a release means executing the following tasks:
 * linking the stakeholder requests to the master release ticket that just got created
 * linking any CVE associated with the release
 * initializing the CPaaS repository for the version
+  * new branch for the release
+  * update the configuration files
+  * remove the advisory file
  
 This process consumes a `release.yml` file associated
-with the code base that has been updated from upstream Spring Boot, which contains all the metadata for this tool to perform the
+with the code base that has been updated from an upstream released Spring Boot, which contains all the metadata for this tool to perform the
 needed operations. This is done by running the following command:
 
 ```bash
@@ -200,10 +203,10 @@ If the `-r` option is used this list will also be pushed to GitHub, being the `-
 ### Update Config For Release
 
 This task performs the following steps:
-* gathers information from the JIRA issues stored in the release file
+    * gathers information from the JIRA issues stored in the release file
 * updates the build configuration file
     * pushes the changes to the gitlab repository to be merged
-* updates the CPaaS configuration script
+* updates the CPaaS configuration script (https://gitlab.cee.redhat.com/cpaas/documentation/-/tree/master)
     * pushes the changes to the gitlab repository to be merged
 
 The required parameters are the following:
