@@ -16,20 +16,20 @@
  */
 package dev.snowdrop.release.services;
 
+import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.SearchResult;
+import dev.snowdrop.release.model.CVE;
+
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import com.atlassian.jira.rest.client.api.JiraRestClient;
-import com.atlassian.jira.rest.client.api.domain.Issue;
-import com.atlassian.jira.rest.client.api.domain.SearchResult;
-import dev.snowdrop.release.model.CVE;
 
 import static dev.snowdrop.release.model.Issue.DEFAULT_JIRA_PROJECT;
 
@@ -38,11 +38,11 @@ import static dev.snowdrop.release.model.Issue.DEFAULT_JIRA_PROJECT;
  */
 @ApplicationScoped
 public class CVEService {
+    public static final String EMBARGOED_PREFIX = "EMBARGOED";
     private static final Matcher CVE_PATTERN = Pattern.compile("[EMBARGOED]?.*(CVE-\\d{4}-\\d{1,6}).*").matcher("");
+    private static final Matcher CVE_TITLE_PATTERN = Pattern.compile("[EMABRGOED]?[ ]*(CVE-\\d{4}-\\d{1,6}) ([a-zA-Z0-9 \\-]*):(.*) [\\[?[a-zA-Z0-9]*\\]?.*]").matcher("");
     private static final Matcher BZ_PATTERN = Pattern.compile(".*https://bugzilla.redhat.com/show_bug.cgi\\?id=(\\d{7}).*").matcher("");
     private static final long UNRESOLVED_CVES = 12347131;
-    public static final String EMBARGOED_PREFIX = "EMBARGOED";
-
     @Inject
     JiraRestClient restClient;
 
@@ -105,4 +105,24 @@ public class CVEService {
         }
         return cve;
     }
+
+    public List<String> cveToAdvisory(List<CVE> cveList) {
+        StringBuffer sbCve = new StringBuffer();
+        List<String> cvrStrList = new ArrayList<>(cveList.size());
+        if (cveList != null && cveList.size() > 0) {
+            cveList.forEach(cveItem -> {
+                final var summary = cveItem.getSummary();
+                String id = "";
+                // extract CVE id from summary
+                if (CVE_TITLE_PATTERN.reset(summary).find()) {
+//                    sbCve.append("  * ").append(CVE_TITLE_PATTERN.group(2)).append(":").append(CVE_TITLE_PATTERN.group(3)).append(" (").append(CVE_TITLE_PATTERN.group(1)).append(")").append("\n");
+                    sbCve.append(CVE_TITLE_PATTERN.group(2)).append(":").append(CVE_TITLE_PATTERN.group(3)).append(" (").append(CVE_TITLE_PATTERN.group(1)).append(")");
+                    cvrStrList.add(new StringBuffer(CVE_TITLE_PATTERN.group(2)).append(":").append(CVE_TITLE_PATTERN.group(3)).append(" (").append(CVE_TITLE_PATTERN.group(1)).append(")").toString());
+                }
+            });
+        }
+//        return sbCve.toString();
+        return cvrStrList;
+    }
+
 }

@@ -38,6 +38,11 @@ public class BuildConfigUpdateService {
     @Inject
     GitService git;
 
+    public static GitService.GitConfig buildGitConfig(final String release, final String gitlabUser, final String gitlabToken, final String previousRelease, final Optional<String> newBranchName) {
+        final String[] releaseMajorMinorFix = release.split("\\.");
+        return GitService.GitConfig.gitlabConfig(release, gitlabUser, gitlabToken, previousRelease, Optional.of(String.format("sb-%s.%s.x", releaseMajorMinorFix[0], releaseMajorMinorFix[1])),newBranchName);
+    }
+
     public void newMajorMinor(GitService.GitConfig buildConfigGitlabConfig, final String releaseMajorVersion, final String releaseMinorVersion, final String prevReleaseMajorVersion, final String prevReleaseMinorVersion) throws IOException {
             git.commitAndPush("chore: update release issues' key [release-manager]", buildConfigGitlabConfig, repo -> {
                 final String repoPath = repo.getAbsolutePath();
