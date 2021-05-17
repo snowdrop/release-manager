@@ -65,7 +65,7 @@ release:
           text-only: true
           advisory-type: "{{#securityAdvisory}}RHSA{{/securityAdvisory}}{{^securityAdvisory}}RHBA{{/securityAdvisory}}"
           {{#securityAdvisory}}security-impact: "{{securityImpact}}" # Low, Moderate, Important, Critical{{/securityAdvisory}}
-          synopsis: "{{securityImpact}}: Red Hat support for Spring Boot {{release}} security update"
+          synopsis: "{{#securityAdvisory}}{{securityImpact}}: {{/securityAdvisory}}Red Hat support for Spring Boot {{release}}{{#securityAdvisory}} security{{/securityAdvisory}} update"
           description: "Red Hat support for Spring Boot provides an application platform that reduces
   the complexity of developing and operating applications (monoliths and
   microservices) for OpenShift as a containerized platform.
