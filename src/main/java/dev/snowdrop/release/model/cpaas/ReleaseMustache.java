@@ -63,4 +63,12 @@ public class ReleaseMustache {
     public void setSecurityImpact(String securityImpact) {
         this.securityImpact = securityImpact;
     }
+
+    public boolean isSecurityAdvisory() {
+        return securityAdvisory;
+    }
+
+    public void setSecurityAdvisory(boolean securityAdvisory) {
+        this.securityAdvisory = securityAdvisory;
+    }
 }
