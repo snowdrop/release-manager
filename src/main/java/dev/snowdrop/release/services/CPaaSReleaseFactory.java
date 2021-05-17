@@ -17,14 +17,19 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import dev.snowdrop.release.model.CVE;
+import dev.snowdrop.release.model.cpaas.ReleaseMustache;
+import dev.snowdrop.release.model.cpaas.SecurityImpactEnum;
 import dev.snowdrop.release.model.cpaas.product.CPaaSProductFile;
 import dev.snowdrop.release.model.cpaas.release.CPaaSReleaseFile;
 import org.jboss.logging.Logger;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
@@ -35,6 +40,11 @@ public class CPaaSReleaseFactory {
     static final Logger LOG = Logger.getLogger(CPaaSReleaseFactory.class);
 
     private static final YAMLMapper MAPPER = new YAMLMapper();
+
+    private static final String RELEASE_TEMPLATE = "cpaas_release.mustache";
+
+    @Inject
+    CVEService cveService;
 
     static {
         MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS, MapperFeature.AUTO_DETECT_FIELDS,
@@ -51,25 +61,26 @@ public class CPaaSReleaseFactory {
         return cpaaSProduct;
     }
 
-    public CPaaSReleaseFile createCPaaSReleaseFromStream(InputStream cpaasReleaseIs) throws IOException {
-                CPaaSReleaseFile cpaaSRelease = MAPPER.readValue(cpaasReleaseIs, CPaaSReleaseFile.class);
+    public CPaaSReleaseFile createCPaaSReleaseFromTemplate(String release, String previousRelease, boolean createAdvisory, boolean isSecurityAdvisory, List<CVE> cveList) throws IOException {
+        StringWriter writer = new StringWriter();
+        List<String> advisoryCve = new ArrayList<>(cveList.size());
+        String securityImpact = null;
+        if (cveList.size() > 0) {
+            advisoryCve = cveService.cveToAdvisory(cveList);
+            Optional<CVE> maxImpactCVE = cveList.stream().max((i, j) -> i.getImpact().getGreater(j.getImpact().getValue()));
+            securityImpact = SecurityImpactEnum.getLevelForPriority(maxImpactCVE.get().getImpact().getValue());
+        }
+        ReleaseMustache releaseMustache = new ReleaseMustache(createAdvisory, isSecurityAdvisory, advisoryCve, securityImpact, release, previousRelease);
+        Utility.mf.compile(RELEASE_TEMPLATE).execute(writer, releaseMustache).flush();
+        CPaaSReleaseFile cpaaSRelease = MAPPER.readValue(new ByteArrayInputStream(writer.toString().getBytes()), CPaaSReleaseFile.class);
         LOG.infof("Loaded cpaas release %s ", cpaaSRelease.getRelease().getName());
         return cpaaSRelease;
     }
 
-    void saveTo(CPaaSProductFile release, File to) {
-        final var writer = MAPPER.writerFor(CPaaSProductFile.class);
+    void saveTo(Object cpaasObject, File to, Class writeClass) {
+        final var writer = MAPPER.writerFor(writeClass);
         try {
-            writer.writeValue(to, release);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    void saveTo(CPaaSReleaseFile release, File to) {
-        final var writer = MAPPER.writerFor(CPaaSReleaseFile.class);
-        try {
-            writer.writeValue(to, release);
+            writer.writeValue(to, cpaasObject);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

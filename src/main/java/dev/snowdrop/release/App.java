@@ -162,7 +162,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
-        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release in the <major>.<minor>.<fix> format (e.g. 2.4.3)",required = true) String previousRelease
     ) throws Throwable {
         final String[] releaseMajorMinorFix = release.split("\\.");
         final String[] prevReleaseMajorMinorFix = previousRelease.split("\\.");
@@ -181,9 +181,9 @@ public class App implements QuarkusApplication {
 
 
     @CommandLine.Command(
-        name = "start-release",
+        name = "setup-release",
         description = "Start the release process for the release associated with the specified git reference")
-    public void startRelease(
+    public void setupRelease(
         @CommandLine.Option(
             names = {"-g", "--git"},
             description = "Git reference in the <github org>/<github repo>/<branch> format",
@@ -211,7 +211,7 @@ public class App implements QuarkusApplication {
             names = {"-e", "--eol-date"},
             description = "End of Life Date(yyyy-mm-dd)",
             required = true) String eolDate,
-        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release in the <major>.<minor>.<fix> format (e.g. 2.4.3)",required = true) String previousRelease
     ) throws Throwable {
         final GitConfig config = GitConfig.githubConfig(gitRef, ghuser, token, Optional.empty());
         if (!test) {
@@ -220,6 +220,7 @@ public class App implements QuarkusApplication {
 
         Release release = factory.createFromGitRef(gitRef, skipProductRequests, true);
         release.setTest(test);
+        release.setPreviousVersion(previousRelease);
 
         try {
             release.setSchedule(releaseDate, eolDate);
@@ -267,9 +268,9 @@ public class App implements QuarkusApplication {
         }
         System.out.println(issue);
 
-        GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release.getVersion(), gluser, gltoken, Optional.of(previousRelease), Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
+        GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        cpaasCfgService.newRelease(cpaasConfigGitConfig, release.getVersion(), previousRelease, false, false);
+        cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false, false);
     }
 
     @CommandLine.Command(
@@ -309,7 +310,7 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
-        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release",required = true) String previousRelease,
+        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release in the <major>.<minor>.<fix> format (e.g. 2.4.3)",required = true) String previousRelease,
         @CommandLine.Option(names = {"-q", "--qualifier"}, description = "qualifier", required = true) String qualifier,
         @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone)
         throws Throwable {
@@ -324,10 +325,10 @@ public class App implements QuarkusApplication {
         git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
             .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
 
-        GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release, gluser, gltoken, Optional.of(previousRelease), Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
+        GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(releaseObj, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
         git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-            return cpaasCfgService.updateCPaaSFiles( release, repo, previousRelease, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false), false);
+                return cpaasCfgService.updateCPaaSFiles( releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false), false);
         });
     }
     

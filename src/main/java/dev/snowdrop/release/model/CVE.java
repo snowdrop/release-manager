@@ -24,7 +24,7 @@ import org.joda.time.DateTime;
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class CVE extends Issue {
-    private String impact;
+    private JiraPriorityEnum impact;
     private long bugzilla;
     private String id;
 
@@ -32,7 +32,7 @@ public class CVE extends Issue {
         super(key, summary, fixVersions, status, dueDate);
     }
 
-    public void setImpact(String impact) {
+    public void setImpact(JiraPriorityEnum impact) {
         this.impact = impact;
     }
 
@@ -50,5 +50,9 @@ public class CVE extends Issue {
 
     public long getBugzilla() {
         return bugzilla;
+    }
+
+    public JiraPriorityEnum getImpact() {
+        return impact;
     }
 }

@@ -1,47 +1,35 @@
 package dev.snowdrop.release.model.cpaas;
 
+import dev.snowdrop.release.model.JiraPriorityEnum;
+
 import java.util.List;
 
 public class ReleaseMustache {
-    private Boolean isErCr;
-    private Boolean isSecurityAdvisory;
-    private List<String> cveList;
+    private boolean createAdvisory;
+    private boolean securityAdvisory;
+    private List<String> cve;
     private String release;
     private String previousRelease;
+    private String securityImpact;
 
     public ReleaseMustache() {
     }
 
-    public ReleaseMustache(Boolean isErCr, Boolean isSecurityAdvisory, List<String> cveList, String release, String previousRelease) {
-        this.isErCr = isErCr;
-        this.isSecurityAdvisory = isSecurityAdvisory;
-        this.cveList = cveList;
+    public ReleaseMustache(boolean createAdvisory, boolean securityAdvisory, List<String> cveList, String securityImpact, String release, String previousRelease) {
+        this.createAdvisory = createAdvisory;
+        this.securityAdvisory = securityAdvisory;
+        this.cve = cveList;
+        this.securityImpact = securityImpact;
         this.release = release;
         this.previousRelease = previousRelease;
     }
 
-    public Boolean getErCr() {
-        return isErCr;
+    public List<String> getCve() {
+        return cve;
     }
 
-    public void setErCr(Boolean erCr) {
-        isErCr = erCr;
-    }
-
-    public Boolean getSecurityAdvisory() {
-        return isSecurityAdvisory;
-    }
-
-    public void setSecurityAdvisory(Boolean securityAdvisory) {
-        isSecurityAdvisory = securityAdvisory;
-    }
-
-    public List<String> getCveList() {
-        return cveList;
-    }
-
-    public void setCveList(List<String> cveList) {
-        this.cveList = cveList;
+    public void setCve(List<String> cve) {
+        this.cve = cve;
     }
 
     public String getRelease() {
@@ -58,5 +46,21 @@ public class ReleaseMustache {
 
     public void setPreviousRelease(String previousRelease) {
         this.previousRelease = previousRelease;
+    }
+
+    public String getCveList() {
+        StringBuffer cveSb = new StringBuffer();
+        cve.forEach(cveItem -> {
+            cveSb.append("  * ").append(cveItem).append("\n");
+        });
+        return cveSb.toString();
+    }
+
+    public String getSecurityImpact() {
+        return securityImpact;
+    }
+
+    public void setSecurityImpact(String securityImpact) {
+        this.securityImpact = securityImpact;
     }
 }

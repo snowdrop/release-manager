@@ -20,6 +20,8 @@ public class Release extends Issue {
     @JsonProperty
     private String version;
     @JsonProperty
+    private String previousVersion;
+    @JsonProperty
     private Schedule schedule;
     @JsonProperty
     private List<Component> components;
@@ -57,6 +59,14 @@ public class Release extends Issue {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getPreviousVersion() {
+        return previousVersion;
+    }
+
+    public void setPreviousVersion(String previousVersion) {
+        this.previousVersion = previousVersion;
     }
 
     public List<Component> getComponents() {

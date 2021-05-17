@@ -13,16 +13,21 @@
  */
 package dev.snowdrop.release.services;
 
+import dev.snowdrop.release.model.CVE;
+import dev.snowdrop.release.model.JiraPriorityEnum;
+import dev.snowdrop.release.model.cpaas.SecurityImpactEnum;
 import dev.snowdrop.release.model.cpaas.product.*;
-import dev.snowdrop.release.model.cpaas.release.CPaaSReleaseFile;
+import dev.snowdrop.release.model.cpaas.release.*;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.junit.TestProfile;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author <a href="antcosta@redhat.com">Antonio Costa</a>
@@ -30,8 +35,34 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @QuarkusTest
 @TestProfile(TestProfiles.CoreTags.class)
 public class CPaaSReleaseFactoryTest {
+    private static final String RELEASE = "2.4.0";
+    private static final String PREVIOUS_RELEASE = "2.3.6";
+    private static final String CVE_SUMMARY_JIRA_1 = "CVE-2020-11996 tomcat: specially crafted sequence of HTTP/2 requests can lead to DoS [springboot-2]";
+    private static final String CVE_SUMMARY_JIRA_2 = "CVE-2020-25638 hibernate-core: SQL injection vulnerability when both hibernate.use_sql_comments and JPQL String literals are used [springboot-2.3]";
+    private static final String CVE_SUMMARY_CPAAS_1 = "tomcat: specially crafted sequence of HTTP/2 requests can lead to DoS (CVE-2020-11996)";
+    private static final String CVE_SUMMARY_CPAAS_2 = "hibernate-core: SQL injection vulnerability when both hibernate.use_sql_comments and JPQL String literals are used (CVE-2020-25638)";
+
     @Inject
     CPaaSReleaseFactory factory;
+
+    @Inject
+    CVEService cveService;
+
+    private List<CVE> getCVEListForTesting() {
+        List<CVE> cveList = new ArrayList<CVE>(2) {{
+            CVE cve = new CVE("9999", CVE_SUMMARY_JIRA_1, new ArrayList<>(1) {{
+                add("2.4.0");
+            }}, "", DateTime.now());
+            cve.setImpact(JiraPriorityEnum.MAJOR);
+            add(cve);
+            cve = new CVE("9998", CVE_SUMMARY_JIRA_2, new ArrayList<>(1) {{
+                add("2.4.0");
+            }}, "", DateTime.now());
+            cve.setImpact(JiraPriorityEnum.TRIVIAL);
+            add(cve);
+        }};
+        return cveList;
+    }
 
     @Test
     public void checkProductParsing() throws Throwable {
@@ -60,8 +91,114 @@ public class CPaaSReleaseFactoryTest {
     }
 
     @Test
-    public void checkReleaseParsing() throws Throwable {
-        CPaaSReleaseFile release = factory.createCPaaSReleaseFromStream(HelperFunctions.getResourceAsStream("cpaas/release.yml"));
-        assertEquals(2, release.getRelease().getPipelines().size());
+    public void checkReleaseTemplateParsingWithoutSecurityAdvisory() throws Throwable {
+        List<CVE> cveList = getCVEListForTesting();
+        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, false, false, cveList);
+        List<CPaaSPipelines> pipelines = release.getRelease().getPipelines();
+        assertEquals(2, pipelines.size());
+        pipelines.forEach(pipeline -> {
+            if ("build".equalsIgnoreCase(pipeline.getName())) {
+                List<CPaaSStage> stages = pipeline.getStages();
+                stages.forEach(stage -> {
+                    if ("post-build-checks".equalsIgnoreCase(stage.getName())) {
+                        assertTrue(stage.getEnabled());
+                    }
+                });
+            } else if ("release".equalsIgnoreCase(pipeline.getName())) {
+                List<CPaaSStage> stages = pipeline.getStages();
+                stages.forEach(stage -> {
+                    if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
+                        assertFalse(stage.getEnabled());
+                    }
+                });
+            }
+        });
+        List<CPaaSTool> tools = release.getRelease().getTools();
+        tools.forEach(tool -> {
+            if ("errata".equalsIgnoreCase(tool.getType())) {
+                final List<CPaaSAdvisory> advisories = tool.getAdvisories();
+                advisories.forEach(advisory -> {
+                    if ("RHOAR".equalsIgnoreCase(advisory.getName())) {
+                        assertEquals("RHBA", advisory.getAdvisoryType());
+                        assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_1));
+                        assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_2));
+                        assertTrue(advisory.getDescription().contains(RELEASE));
+                        assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
+                        assertTrue(advisory.getSynopsis().contains(RELEASE));
+                        assertNull(advisory.getSecurityImpact());
+                    }
+                });
+            }
+        });
     }
+
+    @Test
+    public void nonSecurityAdvisoryDontHaveSecurityImpact() throws Throwable {
+        List<CVE> cveList = getCVEListForTesting();
+        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, true, false, cveList);
+        List<CPaaSTool> tools = release.getRelease().getTools();
+        tools.forEach(tool -> {
+            if ("errata".equalsIgnoreCase(tool.getType())) {
+                final List<CPaaSAdvisory> advisories = tool.getAdvisories();
+                advisories.forEach(advisory -> {
+                    if ("RHOAR".equalsIgnoreCase(advisory.getName())) {
+                        assertNull(advisory.getSecurityImpact());
+                    }
+                });
+            }
+        });
+    }
+
+    @Test
+    public void checkReleaseTemplateParsingWithSecurityAdvisory() throws Throwable {
+        List<CVE> cveList = getCVEListForTesting();
+        final List<String> cpaasCVE = cveService.cveToAdvisory(cveList);
+        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, true, true, cveList);
+        List<CPaaSPipelines> pipelines = release.getRelease().getPipelines();
+        assertEquals(2, pipelines.size());
+        pipelines.forEach(pipeline -> {
+            if ("build".equalsIgnoreCase(pipeline.getName())) {
+                List<CPaaSStage> stages = pipeline.getStages();
+                stages.forEach(stage -> {
+                    if ("create-delivery-repo".equalsIgnoreCase(stage.getName())) {
+                        assertFalse(stage.getEnabled());
+                    }
+                });
+            } else if ("build".equalsIgnoreCase(pipeline.getName())) {
+                List<CPaaSStage> stages = pipeline.getStages();
+                stages.forEach(stage -> {
+                    if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
+                        assertTrue(stage.getEnabled());
+                    }
+                });
+            }
+        });
+        List<CPaaSTool> tools = release.getRelease().getTools();
+        tools.forEach(tool -> {
+            if ("errata".equalsIgnoreCase(tool.getType())) {
+                final List<CPaaSAdvisory> advisories = tool.getAdvisories();
+                advisories.forEach(advisory -> {
+                    if ("RHOAR".equalsIgnoreCase(advisory.getName())) {
+                        assertEquals("RHSA", advisory.getAdvisoryType());
+                        assertTrue(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_1));
+                        assertTrue(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_2));
+                        assertTrue(advisory.getDescription().contains(RELEASE));
+                        assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
+                        assertTrue(advisory.getSynopsis().contains(RELEASE));
+                        assertEquals(SecurityImpactEnum.IMPORTANT.getValue(), advisory.getSecurityImpact());
+                    }
+                });
+            }
+        });
+    }
+
+    @Test
+    public void checkCVEDescription() throws Throwable {
+        List<CVE> cveList = getCVEListForTesting();
+        final List<String> cpaasCVE = cveService.cveToAdvisory(cveList);
+        assertEquals(2, cpaasCVE.size());
+        assertEquals(CVE_SUMMARY_CPAAS_1, cpaasCVE.get(0));
+        assertEquals(CVE_SUMMARY_CPAAS_2, cpaasCVE.get(1));
+    }
+
 }

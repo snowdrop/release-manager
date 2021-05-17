@@ -9,7 +9,7 @@ public class CPaaSReleaseTeam {
     @JsonProperty
     private List<String> recipients;
     @JsonProperty("send-when")
-    private String sendWhen;
+    private SendWhenEnum sendWhen;
 
     public CPaaSReleaseTeam() {
     }
@@ -22,11 +22,11 @@ public class CPaaSReleaseTeam {
         this.recipients = recipients;
     }
 
-    public String getSendWhen() {
+    public SendWhenEnum getSendWhen() {
         return sendWhen;
     }
 
-    public void setSendWhen(String sendWhen) {
+    public void setSendWhen(SendWhenEnum sendWhen) {
         this.sendWhen = sendWhen;
     }
 

@@ -45,7 +45,7 @@ release:
         - name: check-gate-result
           enabled: false
         - name: create-errata-tool-advisories
-          enabled: {{#isErDr}}true{{/isErDr}}{{^isErDr}}false{{/isErDr}}
+          enabled: {{#createAdvisory}}true{{/createAdvisory}}{{^createAdvisory}}false{{/createAdvisory}}
         - name: verify-brew-targets
           enabled: false
         - name: attach-builds-to-advisories
@@ -63,9 +63,9 @@ release:
           manager-contact: "mlittle@redhat.com"
           qa-owner: "lfuka@redhat.com"
           text-only: true
-          advisory-type: {{#isSecurityAdvisory}}"RHSA"{{/isSecurityAdvisory}}{{^isSecurityAdvisory}}RHBA{{/isSecurityAdvisory}}
-          {{#isSecurityAdvisory}}security-impact: "Important" # Low, Moderate, Important, Critical{{/isSecurityAdvisory}}
-          synopsis: "Important: Red Hat support for Spring Boot {{release}} security update"
+          advisory-type: "{{#securityAdvisory}}RHSA{{/securityAdvisory}}{{^securityAdvisory}}RHBA{{/securityAdvisory}}"
+          {{#securityAdvisory}}security-impact: "{{securityImpact}}" # Low, Moderate, Important, Critical{{/securityAdvisory}}
+          synopsis: "{{securityImpact}}: Red Hat support for Spring Boot {{release}} security update"
           description: "Red Hat support for Spring Boot provides an application platform that reduces
   the complexity of developing and operating applications (monoliths and
   microservices) for OpenShift as a containerized platform.
@@ -75,13 +75,10 @@ release:
   and bug fixes and enhancements. For further information, refer to the release
   notes linked to in the References section.
 
-{{#isSecurityAdvisory}}
+{{#securityAdvisory}}
   Security Fix(es):
 
 {{cveList}}
-  * hibernate-core: SQL injection vulnerability when both hibernate.use_sql_comments and JPQL String literals are used (CVE-2020-25638)
-
-  * tomcat: specially crafted sequence of HTTP/2 requests can lead to DoS (CVE-2020-11996)
 
   For more details about the security issue(s), including the impact, a CVSS
   score, acknowledgments, and other related information, refer to the CVE page(s)
@@ -94,7 +91,7 @@ release:
   link(s) in the References section."
           solution: "Before applying the update, back up your existing installation, including all
   applications, configuration files, databases and database settings, and so on.
-{{/isSecurityAdvisory}}
+{{/securityAdvisory}}
 
   The References section of this erratum contains a download link (you must log in
   to download the update)."
