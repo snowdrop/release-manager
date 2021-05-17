@@ -203,7 +203,7 @@ If the `-r` option is used this list will also be pushed to GitHub, being the `-
 ### Update Config For Release
 
 This task performs the following steps:
-    * gathers information from the JIRA issues stored in the release file
+* gathers information from the JIRA issues stored in the release file
 * updates the build configuration file
     * pushes the changes to the gitlab repository to be merged
 * updates the CPaaS configuration script (https://gitlab.cee.redhat.com/cpaas/documentation/-/tree/master)
