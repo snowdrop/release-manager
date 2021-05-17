@@ -270,7 +270,7 @@ public class App implements QuarkusApplication {
 
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false, false);
+        cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false);
     }
 
     @CommandLine.Command(
@@ -328,7 +328,7 @@ public class App implements QuarkusApplication {
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(releaseObj, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
         git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-                return cpaasCfgService.updateCPaaSFiles( releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false), false);
+                return cpaasCfgService.updateCPaaSFiles( releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false));
         });
     }
     

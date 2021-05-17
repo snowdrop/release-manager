@@ -93,7 +93,7 @@ public class CPaaSReleaseFactoryTest {
     @Test
     public void checkReleaseTemplateParsingWithoutSecurityAdvisory() throws Throwable {
         List<CVE> cveList = getCVEListForTesting();
-        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, false, false, cveList);
+        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, false, cveList);
         List<CPaaSPipelines> pipelines = release.getRelease().getPipelines();
         assertEquals(2, pipelines.size());
         pipelines.forEach(pipeline -> {
@@ -119,30 +119,14 @@ public class CPaaSReleaseFactoryTest {
                 final List<CPaaSAdvisory> advisories = tool.getAdvisories();
                 advisories.forEach(advisory -> {
                     if ("RHOAR".equalsIgnoreCase(advisory.getName())) {
-                        assertEquals("RHBA", advisory.getAdvisoryType());
-                        assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_1));
-                        assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_2));
+                        assertEquals("RHSA", advisory.getAdvisoryType());
+                        assertTrue(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_1));
+                        assertTrue(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_2));
                         assertTrue(advisory.getDescription().contains(RELEASE));
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
                         assertTrue(advisory.getSynopsis().contains(RELEASE));
-                        assertNull(advisory.getSecurityImpact());
-                    }
-                });
-            }
-        });
-    }
-
-    @Test
-    public void nonSecurityAdvisoryDontHaveSecurityImpact() throws Throwable {
-        List<CVE> cveList = getCVEListForTesting();
-        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, true, false, cveList);
-        List<CPaaSTool> tools = release.getRelease().getTools();
-        tools.forEach(tool -> {
-            if ("errata".equalsIgnoreCase(tool.getType())) {
-                final List<CPaaSAdvisory> advisories = tool.getAdvisories();
-                advisories.forEach(advisory -> {
-                    if ("RHOAR".equalsIgnoreCase(advisory.getName())) {
-                        assertNull(advisory.getSecurityImpact());
+                        assertTrue(advisory.getSynopsis().contains("security update"));
+                        assertEquals(SecurityImpactEnum.IMPORTANT.getValue(), advisory.getSecurityImpact());
                     }
                 });
             }
@@ -152,8 +136,7 @@ public class CPaaSReleaseFactoryTest {
     @Test
     public void checkReleaseTemplateParsingWithSecurityAdvisory() throws Throwable {
         List<CVE> cveList = getCVEListForTesting();
-        final List<String> cpaasCVE = cveService.cveToAdvisory(cveList);
-        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, true, true, cveList);
+        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, true, cveList);
         List<CPaaSPipelines> pipelines = release.getRelease().getPipelines();
         assertEquals(2, pipelines.size());
         pipelines.forEach(pipeline -> {
@@ -185,7 +168,44 @@ public class CPaaSReleaseFactoryTest {
                         assertTrue(advisory.getDescription().contains(RELEASE));
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
                         assertTrue(advisory.getSynopsis().contains(RELEASE));
+                        assertTrue(advisory.getSynopsis().contains("security update"));
                         assertEquals(SecurityImpactEnum.IMPORTANT.getValue(), advisory.getSecurityImpact());
+                    }
+                });
+            }
+        });
+    }
+
+    @Test
+    public void advisoryWithEmptyCVEListIsRHBAAndDoesntHaveSecurityImpact() throws Throwable {
+        List<CVE> cveList = new ArrayList<CVE>(0);
+        CPaaSReleaseFile release = factory.createCPaaSReleaseFromTemplate(RELEASE, PREVIOUS_RELEASE, true, cveList);
+        List<CPaaSPipelines> pipelines = release.getRelease().getPipelines();
+        assertEquals(2, pipelines.size());
+        pipelines.forEach(pipeline -> {
+            if ("build".equalsIgnoreCase(pipeline.getName())) {
+                List<CPaaSStage> stages = pipeline.getStages();
+                stages.forEach(stage -> {
+                    if ("create-errata-tool-advisories".equalsIgnoreCase(stage.getName())) {
+                        assertTrue(stage.getEnabled());
+                    }
+                });
+            }
+        });
+        List<CPaaSTool> tools = release.getRelease().getTools();
+        tools.forEach(tool -> {
+            if ("errata".equalsIgnoreCase(tool.getType())) {
+                final List<CPaaSAdvisory> advisories = tool.getAdvisories();
+                advisories.forEach(advisory -> {
+                    if ("RHOAR".equalsIgnoreCase(advisory.getName())) {
+                        assertEquals("RHBA", advisory.getAdvisoryType());
+                        assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_1));
+                        assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_2));
+                        assertTrue(advisory.getDescription().contains(RELEASE));
+                        assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
+                        assertTrue(advisory.getSynopsis().contains(RELEASE));
+                        assertEquals(String.format("Red Hat support for Spring Boot %s update", RELEASE), advisory.getSynopsis());
+                        assertNull(advisory.getSecurityImpact());
                     }
                 });
             }

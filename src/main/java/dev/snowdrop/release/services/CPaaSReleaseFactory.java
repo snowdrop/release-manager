@@ -43,17 +43,17 @@ public class CPaaSReleaseFactory {
 
     private static final String RELEASE_TEMPLATE = "cpaas_release.mustache";
 
-    @Inject
-    CVEService cveService;
-
     static {
         MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS, MapperFeature.AUTO_DETECT_FIELDS,
-                MapperFeature.AUTO_DETECT_GETTERS, MapperFeature.AUTO_DETECT_IS_GETTERS);
+            MapperFeature.AUTO_DETECT_GETTERS, MapperFeature.AUTO_DETECT_IS_GETTERS);
         final var factory = MAPPER.getFactory();
         factory.disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
         factory.enable(YAMLGenerator.Feature.MINIMIZE_QUOTES);
         MAPPER.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
+
+    @Inject
+    CVEService cveService;
 
     public CPaaSProductFile createCPaaSProductFromStream(InputStream cpaasProductIs) throws IOException {
         CPaaSProductFile cpaaSProduct = MAPPER.readValue(cpaasProductIs, CPaaSProductFile.class);
@@ -61,11 +61,13 @@ public class CPaaSReleaseFactory {
         return cpaaSProduct;
     }
 
-    public CPaaSReleaseFile createCPaaSReleaseFromTemplate(String release, String previousRelease, boolean createAdvisory, boolean isSecurityAdvisory, List<CVE> cveList) throws IOException {
+    public CPaaSReleaseFile createCPaaSReleaseFromTemplate(String release, String previousRelease, boolean createAdvisory, List<CVE> cveList) throws IOException {
+        boolean isSecurityAdvisory = false;
         StringWriter writer = new StringWriter();
         List<String> advisoryCve = new ArrayList<>(cveList.size());
         String securityImpact = null;
         if (cveList.size() > 0) {
+            isSecurityAdvisory = true;
             advisoryCve = cveService.cveToAdvisory(cveList);
             Optional<CVE> maxImpactCVE = cveList.stream().max((i, j) -> i.getImpact().getGreater(j.getImpact().getValue()));
             securityImpact = SecurityImpactEnum.getLevelForPriority(maxImpactCVE.get().getImpact().getValue());

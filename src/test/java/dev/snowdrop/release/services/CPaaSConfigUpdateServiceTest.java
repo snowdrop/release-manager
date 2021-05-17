@@ -71,7 +71,7 @@ public class CPaaSConfigUpdateServiceTest {
         releaseObj.setPom(POM.createFrom(HelperFunctions.getResourceAsStream("pom.xml")));
         GitService.GitConfig config = service.buildGitConfig(releaseObj, user, token, Optional.of(ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot")));
         git.initRepository(config);
-        Stream<File> files = service.updateCPaaSFiles(releaseObj, git.getConfig(config).getRepository().getWorkTree(),false, true);
+        Stream<File> files = service.updateCPaaSFiles(releaseObj, git.getConfig(config).getRepository().getWorkTree(),false);
         Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
         assertTrue(fileMap.containsKey(PRODUCT_FILE_NAME), fileMap.toString());
         CPaaSProductFile productFile = factory.createCPaaSProductFromStream(new FileInputStream(fileMap.get(PRODUCT_FILE_NAME)));
@@ -92,7 +92,7 @@ public class CPaaSConfigUpdateServiceTest {
         GitService.GitConfig config = service.buildGitConfig(releaseObj, user, token, Optional.of(repoName));
         try {
             git.initRepository(config);
-            service.newRelease(config, releaseObj, false, false);
+            service.newRelease(config, releaseObj, false);
         } catch (IOException ex) {
             ex.printStackTrace();
             fail(ex);
