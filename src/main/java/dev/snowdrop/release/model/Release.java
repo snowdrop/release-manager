@@ -158,6 +158,10 @@ public class Release extends Issue {
             }
         }
 
+        if (isStringNullOrBlank(previousVersion)) {
+            errors.add("missing previous version");
+        }
+
         // validate schedule
         if (!skipScheduleValidation) {
             errors.addAll(validateSchedule());
