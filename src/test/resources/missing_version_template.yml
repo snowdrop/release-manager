@@ -1,3 +1,5 @@
+previousVersion: 2.2.10
+
 schedule:
     # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
     release: 2020-09-14
