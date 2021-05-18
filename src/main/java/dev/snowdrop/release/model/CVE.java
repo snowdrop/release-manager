@@ -18,13 +18,14 @@ package dev.snowdrop.release.model;
 
 import java.util.List;
 
+import dev.snowdrop.release.model.cpaas.SecurityImpact;
 import org.joda.time.DateTime;
 
 /**
  * @author <a href="claprun@redhat.com">Christophe Laprun</a>
  */
 public class CVE extends Issue {
-    private JiraPriority impact;
+    private SecurityImpact impact;
     private long bugzilla;
     private String id;
 
@@ -32,7 +33,7 @@ public class CVE extends Issue {
         super(key, summary, fixVersions, status, dueDate);
     }
 
-    public void setImpact(JiraPriority impact) {
+    public void setImpact(SecurityImpact impact) {
         this.impact = impact;
     }
 
@@ -52,7 +53,7 @@ public class CVE extends Issue {
         return bugzilla;
     }
 
-    public JiraPriority getImpact() {
+    public SecurityImpact getImpact() {
         return impact;
     }
 }

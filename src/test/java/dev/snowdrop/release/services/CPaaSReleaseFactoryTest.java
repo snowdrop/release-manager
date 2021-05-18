@@ -14,7 +14,6 @@
 package dev.snowdrop.release.services;
 
 import dev.snowdrop.release.model.CVE;
-import dev.snowdrop.release.model.JiraPriority;
 import dev.snowdrop.release.model.cpaas.SecurityImpact;
 import dev.snowdrop.release.model.cpaas.product.*;
 import dev.snowdrop.release.model.cpaas.release.*;
@@ -53,12 +52,17 @@ public class CPaaSReleaseFactoryTest {
             CVE cve = new CVE("9999", CVE_SUMMARY_JIRA_1, new ArrayList<>(1) {{
                 add("2.4.0");
             }}, "", DateTime.now());
-            cve.setImpact(JiraPriority.MAJOR);
+            cve.setImpact(SecurityImpact.LOW);
             add(cve);
-            cve = new CVE("9998", CVE_SUMMARY_JIRA_2, new ArrayList<>(1) {{
+            cve = new CVE("9999", CVE_SUMMARY_JIRA_2, new ArrayList<>(1) {{
                 add("2.4.0");
             }}, "", DateTime.now());
-            cve.setImpact(JiraPriority.TRIVIAL);
+            cve.setImpact(SecurityImpact.IMPORTANT);
+            add(cve);
+            cve = new CVE("9998", CVE_SUMMARY_JIRA_1, new ArrayList<>(1) {{
+                add("2.4.0");
+            }}, "", DateTime.now());
+            cve.setImpact(SecurityImpact.MODERATE);
             add(cve);
         }};
         return cveList;
@@ -125,8 +129,11 @@ public class CPaaSReleaseFactoryTest {
                         assertTrue(advisory.getDescription().contains(RELEASE));
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
                         assertTrue(advisory.getSynopsis().contains(RELEASE));
-                        assertTrue(advisory.getSynopsis().contains("security update"));
+                        assertTrue(advisory.getSynopsis().contains("security update"), advisory.getSynopsis());
                         assertEquals(SecurityImpact.IMPORTANT.getImpact(), advisory.getSecurityImpact());
+                        assertTrue(advisory.getSolution().startsWith("Before applying the update"), advisory.getSolution());
+                        assertTrue(advisory.getTopic().startsWith("An update is now available for Red Hat OpenShift Application Runtimes."), advisory.getTopic());
+                        assertTrue(advisory.getTopic().contains("Red Hat Product Security has rated"), advisory.getTopic());
                     }
                 });
             }
@@ -168,8 +175,11 @@ public class CPaaSReleaseFactoryTest {
                         assertTrue(advisory.getDescription().contains(RELEASE));
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
                         assertTrue(advisory.getSynopsis().contains(RELEASE));
-                        assertTrue(advisory.getSynopsis().contains("security update"));
+                        assertTrue(advisory.getSynopsis().contains("security update"), advisory.getSynopsis());
                         assertEquals(SecurityImpact.IMPORTANT.getImpact(), advisory.getSecurityImpact());
+                        assertTrue(advisory.getSolution().startsWith("Before applying the update"), advisory.getSolution());
+                        assertTrue(advisory.getTopic().startsWith("An update is now available for Red Hat OpenShift Application Runtimes."), advisory.getTopic());
+                        assertTrue(advisory.getTopic().contains("Red Hat Product Security has rated"), advisory.getTopic());
                     }
                 });
             }
@@ -203,9 +213,13 @@ public class CPaaSReleaseFactoryTest {
                         assertFalse(advisory.getDescription().contains(CVE_SUMMARY_CPAAS_2));
                         assertTrue(advisory.getDescription().contains(RELEASE));
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
-                        assertTrue(advisory.getSynopsis().contains(RELEASE));
+                        assertTrue(advisory.getSynopsis().contains(RELEASE), advisory.getSynopsis());
+                        assertFalse(advisory.getSynopsis().contains("security update"), advisory.getSynopsis());
                         assertEquals(String.format("Red Hat support for Spring Boot %s update", RELEASE), advisory.getSynopsis());
                         assertNull(advisory.getSecurityImpact());
+                        assertTrue(advisory.getSolution().startsWith("Before applying the update"), advisory.getSolution());
+                        assertTrue(advisory.getTopic().startsWith("An update is now available for Red Hat OpenShift Application Runtimes."), advisory.getTopic());
+                        assertFalse(advisory.getTopic().contains("Red Hat Product Security has rated"), advisory.getTopic());
                     }
                 });
             }
@@ -216,7 +230,7 @@ public class CPaaSReleaseFactoryTest {
     public void checkCVEDescription() throws Throwable {
         List<CVE> cveList = getCVEListForTesting();
         final List<String> cpaasCVE = cveService.cveToAdvisory(cveList);
-        assertEquals(2, cpaasCVE.size());
+        assertEquals(3, cpaasCVE.size());
         assertEquals(CVE_SUMMARY_CPAAS_1, cpaasCVE.get(0));
         assertEquals(CVE_SUMMARY_CPAAS_2, cpaasCVE.get(1));
     }

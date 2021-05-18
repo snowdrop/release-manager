@@ -20,7 +20,7 @@ import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import dev.snowdrop.release.model.CVE;
-import dev.snowdrop.release.model.JiraPriority;
+import dev.snowdrop.release.model.cpaas.SecurityImpact;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -88,7 +88,7 @@ public class CVEService {
                 var line = lines.next();
                 // first line should be the one where impact is recorded
                 if (!impactFound && line.startsWith("Impact")) {
-                    cve.setImpact(JiraPriority.valueOf(line.substring(line.indexOf(':') + 1).trim()));
+                    cve.setImpact(SecurityImpact.valueOf(line.substring(line.indexOf(':') + 1).trim()));
                     impactFound = true;
                     continue;
                 }

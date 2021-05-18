@@ -69,8 +69,8 @@ public class CPaaSReleaseFactory {
         if (cveList.size() > 0) {
             isSecurityAdvisory = true;
             advisoryCve = cveService.cveToAdvisory(cveList);
-            Optional<CVE> maxImpactCVE = cveList.stream().max((i, j) -> i.getImpact().getGreater(j.getImpact().getName()));
-            securityImpact = SecurityImpact.getImpactForPriority(maxImpactCVE.get().getImpact().getName());
+            Optional<CVE> maxImpactCVE = cveList.stream().max((i, j) -> SecurityImpact.impactLevelComparator.compare(i.getImpact(),j.getImpact()));
+            securityImpact = maxImpactCVE.get().getImpact().getImpact();
         }
         ReleaseMustache releaseMustache = new ReleaseMustache(createAdvisory, isSecurityAdvisory, advisoryCve, securityImpact, release, previousRelease);
         Utility.mf.compile(RELEASE_TEMPLATE).execute(writer, releaseMustache).flush();

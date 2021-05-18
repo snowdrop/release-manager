@@ -42,8 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestProfile(TestProfiles.IntegrationTests.class)
 public class CPaaSConfigUpdateServiceTest {
 
-    private static final String RELEASE = "2.4.0";
-    private static final String PREVIOUS_RELEASE = "2.3.6";
+    private static final String RELEASE = "2.3.2";
     private static final String PRODUCT_FILE_NAME = "product.yml";
     private static final String RELEASE_FILE_NAME = "release.yml";
     private static final YAMLMapper MAPPER = new YAMLMapper();
@@ -72,7 +71,7 @@ public class CPaaSConfigUpdateServiceTest {
         CPaaSProductFile productFile = factory.createCPaaSProductFromStream(new FileInputStream(fileMap.get(PRODUCT_FILE_NAME)));
         CPaaSProduct product = productFile.getProduct();
         assertEquals(RELEASE, product.getRelease().getVersion());
-        assertEquals("spring-boot/2.4", product.getProjects().get(0).getComponents().get(0).getBuilds().get(0).getPigSource().getRoot());
+        assertEquals("spring-boot/2.3", product.getProjects().get(0).getComponents().get(0).getBuilds().get(0).getPigSource().getRoot());
     }
 
     @Test
@@ -82,7 +81,6 @@ public class CPaaSConfigUpdateServiceTest {
         InputStream releaseIS = HelperFunctions.getResourceAsStream("release_template.yml");
         Release releaseObj = MAPPER.readValue(releaseIS, Release.class);
         releaseObj.setPom(POM.createFrom(HelperFunctions.getResourceAsStream("pom.xml")));
-        final String[] prevReleaseMajorMinorFix = PREVIOUS_RELEASE.split("\\.");
         String repoName = ConfigProvider.getConfig().getOptionalValue("gitlab.repository", String.class).orElse(user + "/springboot");
         GitService.GitConfig config = service.buildGitConfig(releaseObj, user, token, Optional.of(repoName));
         try {

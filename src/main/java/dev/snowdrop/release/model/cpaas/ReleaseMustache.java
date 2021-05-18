@@ -1,33 +1,32 @@
 package dev.snowdrop.release.model.cpaas;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ReleaseMustache {
     private boolean createAdvisory;
     private boolean securityAdvisory;
-    private List<String> cve;
+    private List<String> cveList = new ArrayList<>(0);
     private String release;
     private String previousRelease;
     private String securityImpact;
 
-    public ReleaseMustache() {
-    }
-
     public ReleaseMustache(boolean createAdvisory, boolean securityAdvisory, List<String> cveList, String securityImpact, String release, String previousRelease) {
         this.createAdvisory = createAdvisory;
         this.securityAdvisory = securityAdvisory;
-        this.cve = cveList;
+        this.cveList = cveList;
         this.securityImpact = securityImpact;
         this.release = release;
         this.previousRelease = previousRelease;
     }
 
-    public List<String> getCve() {
-        return cve;
+    public List<String> getCveList() {
+        return cveList;
     }
 
-    public void setCve(List<String> cve) {
-        this.cve = cve;
+    public void setCve(List<String> cveList) {
+        this.cveList = cveList;
     }
 
     public String getRelease() {
@@ -46,12 +45,8 @@ public class ReleaseMustache {
         this.previousRelease = previousRelease;
     }
 
-    public String getCveList() {
-        StringBuffer cveSb = new StringBuffer();
-        cve.forEach(cveItem -> {
-            cveSb.append("  * ").append(cveItem).append("\n");
-        });
-        return cveSb.toString();
+    public String getCves() {
+        return cveList.stream().collect(Collectors.joining("\n\n","  * ",""));
     }
 
     public String getSecurityImpact() {
@@ -68,5 +63,13 @@ public class ReleaseMustache {
 
     public void setSecurityAdvisory(boolean securityAdvisory) {
         this.securityAdvisory = securityAdvisory;
+    }
+
+    public boolean isCreateAdvisory() {
+        return createAdvisory;
+    }
+
+    public void setCreateAdvisory(boolean createAdvisory) {
+        this.createAdvisory = createAdvisory;
     }
 }
