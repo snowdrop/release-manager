@@ -98,18 +98,20 @@ java -jar target/quarkus-app/quarkus-run.jar \
 ### Start a new Snowdrop release
 
 Starting a release means executing the following tasks:
-* cloning the template issue
-* creating stakeholder requests
-* linking the stakeholder requests to the master release ticket that just got created
-* linking any CVE associated with the release
-* initializing the CPaaS repository for the version
+* Create *Runtime Release ticket* from the template issue (JIRA)
+* Create the stakeholder request tickets (JIRA)
+* Link the stakeholder request tickets to the related *Runtime Release ticket* (JIRA) 
+* Link any CVE associated with the release (JIRA)
+* Initialize the CPaaS repository for the version (GitLab):
   * new branch for the release
   * update the configuration files (`release.yml`, `product.yml`)
   * remove the advisory file
  
-This process consumes a `release.yml` file associated
-with the code base that has been updated from an upstream released Spring Boot, which contains all the metadata for this tool to perform the
-needed operations. This is done by running the following command:
+This process consumes a `release.yml` file associated with the code base that 
+contains the release information and structure. The information used by this tool and
+that is provided to other systems, e.g. JIRA, is obtained from the code base that has
+been previously updated from an upstream released Spring Boot. All these tasks are 
+executed by running the following command:
 
 ```bash
 java -jar target/quarkus-app/quarkus-run.jar \
