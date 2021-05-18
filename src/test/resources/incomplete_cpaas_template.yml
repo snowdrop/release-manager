@@ -10,3 +10,4 @@ schedule:
     eol: 2021-09-30
 
 cpaas:
+    advisoryFile: advisory.yml
