@@ -43,8 +43,8 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CPaaSConfigUpdateServiceTest {
 
     private static final String RELEASE = "2.3.2";
-    private static final String PRODUCT_FILE_NAME = "product.yml";
-    private static final String RELEASE_FILE_NAME = "release.yml";
+//    private static final String PRODUCT_FILE_NAME = "product.yml";
+//    private static final String RELEASE_FILE_NAME = "release.yml";
     private static final YAMLMapper MAPPER = new YAMLMapper();
 
     @Inject
@@ -67,8 +67,8 @@ public class CPaaSConfigUpdateServiceTest {
         git.initRepository(config);
         Stream<File> files = service.updateCPaaSFiles(releaseObj, git.getConfig(config).getRepository().getWorkTree(), false);
         Map<String, File> fileMap = files.collect(Collectors.toMap(file -> file.getName(), file -> file));
-        assertTrue(fileMap.containsKey(PRODUCT_FILE_NAME), fileMap.toString());
-        CPaaSProductFile productFile = factory.createCPaaSProductFromStream(new FileInputStream(fileMap.get(PRODUCT_FILE_NAME)));
+        assertTrue(fileMap.containsKey(releaseObj.getCpaas().getProductFile()), fileMap.toString());
+        CPaaSProductFile productFile = factory.createCPaaSProductFromStream(new FileInputStream(fileMap.get(releaseObj.getCpaas().getProductFile())));
         CPaaSProduct product = productFile.getProduct();
         assertEquals(RELEASE, product.getRelease().getVersion());
         assertEquals("spring-boot/2.3", product.getProjects().get(0).getComponents().get(0).getBuilds().get(0).getPigSource().getRoot());

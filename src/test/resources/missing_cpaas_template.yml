@@ -1,3 +1,6 @@
+version: 2.3.2
+previousVersion: 2.2.10
+
 schedule:
     # Release date scheduled. It will also be used to populate the description to be created for each Jira stakeholder: component or starter owner
     release: 2020-09-14
@@ -5,8 +8,3 @@ schedule:
     due: 2020-08-18
     # EOL of the Snowdrop release
     eol: 2021-09-30
-
-cpaas:
-    releaseFile: release.yml
-    productFile: product.yml
-    advisoryFile: advisory_map.yml

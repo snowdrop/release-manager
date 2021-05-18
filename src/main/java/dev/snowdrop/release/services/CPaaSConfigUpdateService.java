@@ -52,7 +52,7 @@ public class CPaaSConfigUpdateService {
             Stream<File> fileStream = null;
             fileStream = updateCPaaSFiles(release, repo, createAdvisory);
             final String repoPath = repo.getAbsolutePath();
-            final Path advisoryPath = Paths.get(String.format(repoPath + "/advisory_map.yml"));
+            final Path advisoryPath = Paths.get(String.format(repoPath + "/" + release.getCpaas().getAdvisoryFile()));
             final File advisoryFile = advisoryPath.toFile();
             if (advisoryFile.exists()) {
                 advisoryFile.delete();
@@ -75,9 +75,9 @@ public class CPaaSConfigUpdateService {
         }
         final String repoPath = repo.getAbsolutePath();
         List<File> fileList = new ArrayList(3);
-        final Path productPath = Paths.get(String.format(repoPath + "/product.yml"));
+        final Path productPath = Paths.get(String.format(repoPath + "/" + release.getCpaas().getProductFile()));
         final File productFile = productPath.toFile();
-        final Path releasePath = Paths.get(String.format(repoPath + "/release.yml"));
+        final Path releasePath = Paths.get(String.format(repoPath + "/" + release.getCpaas().getReleaseFile()));
         final File releaseFile = releasePath.toFile();
         if (productFile.exists()) {
             try {
