@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.HashMap;
 import java.util.Map;
 
-public enum JiraPriorityEnum {
+public enum JiraPriority {
 
     TRIVIAL("Trivial"),
     OPTIONAL("Optional"),
@@ -14,28 +14,28 @@ public enum JiraPriorityEnum {
     CRITICAL("Critical"),
     BLOCKER("Blocker");
 
-    private String value;
+    private String name;
 
     private final static Map<String, Integer> PRIORITY = new HashMap<>() {{
-        put("Trivial", 1);
-        put("Optional", 2);
-        put("Minor", 3);
-        put("Major", 4);
-        put("Critical", 5);
-        put("Blocker", 6);
+        put(TRIVIAL.getName(), 1);
+        put(OPTIONAL.getName(), 2);
+        put(MINOR.getName(), 3);
+        put(MAJOR.getName(), 4);
+        put(CRITICAL.getName(), 5);
+        put(BLOCKER.getName(), 6);
     }};
 
-    JiraPriorityEnum(String value) {
-        this.value = value;
+    JiraPriority(String name) {
+        this.name = name;
     }
 
     @JsonValue
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
     public Integer getGreater(final String newLevel) {
-        return (PRIORITY.get(value) > PRIORITY.get(newLevel)) ? PRIORITY.get(value) : PRIORITY.get(newLevel);
+        return (PRIORITY.get(name) > PRIORITY.get(newLevel)) ? PRIORITY.get(name) : PRIORITY.get(newLevel);
     }
 
 }

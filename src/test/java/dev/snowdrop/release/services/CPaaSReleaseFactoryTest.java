@@ -14,8 +14,8 @@
 package dev.snowdrop.release.services;
 
 import dev.snowdrop.release.model.CVE;
-import dev.snowdrop.release.model.JiraPriorityEnum;
-import dev.snowdrop.release.model.cpaas.SecurityImpactEnum;
+import dev.snowdrop.release.model.JiraPriority;
+import dev.snowdrop.release.model.cpaas.SecurityImpact;
 import dev.snowdrop.release.model.cpaas.product.*;
 import dev.snowdrop.release.model.cpaas.release.*;
 import io.quarkus.test.junit.QuarkusTest;
@@ -53,12 +53,12 @@ public class CPaaSReleaseFactoryTest {
             CVE cve = new CVE("9999", CVE_SUMMARY_JIRA_1, new ArrayList<>(1) {{
                 add("2.4.0");
             }}, "", DateTime.now());
-            cve.setImpact(JiraPriorityEnum.MAJOR);
+            cve.setImpact(JiraPriority.MAJOR);
             add(cve);
             cve = new CVE("9998", CVE_SUMMARY_JIRA_2, new ArrayList<>(1) {{
                 add("2.4.0");
             }}, "", DateTime.now());
-            cve.setImpact(JiraPriorityEnum.TRIVIAL);
+            cve.setImpact(JiraPriority.TRIVIAL);
             add(cve);
         }};
         return cveList;
@@ -126,7 +126,7 @@ public class CPaaSReleaseFactoryTest {
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
                         assertTrue(advisory.getSynopsis().contains(RELEASE));
                         assertTrue(advisory.getSynopsis().contains("security update"));
-                        assertEquals(SecurityImpactEnum.IMPORTANT.getValue(), advisory.getSecurityImpact());
+                        assertEquals(SecurityImpact.IMPORTANT.getImpact(), advisory.getSecurityImpact());
                     }
                 });
             }
@@ -169,7 +169,7 @@ public class CPaaSReleaseFactoryTest {
                         assertTrue(advisory.getDescription().contains(PREVIOUS_RELEASE));
                         assertTrue(advisory.getSynopsis().contains(RELEASE));
                         assertTrue(advisory.getSynopsis().contains("security update"));
-                        assertEquals(SecurityImpactEnum.IMPORTANT.getValue(), advisory.getSecurityImpact());
+                        assertEquals(SecurityImpact.IMPORTANT.getImpact(), advisory.getSecurityImpact());
                     }
                 });
             }

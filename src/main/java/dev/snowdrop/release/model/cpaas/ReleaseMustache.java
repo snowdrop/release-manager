@@ -1,7 +1,5 @@
 package dev.snowdrop.release.model.cpaas;
 
-import dev.snowdrop.release.model.JiraPriorityEnum;
-
 import java.util.List;
 
 public class ReleaseMustache {

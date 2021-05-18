@@ -19,7 +19,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.CVE;
 import dev.snowdrop.release.model.cpaas.ReleaseMustache;
-import dev.snowdrop.release.model.cpaas.SecurityImpactEnum;
+import dev.snowdrop.release.model.cpaas.SecurityImpact;
 import dev.snowdrop.release.model.cpaas.product.CPaaSProductFile;
 import dev.snowdrop.release.model.cpaas.release.CPaaSReleaseFile;
 import org.jboss.logging.Logger;
@@ -69,8 +69,8 @@ public class CPaaSReleaseFactory {
         if (cveList.size() > 0) {
             isSecurityAdvisory = true;
             advisoryCve = cveService.cveToAdvisory(cveList);
-            Optional<CVE> maxImpactCVE = cveList.stream().max((i, j) -> i.getImpact().getGreater(j.getImpact().getValue()));
-            securityImpact = SecurityImpactEnum.getLevelForPriority(maxImpactCVE.get().getImpact().getValue());
+            Optional<CVE> maxImpactCVE = cveList.stream().max((i, j) -> i.getImpact().getGreater(j.getImpact().getName()));
+            securityImpact = SecurityImpact.getImpactForPriority(maxImpactCVE.get().getImpact().getName());
         }
         ReleaseMustache releaseMustache = new ReleaseMustache(createAdvisory, isSecurityAdvisory, advisoryCve, securityImpact, release, previousRelease);
         Utility.mf.compile(RELEASE_TEMPLATE).execute(writer, releaseMustache).flush();
