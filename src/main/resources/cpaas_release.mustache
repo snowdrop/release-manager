@@ -71,27 +71,30 @@ release:
   microservices) for OpenShift as a containerized platform.
 
   This release of Red Hat support for Spring Boot {{previousRelease}} serves as a
-  replacement for Red Hat support for Spring Boot {{release}}, and includes security
-  and bug fixes and enhancements. For further information, refer to the release
+  replacement for Red Hat support for Spring Boot {{release}}, and includes {{#securityAdvisory}}security and{{/securityAdvisory}}
+  bug fixes and enhancements. For further information, refer to the release
   notes linked to in the References section.
 
 {{#securityAdvisory}}
   Security Fix(es):
 
-{{cveList}}
+{{cves}}
 
   For more details about the security issue(s), including the impact, a CVSS
   score, acknowledgments, and other related information, refer to the CVE page(s)
-  listed in the References section."
+  listed in the References section.
+{{/securityAdvisory}}
+"
           topic: "An update is now available for Red Hat OpenShift Application Runtimes.
-
+{{#securityAdvisory}}
   Red Hat Product Security has rated this update as having a security impact of
-  Important. A Common Vulnerability Scoring System (CVSS) base score, which gives
+  {{securityImpact}}. A Common Vulnerability Scoring System (CVSS) base score, which gives
   a detailed severity rating, is available for each vulnerability from the CVE
-  link(s) in the References section."
+  link(s) in the References section.
+{{/securityAdvisory}}
+"
           solution: "Before applying the update, back up your existing installation, including all
   applications, configuration files, databases and database settings, and so on.
-{{/securityAdvisory}}
 
   The References section of this erratum contains a download link (you must log in
   to download the update)."
