@@ -1,3 +1,4 @@
+version: 2.3.2
 previousVersion: 2.2.10
 
 schedule:
@@ -9,6 +10,4 @@ schedule:
     eol: 2021-09-30
 
 cpaas:
-    releaseFile: release.yml
-    productFile: product.yml
-    advisoryFile: advisory_map.yml
+    advisoryFile: advisory.yml

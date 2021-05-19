@@ -1,0 +1,46 @@
+---
+product:
+    name: spring-boot
+    short-name:  'rhoar'
+    product-page: "https://mockurl.redhat.com/rh_springboot/"
+    release:
+        type: "ASYNC"
+        version: "2.3.6"
+    fail-on-any: false
+    projects:
+        - name: "spring-boot-parent"
+          midstream:
+              project: spring-boot/bom-parent
+              type: "GerritProject"
+              branch: "master"
+          owners:
+              - "amunozhe@redhat.com"
+              - "antcosta@redhat.com"
+          advisories:
+              - "rhoar"
+          components:
+              - type: "java"
+                name: "spring-boot"
+                builds:
+                    - type: "pig"
+                      name: "spring-boot"
+                      priority: 90
+                      pig-flags:
+                      pig-version: "latest"
+                      pig-source:
+                          repo: "https://mockurl/mockorganization/mockproject.git"
+                          ref: "master"
+                          root: "spring-boot/2.3"  # a subdirectory of the repository, where the PiG configuration is stored
+                      staging-dir: "rhoar/spring-boot"
+                      skip-staging: false
+                      brew-push: true
+                      ship:
+                          - artifact:
+                                group: "dev.snowdrop"
+                                artifact: "snowdrop-dependencies"
+                                type: "pom"
+                            as: "snowdrop-dependencies.pom"
+                display-name: "Spring Boot"
+                description: "spring-boot"
+                summary: "spring-boot"
+                priority: 99

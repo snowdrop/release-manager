@@ -1,4 +1,5 @@
 version: 2.3.2
+previousVersion: 2.2.10
 
 # JIRA Project where the release issue should be created
 project: ENTSBT
@@ -15,6 +16,11 @@ schedule:
     due: 2020-08-18
     # EOL of the Snowdrop release
     eol: 2021-09-30
+
+cpaas:
+    releaseFile: release.yml
+    productFile: product.yml
+    advisoryFile: advisory_map.yml
 
 components:
     # List of JIRA Projects contributing to a Snowdrop release

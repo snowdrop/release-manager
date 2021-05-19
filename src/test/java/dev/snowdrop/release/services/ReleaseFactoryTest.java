@@ -56,6 +56,35 @@ public class ReleaseFactoryTest {
     }
 
     @Test
+    public void missingCPaaSShouldFail() {
+        try {
+            factory.createFrom(HelperFunctions.getResourceAsStream("missing_cpaas_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),
+                true, false);
+            fail("should have failed on missing cpaas");
+        } catch (IllegalArgumentException e) {
+            // expected
+            assertTrue(e.getMessage().contains("missing cpaas"));
+        } catch (Throwable e) {
+            fail(e);
+        }
+    }
+
+    @Test
+    public void incompleteCPaaSShouldFail() {
+        try {
+            factory.createFrom(HelperFunctions.getResourceAsStream("incomplete_cpaas_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),
+                true, false);
+            fail("should have failed on missing cpaas");
+        } catch (IllegalArgumentException e) {
+            // expected
+            assertTrue(e.getMessage().contains("missing cpaas product file"), e.getMessage());
+            assertTrue(e.getMessage().contains("missing cpaas release file"), e.getMessage());
+        } catch (Throwable e) {
+            fail(e);
+        }
+    }
+
+    @Test
     public void wrongScheduleShouldFail() {
         try {
             factory.createFrom(HelperFunctions.getResourceAsStream("invalid_schedule_template.yml"), HelperFunctions.getResourceAsStream("pom.xml"),

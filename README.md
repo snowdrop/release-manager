@@ -14,7 +14,7 @@
          * [Link JIRA issues to a parent](#link-jira-issues-to-a-parent)
          * [Clone a JIRA Release issue and their subtasks](#clone-a-jira-release-issue-and-their-subtasks)
          * [List CVE](#list-cve)
-         * [Update Build Config](#update-build-config)
+         * [Update Config For Release](#update-config-for-release)
       * [Testing](#testing)
          * [Profiles](#profiles)
       * [Tricks](#tricks)
@@ -97,10 +97,21 @@ java -jar target/quarkus-app/quarkus-run.jar \
 
 ### Start a new Snowdrop release
 
-Starting a release means cloning the template issue, creating stakeholder requests, linking them to the master release ticket
-that just got created and linking any CVE associated with the release. This process consumes a `release.yml` file associated
-with the code base that has been updated from upstream Spring Boot, which contains all the metadata for this tool to perform the
-needed operations. This is done by running the following command:
+Starting a release means executing the following tasks:
+* Create *Runtime Release ticket* from the template issue (JIRA)
+* Create the stakeholder request tickets (JIRA)
+* Link the stakeholder request tickets to the related *Runtime Release ticket* (JIRA) 
+* Link any CVE associated with the release (JIRA)
+* Initialize the CPaaS repository for the version (GitLab):
+  * new branch for the release
+  * update the configuration files (`release.yml`, `product.yml`)
+  * remove the advisory file
+ 
+This process consumes a `release.yml` file associated with the code base that 
+contains the release information and structure. The information used by this tool and
+that is provided to other systems, e.g. JIRA, is obtained from the code base that has
+been previously updated from an upstream released Spring Boot. All these tasks are 
+executed by running the following command:
 
 ```bash
 java -jar target/quarkus-app/quarkus-run.jar \
@@ -108,7 +119,12 @@ java -jar target/quarkus-app/quarkus-run.jar \
     -p JBOSS_JIRA_PWD \
     start-release \
     -g <github org>/<github repo>/<git reference: branch, tag, hash> \
+    -ghu <Github user name>
     -o <github token> \
+    -glu <gitlab user> -glt <gitlab token> \
+    -pr <previous release> \
+    -r <Release Date(yyyy-mm-dd)>
+    -e <End of Life Date(yyyy-mm-dd)>
     -w john,doe,foo  
 ```
 
@@ -186,10 +202,14 @@ If the `-r` option is used this list will also be pushed to GitHub, being the `-
     version
 ```
 
-### Update Build Config
+### Update Config For Release
 
-This task gathers information from the JIRA issues stored in the release file, updates the build configuration file and pushes 
-the changes to the gitlab repository to be merged.
+This task performs the following steps:
+* gathers information from the JIRA issues stored in the release file
+* updates the build configuration file
+    * pushes the changes to the gitlab repository to be merged
+* updates the CPaaS configuration script (https://gitlab.cee.redhat.com/cpaas/documentation/-/tree/master)
+    * pushes the changes to the gitlab repository to be merged
 
 The required parameters are the following:
 
@@ -200,6 +220,7 @@ The required parameters are the following:
 | -glu, --gluser | YES | Gitlab user name |
 | -glt, --gltoken | YES | Gitlab API token |
 | -r, --release | YES | Release number (e.g. 2.4.3) |
+| -pr, --previous-release | YES | Previous release number (e.g. 2.3.6) |
 | -q, --qualifier | YES | Qualifier [Alpha, Beta, Final, SP] (e.g. Beta1) |
 | -m, --milestone | YES | Milestone [DR*, ER*, CR*]  | 
 

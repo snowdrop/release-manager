@@ -20,9 +20,13 @@ public class Release extends Issue {
     @JsonProperty
     private String version;
     @JsonProperty
+    private String previousVersion;
+    @JsonProperty
     private Schedule schedule;
     @JsonProperty
     private List<Component> components;
+    @JsonProperty
+    private CPaaSConfig cpaas;
     @JsonIgnore
     private String gitRef;
     @JsonIgnore
@@ -57,6 +61,14 @@ public class Release extends Issue {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getPreviousVersion() {
+        return previousVersion;
+    }
+
+    public void setPreviousVersion(String previousVersion) {
+        this.previousVersion = previousVersion;
     }
 
     public List<Component> getComponents() {
@@ -146,9 +158,27 @@ public class Release extends Issue {
             }
         }
 
+        if (isStringNullOrBlank(previousVersion)) {
+            errors.add("missing previous version");
+        }
+
         // validate schedule
         if (!skipScheduleValidation) {
             errors.addAll(validateSchedule());
+        }
+
+        if (cpaas == null) {
+            errors.add("missing cpaas");
+        } else {
+            if (isStringNullOrBlank(cpaas.getProductFile())) {
+                errors.add("missing cpaas product file");
+            }
+            if (isStringNullOrBlank(cpaas.getReleaseFile())) {
+                errors.add("missing cpaas release file");
+            }
+            if (isStringNullOrBlank(cpaas.getAdvisoryFile())) {
+                errors.add("missing cpaas advisory file");
+            }
         }
 
         // validate components
@@ -189,5 +219,13 @@ public class Release extends Issue {
     @Override
     protected boolean useExtendedStatus() {
         return true;
+    }
+
+    public CPaaSConfig getCpaas() {
+        return cpaas;
+    }
+
+    public void setCpaas(CPaaSConfig cpaas) {
+        this.cpaas = cpaas;
     }
 }
