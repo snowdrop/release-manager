@@ -46,11 +46,11 @@ public class GitService {
      * @param config the configuration specifying how to retrieve the repository
      * @throws IOException if the local directory hosting the repository couldn't be created
      */
-    public void initRepository(GitConfig config) throws IOException {
+    public CompletableFuture<Git> initRepository(GitConfig config) throws IOException {
         final var repository = Files.createTempDirectory(config.directoryPrefix()).toFile();
         repository.deleteOnExit();
 
-        repositories.put(config, config.cloneFrom().thenApplyAsync(branch -> {
+        final var gitCompletableFuture = config.cloneFrom().thenApplyAsync(branch -> {
             try {
                 LOG.infof("Cloned %s in %s", config.remoteURI(), repository.getPath());
                 return Git.cloneRepository()
@@ -63,7 +63,9 @@ public class GitService {
             } catch (GitAPIException e) {
                 throw new RuntimeException(e);
             }
-        }).thenApplyAsync(config::checkout));
+        }).thenApplyAsync(config::checkout);
+        repositories.put(config, gitCompletableFuture);
+        return gitCompletableFuture;
     }
 
     protected Git getConfig(GitConfig config) throws ExecutionException, InterruptedException {
@@ -112,10 +114,7 @@ public class GitService {
      */
     public void commitAndPush(String commitMessage, GitConfig config, RepositoryModifierCallback... changed)
         throws IOException {
-        CompletableFuture<Git> git = repositories.get(config);
-        if (git == null) {
-            throw new IllegalStateException("must call initRepository first");
-        }
+        final CompletableFuture<Git> git = repositories.getOrDefault(config, initRepository(config));
         try {
             git.thenAcceptAsync(g -> {
                 final File repository = g.getRepository().getWorkTree();
