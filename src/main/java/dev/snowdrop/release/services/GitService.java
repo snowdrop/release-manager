@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 /**
  * A service that allows to interact asynchronously with git repositories. A specific git repository is identified by its
  * associated {@link GitConfig}. Typical interaction would first call {@link #initRepository(GitConfig)} to start the repository
- * retrieval process and then call {@link #commitAndPush(String, GitConfig, FileModifier...)} passing it {@link FileModifier}
+ * retrieval process and then call {@link #commitAndPush(String, GitConfig, RepositoryModifierCallback...)} passing it {@link RepositoryModifierCallback}
  * implementations representing the operations that need to be performed on the retrieved repository once it's available.
  */
 @ApplicationScoped
@@ -91,16 +91,16 @@ public class GitService {
     }
 
     /**
-     * Commits and then pushes any files changed by the specified {@link FileModifier}s in the repository identified by the specified {@link GitConfig} with the specified commit message.
+     * Commits and then pushes any files changed by the specified {@link RepositoryModifierCallback}s in the repository identified by the specified {@link GitConfig} with the specified commit message.
      *
-     * Note that this is an asynchronous method, the {@link FileModifier}s are called only when the repository is actually ready to be interacted with.
+     * Note that this is an asynchronous method, the {@link RepositoryModifierCallback}s are called only when the repository is actually ready to be interacted with.
      *
      * @param commitMessage the message to use when changes are detected and need to be pushed
      * @param config the {@link GitConfig} identifying which repository to interact with
      * @param changed optional callbacks to perform the operations that need to occur on the repository before committing and pushing
      * @throws IOException when files operations fail
      */
-    public void commitAndPush(String commitMessage, GitConfig config, FileModifier... changed) throws IOException {
+    public void commitAndPush(String commitMessage, GitConfig config, RepositoryModifierCallback... changed) throws IOException {
         CompletableFuture<Git> git = repositories.get(config);
         if (git == null) {
             throw new IllegalStateException("must call initRepository first");
@@ -169,9 +169,18 @@ public class GitService {
         }
     }
 
+    /**
+     * A functional interface encapsulating the modifications that need to be done on the repository once it is ready to be operated on.
+     */
     @FunctionalInterface
-    public interface FileModifier {
+    public interface RepositoryModifierCallback {
 
+        /**
+         * Modifies the specified repository and returns a {@link Stream} of changed files. Called once the {@link GitService} has finished initializing the repository.
+         *
+         * @param repo the repository that needs to be modified, once it's ready to be operated on.
+         * @return a Stream of modified files that will need to be committed and pushed
+         */
         Stream<File> modify(File repo);
     }
 
