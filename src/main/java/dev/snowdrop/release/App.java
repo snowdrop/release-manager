@@ -235,7 +235,7 @@ public class App implements QuarkusApplication {
                 0)));
         }
 
-        BasicIssue issue;
+        BasicIssue issue = null;
         // first check if we already have a release ticket, in which case we don't need
         // to clone the template
         final String releaseTicket = release.getJiraKey();
@@ -245,17 +245,22 @@ public class App implements QuarkusApplication {
                 LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket);
             } catch (Exception e) {
                 // if we got an exception, assume that it's because we didn't find the ticket
-                issue = clone(release, token);
+                if (!release.isTestMode()) {
+                    issue = clone(release, token);
+                }
             }
         } else {
             // no release ticket was specified, clone
-            issue = clone(release, token);
-
+            if (!release.isTestMode()) {
+                issue = clone(release, token);
+            }
         }
 
         // link CVEs
-        for (var cve : cveService.listCVEs(Optional.of(release.getVersion()), false)) {
-            service.linkIssue(issue.getKey(), cve.getKey());
+        if (!release.isTestMode()) {
+            for (var cve : cveService.listCVEs(Optional.of(release.getVersion()), false)) {
+                service.linkIssue(issue.getKey(), cve.getKey());
+            }
         }
 
         if (!skipProductRequests) {
@@ -270,7 +275,9 @@ public class App implements QuarkusApplication {
 
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false);
+        if (!release.isTestMode()) {
+            cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false);
+        }
     }
 
     @CommandLine.Command(
@@ -312,24 +319,28 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
         @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release in the <major>.<minor>.<fix> format (e.g. 2.4.3)",required = true) String previousRelease,
         @CommandLine.Option(names = {"-q", "--qualifier"}, description = "qualifier", required = true) String qualifier,
-        @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone)
+        @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone,
+        @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test)
         throws Throwable {
         LOG.infof("release: %s; qualifier: %s; milestone: %s", release, qualifier, milestone);
         String[] releaseMMF = release.split("\\.");
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
-
+        releaseObj.setTest(test);
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
         git.initRepository(config);
 
-        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
-            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
-
+        if (!releaseObj.isTestMode()) {
+            git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
+                .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
+        }
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(releaseObj, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-                return cpaasCfgService.updateCPaaSFiles( releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false));
-        });
+        if (!releaseObj.isTestMode()) {
+            git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
+                return cpaasCfgService.updateCPaaSFiles(releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true : false));
+            });
+        }
     }
     
     @CommandLine.Command(name = "status", description = "Compute the release status")
