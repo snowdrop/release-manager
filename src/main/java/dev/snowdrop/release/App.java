@@ -235,7 +235,7 @@ public class App implements QuarkusApplication {
                 0)));
         }
 
-        BasicIssue issue = null;
+        BasicIssue issue;
         // first check if we already have a release ticket, in which case we don't need
         // to clone the template
         final String releaseTicket = release.getJiraKey();
@@ -245,15 +245,11 @@ public class App implements QuarkusApplication {
                 LOG.infof("Release ticket %s already exists, skipping cloning step", releaseTicket);
             } catch (Exception e) {
                 // if we got an exception, assume that it's because we didn't find the ticket
-                if (!release.isTestMode()) {
-                    issue = clone(release, token);
-                }
+                issue = clone(release, token);
             }
         } else {
             // no release ticket was specified, clone
-            if (!release.isTestMode()) {
-                issue = clone(release, token);
-            }
+            issue = clone(release, token);
         }
 
         // link CVEs
@@ -361,8 +357,11 @@ public class App implements QuarkusApplication {
     }
 
     private BasicIssue clone(Release release, String token) throws IOException {
-        final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
-        release.setJiraKey(issue.getKey());
+        BasicIssue issue = null;
+        if (!release.isTestMode()) {
+            issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
+            release.setJiraKey(issue.getKey());
+        }
         return issue;
     }
 }
