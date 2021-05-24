@@ -125,6 +125,29 @@ public class Release extends Issue {
         }
     }
 
+    /**
+     * Changes the release definition to use the {@link Issue#TEST_JIRA_PROJECT}
+     * project for all requests instead of the specified ones so that we can check a
+     * test release without spamming projects.
+     *
+     * @param test whether or not the release should be set to test mode
+     */
+    public void setMildTest(boolean test) {
+        if (test) {
+            useMildTestMode();
+            components.forEach(c -> {
+                var issue = c.getJira();
+                if (issue != null) {
+                    useMildTestMode();
+                }
+                issue = c.getProductIssue();
+                if (issue != null) {
+                    useMildTestMode();
+                }
+            });
+        }
+    }
+
     public void setSchedule(String releaseDate, String eolDate) throws ParseException {
         this.schedule = new Schedule(releaseDate, getDueDate(releaseDate), eolDate);
     }
