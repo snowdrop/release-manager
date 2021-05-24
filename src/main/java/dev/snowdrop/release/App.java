@@ -349,12 +349,18 @@ public class App implements QuarkusApplication {
         System.out.println(reportingService.buildAsciiReport(blocked));
     }
 
+    /**
+     * <p>NOTE: In test mode this method is also called as this mode replaces the default repository and issue to clone from with
+     * mock ones.</p>
+     *
+     * @param release
+     * @param token
+     * @return
+     * @throws IOException
+     */
     private BasicIssue clone(Release release, String token) throws IOException {
-        BasicIssue issue = null;
-        if (!release.isTestMode()) {
-            issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
-            release.setJiraKey(issue.getKey());
-        }
+        BasicIssue issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
+        release.setJiraKey(issue.getKey());
         return issue;
     }
 }
