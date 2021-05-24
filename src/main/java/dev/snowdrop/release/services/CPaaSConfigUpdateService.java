@@ -34,7 +34,7 @@ public class CPaaSConfigUpdateService {
     CVEService cveService;
 
     public GitService.GitConfig buildGitConfig(final Release releaseObject, final String gitlabUser, final String gitlabPw, final Optional<String> gitRef) {
-        return GitService.GitConfig.gitlabConfig(releaseObject.getVersion(), gitlabUser, gitlabPw, (gitRef.isEmpty() ? CPAAS_REPO_NAME : gitRef.get()), Optional.of(releaseObject.getPreviousVersion()), Optional.of(releaseObject.getVersion()));
+        return GitService.GitConfig.gitlabConfig(releaseObject.getVersion(), gitlabUser, gitlabPw, (gitRef.isEmpty() ? CPAAS_REPO_NAME : gitRef.get()), Optional.of("master"), Optional.of(releaseObject.getVersion()));
     }
 
     /**
@@ -48,23 +48,27 @@ public class CPaaSConfigUpdateService {
      * @throws IOException
      */
     public void newRelease(GitService.GitConfig cpaasGitlabConfig, final Release release, boolean createAdvisory) throws IOException {
-        git.commitAndPush("chore: update configuration for release' key [release-manager]", cpaasGitlabConfig, repo -> {
-            Stream<File> fileStream = null;
-            fileStream = updateCPaaSFiles(release, repo, createAdvisory);
-            final String repoPath = repo.getAbsolutePath();
-            final Path advisoryPath = Paths.get(String.format(repoPath + "/" + release.getCpaas().getAdvisoryFile()));
-            final File advisoryFile = advisoryPath.toFile();
-            if (advisoryFile.exists()) {
-                advisoryFile.delete();
-                Stream.Builder<File> builder = Stream.builder();
-                fileStream.forEach(file -> {
-                    builder.add(file);
-                });
-                builder.add(advisoryFile);
-                fileStream = builder.build();
-            }
-            return fileStream;
-        });
+            git.commitAndPush("chore: update configuration for release' key [release-manager]", cpaasGitlabConfig, repo -> {
+                Stream<File> fileStream = null;
+                fileStream = updateCPaaSFiles(release, repo, createAdvisory);
+                final String repoPath = repo.getAbsolutePath();
+                final Path advisoryPath = Paths.get(String.format(repoPath + "/" + release.getCpaas().getAdvisoryFile()));
+                final File advisoryFile = advisoryPath.toFile();
+                if (advisoryFile.exists()) {
+                    advisoryFile.delete();
+                    Stream.Builder<File> builder = Stream.builder();
+                    fileStream.forEach(file -> {
+                        builder.add(file);
+                    });
+                    builder.add(advisoryFile);
+                    fileStream = builder.build();
+                }
+                if (!release.isTestMode()) {
+                    return fileStream;
+                } else {
+                    return Stream.empty();
+                }
+            });
     }
 
     public Stream<File> updateCPaaSFiles(final Release release, File repo, boolean createAdvisory) {
@@ -96,7 +100,9 @@ public class CPaaSConfigUpdateService {
                     }
                 }
                 factory.saveTo(cpaasProductFile, productFile, CPaaSProductFile.class);
-                fileList.add(productFile);
+                if (!release.isTestMode()) {
+                    fileList.add(productFile);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -105,7 +111,9 @@ public class CPaaSConfigUpdateService {
             List<CVE> cveList = cveService.listCVEs(Optional.ofNullable(release.getVersion()), true);
             CPaaSReleaseFile cpaasReleaseFile = factory.createCPaaSReleaseFromTemplate(release.getVersion(), release.getPreviousVersion(), createAdvisory, cveList);
             factory.saveTo(cpaasReleaseFile, releaseFile, CPaaSReleaseFile.class);
-            fileList.add(releaseFile);
+            if (!release.isTestMode()) {
+                fileList.add(releaseFile);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
