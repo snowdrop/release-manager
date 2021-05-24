@@ -9,18 +9,17 @@ import dev.snowdrop.release.services.GitService.GitConfig;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+import picocli.CommandLine;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import picocli.CommandLine;
 
 @CommandLine.Command(name = "release-manager", mixinStandardHelpOptions = true, version = "release-manager 1.0.0")
 @ApplicationScoped
@@ -250,12 +249,13 @@ public class App implements QuarkusApplication {
         } else {
             // no release ticket was specified, clone
             issue = clone(release, token);
-
         }
 
         // link CVEs
-        for (var cve : cveService.listCVEs(Optional.of(release.getVersion()), false)) {
-            service.linkIssue(issue.getKey(), cve.getKey());
+        if (!release.isTestMode()) {
+            for (var cve : cveService.listCVEs(Optional.of(release.getVersion()), false)) {
+                service.linkIssue(issue.getKey(), cve.getKey());
+            }
         }
 
         if (!skipProductRequests) {
@@ -310,28 +310,23 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
-        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release in the <major>.<minor>.<fix> format (e.g. 2.4.3)",required = true) String previousRelease,
         @CommandLine.Option(names = {"-q", "--qualifier"}, description = "qualifier", required = true) String qualifier,
-        @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone)
+        @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone,
+        @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test)
         throws Throwable {
         LOG.infof("release: %s; qualifier: %s; milestone: %s", release, qualifier, milestone);
         String[] releaseMMF = release.split("\\.");
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
-
-        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
+        releaseObj.setMildTest(test);
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])), Optional.empty());
         git.initRepository(config);
-
-        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
-            .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
-
+        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> buildConfigUpdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(releaseObj, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-                return cpaasCfgService.updateCPaaSFiles( releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true: false));
-        });
+        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> cpaasCfgService.updateCPaaSFiles(releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true : false)));
     }
-    
+
     @CommandLine.Command(name = "status", description = "Compute the release status")
     public void status(
         @CommandLine.Option(
@@ -349,8 +344,17 @@ public class App implements QuarkusApplication {
         System.out.println(reportingService.buildAsciiReport(blocked));
     }
 
+    /**
+     * <p>NOTE: In test mode this method is also called as this mode replaces the default repository and issue to clone from with
+     * mock ones.</p>
+     *
+     * @param release
+     * @param token
+     * @return
+     * @throws IOException
+     */
     private BasicIssue clone(Release release, String token) throws IOException {
-        final var issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
+        BasicIssue issue = service.clone(release, IssueService.RELEASE_TICKET_TEMPLATE, watchers);
         release.setJiraKey(issue.getKey());
         return issue;
     }
