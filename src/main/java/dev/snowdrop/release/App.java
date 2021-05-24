@@ -9,18 +9,17 @@ import dev.snowdrop.release.services.GitService.GitConfig;
 import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
+import picocli.CommandLine;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-
-import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.jboss.logging.Logger;
-import picocli.CommandLine;
 
 @CommandLine.Command(name = "release-manager", mixinStandardHelpOptions = true, version = "release-manager 1.0.0")
 @ApplicationScoped
@@ -271,9 +270,7 @@ public class App implements QuarkusApplication {
 
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(release, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        if (!release.isTestMode()) {
-            cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false);
-        }
+        cpaasCfgService.newRelease(cpaasConfigGitConfig, release, false);
     }
 
     @CommandLine.Command(
@@ -321,23 +318,20 @@ public class App implements QuarkusApplication {
         String[] releaseMMF = release.split("\\.");
         final String gitFullRef = String.format("%s/sb-%s.%s.x", gitRef, releaseMMF[0], releaseMMF[1]);
         Release releaseObj = factory.createFromGitRef(gitFullRef, false, true, release);
-        releaseObj.setTest(test);
-        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])),Optional.empty());
+        releaseObj.setMildTest(test);
+        GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])), Optional.empty());
         git.initRepository(config);
-
-        if (!releaseObj.isTestMode()) {
-            git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> Stream.of(buildConfigUpdateService
-                .updateBuildConfig(repo, releaseObj, release, qualifier, milestone)));
-        }
+        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> {
+            var bcFile = buildConfigUpdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone);
+            return releaseObj.isTestMode() ? Stream.empty() : Stream.of(bcFile);
+        });
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(releaseObj, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        if (!releaseObj.isTestMode()) {
-            git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-                return cpaasCfgService.updateCPaaSFiles(releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true : false));
-            });
-        }
+        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
+            return cpaasCfgService.updateCPaaSFiles(releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true : false));
+        });
     }
-    
+
     @CommandLine.Command(name = "status", description = "Compute the release status")
     public void status(
         @CommandLine.Option(
