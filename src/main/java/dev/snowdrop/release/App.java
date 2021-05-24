@@ -313,7 +313,6 @@ public class App implements QuarkusApplication {
         @CommandLine.Option(names = {"-glu", "--gluser"}, description = "Gitlab user name", required = true) String gluser,
         @CommandLine.Option(names = {"-glt", "--gltoken"}, description = "Gitlab API token", required = true) String gltoken,
         @CommandLine.Option(names = {"-r", "--release"}, description = "release", required = true) String release,
-        @CommandLine.Option(names = {"-pr", "--previous-release"},description = "Previous release in the <major>.<minor>.<fix> format (e.g. 2.4.3)",required = true) String previousRelease,
         @CommandLine.Option(names = {"-q", "--qualifier"}, description = "qualifier", required = true) String qualifier,
         @CommandLine.Option(names = {"-m", "--milestone"}, description = "milestone", required = true) String milestone,
         @CommandLine.Option(names = {"-t", "--test"}, description = "Create a test release ticket using the SB project for all requests") boolean test)
