@@ -321,15 +321,10 @@ public class App implements QuarkusApplication {
         releaseObj.setMildTest(test);
         GitConfig config = GitConfig.gitlabConfig(release, gluser, gltoken, buildConfigForkRepoName, Optional.of(String.format("sb-%s.%s.x", releaseMMF[0], releaseMMF[1])), Optional.empty());
         git.initRepository(config);
-        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> {
-            var bcFile = buildConfigUpdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone);
-            return releaseObj.isTestMode() ? Stream.empty() : Stream.of(bcFile);
-        });
+        git.commitAndPush("chore: update " + release + " release issues' key [release-manager]", config, repo -> buildConfigUpdateService.updateBuildConfig(repo, releaseObj, release, qualifier, milestone));
         GitConfig cpaasConfigGitConfig = cpaasCfgService.buildGitConfig(releaseObj, gluser, gltoken, Optional.of(CPaaSConfigUpdateService.CPAAS_REPO_NAME));
         git.initRepository(cpaasConfigGitConfig);
-        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> {
-            return cpaasCfgService.updateCPaaSFiles(releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true : false));
-        });
+        git.commitAndPush("chore: update release issues' key [release-manager]", cpaasConfigGitConfig, repo -> cpaasCfgService.updateCPaaSFiles(releaseObj, repo, ((milestone.startsWith("ER") || milestone.startsWith("CR")) ? true : false)));
     }
 
     @CommandLine.Command(name = "status", description = "Compute the release status")

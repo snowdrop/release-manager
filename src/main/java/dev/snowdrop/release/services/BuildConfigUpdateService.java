@@ -108,7 +108,7 @@ public class BuildConfigUpdateService {
      * @return
      * @throws Throwable
      */
-    public File updateBuildConfig(File repo, Release release, final String releaseVersion, final String qualifier, final String milestone) {
+    public Stream<File> updateBuildConfig(File repo, Release release, final String releaseVersion, final String qualifier, final String milestone) {
         try {
             final String[] releaseVersionMajorMinorFix = releaseVersion.split("\\.");
             File buildConfigFile = buildConfigFactory.getBuildConfigRelativeTo(repo, releaseVersion);
@@ -124,9 +124,12 @@ public class BuildConfigUpdateService {
 //            manageComponentOnly(component);
                 manageProduct(component, variableMap);
             });
-
             buildConfigFactory.saveTo(buildConfigObj, generateVariableConfiguration(variableMap), buildConfigFile);
-            return buildConfigFile;
+            if (!release.isTestMode()) {
+                return Stream.of(buildConfigFile);
+            } else {
+                return Stream.empty();
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
