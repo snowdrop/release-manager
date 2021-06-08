@@ -202,7 +202,7 @@ public class ReleaseFactoryTest {
 
     private void validate(Release release) {
         assertNotNull(release);
-        final var expectedSBVersion = "2.3.2.RELEASE";
+        final var expectedSBVersion = "2.3.2";
         assertEquals(expectedSBVersion, release.getVersion());
 
         final List<Component> components = release.getComponents();
