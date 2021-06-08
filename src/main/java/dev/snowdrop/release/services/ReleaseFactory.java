@@ -42,6 +42,10 @@ public class ReleaseFactory {
 
     private static final YAMLMapper MAPPER = new YAMLMapper();
 
+    private static final String DEFAULT_VERSION_NUMBER = "x.y.z";
+    private static final String DEFAULT_VERSION = "x.y.z";
+    private static final String DEFAULT_PREVIOUS_VERSION = "a.b.c";
+
     static {
         MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS, MapperFeature.AUTO_DETECT_FIELDS,
                 MapperFeature.AUTO_DETECT_GETTERS, MapperFeature.AUTO_DETECT_IS_GETTERS);
@@ -130,7 +134,12 @@ public class ReleaseFactory {
                 }
             });
             return pom.thenCombineAsync(release, (p, r) -> {
-                r.setVersion(p.getVersion());
+                if (r.getVersion() == null || DEFAULT_VERSION.equalsIgnoreCase(r.getVersion()) || r.getVersion().length() <= 0) {
+                    r.setVersion(p.getVersion().replace(".RELEASE",""));
+                }
+                if (!p.getVersion().replace(".RELEASE","").equalsIgnoreCase(r.getVersion())) {
+                    throw new IllegalArgumentException(String.format("pom version (%s) and release version (%s) mismatch",p.getVersion(),r.getVersion()));
+                }
                 r.setPom(p);
                 r.setJiraClient(restClient);
                 final var errors = r.validate(skipProductRequests, skipScheduleValidation);
