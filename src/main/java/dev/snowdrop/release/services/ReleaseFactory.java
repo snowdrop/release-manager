@@ -42,9 +42,7 @@ public class ReleaseFactory {
 
     private static final YAMLMapper MAPPER = new YAMLMapper();
 
-    private static final String DEFAULT_VERSION_NUMBER = "x.y.z";
     private static final String DEFAULT_VERSION = "x.y.z";
-    private static final String DEFAULT_PREVIOUS_VERSION = "a.b.c";
 
     static {
         MAPPER.disable(MapperFeature.AUTO_DETECT_CREATORS, MapperFeature.AUTO_DETECT_FIELDS,
