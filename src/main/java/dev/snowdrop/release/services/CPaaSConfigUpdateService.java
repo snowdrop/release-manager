@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 
 @ApplicationScoped
 public class CPaaSConfigUpdateService {
-    public static final String CPAAS_REPO_NAME = "cpaas-products/springboot";
+    public static final String CPAAS_REPO_NAME = "snowdrop/springboot";
     private static final Logger LOG = Logger.getLogger(CPaaSConfigUpdateService.class);
 
     @Inject
