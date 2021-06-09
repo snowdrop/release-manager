@@ -110,16 +110,14 @@ public class GitService {
                         final var rmCommand = g.rm();
                         files.forEach(file -> {
                             final var path = file.getAbsolutePath().replace(repository.getAbsolutePath() + "/", "");
-                            if (untracked.contains(path) || statusChanged.contains(path)) {
-                                // only add file to be committed if it's part of the modified set or untracked
-                                LOG.infof("Added %s", path);
-                                addCommand.addFilepattern(path);
-                                hasAdd[0] = true;
-                            }
                             if (removed.contains(path) || missing.contains(path)) {
                                 LOG.infof("Removed %s", path);
                                 rmCommand.addFilepattern(path);
                                 hasRm[0] = true;
+                            } else if (uncommittedChanges.contains(path) || untracked.contains(path) || statusChanged.contains(path)) {
+                                LOG.infof("Added %s", path);
+                                addCommand.addFilepattern(path);
+                                hasAdd[0] = true;
                             }
                         });
                         if (hasAdd[0] || hasRm[0]) {
