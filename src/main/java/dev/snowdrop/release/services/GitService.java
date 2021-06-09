@@ -111,10 +111,13 @@ public class GitService {
                         files.forEach(file -> {
                             final var path = file.getAbsolutePath().replace(repository.getAbsolutePath() + "/", "");
                             if (removed.contains(path) || missing.contains(path)) {
+                                // Files that are removed from the filesystem appear as uncommitted changes but mustn't be added,
+                                // they must be removed.
                                 LOG.infof("Removed %s", path);
                                 rmCommand.addFilepattern(path);
                                 hasRm[0] = true;
                             } else if (uncommittedChanges.contains(path) || untracked.contains(path) || statusChanged.contains(path)) {
+                                // All the other changes belong to the add method.
                                 LOG.infof("Added %s", path);
                                 addCommand.addFilepattern(path);
                                 hasAdd[0] = true;
