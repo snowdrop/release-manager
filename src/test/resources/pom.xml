@@ -137,7 +137,7 @@
         <vertx-spring-boot.version>1.0.0</vertx-spring-boot.version>
 
         <!-- Spring Ecosystem -->
-        <spring-boot.version>2.3.2.RELEASE</spring-boot.version>
+        <spring-boot.version>2.5.12</spring-boot.version>
         <spring-cloud-kubernetes.version>1.1.2.RELEASE</spring-cloud-kubernetes.version>
 
         <!-- Overriden from Spring Boot -->
