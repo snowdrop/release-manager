@@ -8,7 +8,7 @@
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
-        <jira-rest-java-atlassian.version>5.2.1</jira-rest-java-atlassian.version>
+        <jira-rest-java-atlassian.version>5.2.4</jira-rest-java-atlassian.version>
         <fugue.version>4.7.2</fugue.version>
         <compiler-plugin.version>3.8.1</compiler-plugin.version>
         <kohsuke.version>1.116</kohsuke.version>

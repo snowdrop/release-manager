@@ -13,9 +13,7 @@
  */
 package dev.snowdrop.release.services;
 
-import com.atlassian.jira.rest.client.api.JiraRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
-import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import dev.snowdrop.release.model.Issue;
 import dev.snowdrop.release.model.POM;
@@ -26,10 +24,10 @@ import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -59,9 +57,11 @@ public class IssueServiceTest {
         assertTrue(issueKey != null && issueKey.getKey() != null && issueKey.getKey().length() > 0, issueKey.getKey());
         try {
             service.deleteIssues(List.of(issueKey.getKey()));
-            assertTrue(true);
+            assertFalse(true);
         } catch (Throwable e) {
-            assertTrue(false, e.getMessage());
+            assertFalse(false, e.getMessage());
+            assertTrue(e.getMessage().contains("You do not have permission to delete issues in this project."));
+            service.changeIssueState(issueKey.getKey(), 2);
         }
     }
 

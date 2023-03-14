@@ -11,6 +11,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
+
 package dev.snowdrop.release.services;
 
 import java.net.URI;
@@ -32,12 +33,20 @@ public class JiraClientConfiguration {
     @DefaultBean
     @ApplicationScoped
     public JiraRestClient client(CommandLine.ParseResult parseResult) {
-        final var user = parseResult.commandSpec().findOption('u').getValue().toString();
-        final var password = parseResult.commandSpec().findOption('p').getValue().toString();
+        JiraRestClient jiraRestClient;
         // url is optional but with a default value, getting it from the command spec gets the resolved default value
         //if no value was provided. See: https://github.com/remkop/picocli/issues/1148#issuecomment-675753434
         final var jiraServerUri = parseResult.commandSpec().findOption("url").getValue().toString();
+        final var pat = parseResult.commandSpec().findOption('t').getValue().toString();
         AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-        return factory.createWithBasicHttpAuthentication(URI.create(jiraServerUri), user, password);
+        if (pat != null) {
+            JiraBearerHttpAuthenticationHandler handler = new JiraBearerHttpAuthenticationHandler(pat);
+            jiraRestClient = factory.createWithAuthenticationHandler(URI.create(jiraServerUri), handler);
+        } else {
+            final var user = parseResult.commandSpec().findOption('u').getValue().toString();
+            final var password = parseResult.commandSpec().findOption('p').getValue().toString();
+            jiraRestClient = factory.createWithBasicHttpAuthentication(URI.create(jiraServerUri), user, password);
+        }
+        return jiraRestClient;
     }
 }
