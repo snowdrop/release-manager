@@ -145,7 +145,7 @@
         <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
         <infinispan.version>10.1.8.Final</infinispan.version>
         <tomcat.version>9.0.41</tomcat.version>
-        <undertow.version>2.1.3.Final</undertow.version>
+        <undertow.version>2.2.22.SP3-redhat-00001</undertow.version>
 
         <!-- Plugins -->
         <fabric8-maven-plugin.version>4.1.0</fabric8-maven-plugin.version>
