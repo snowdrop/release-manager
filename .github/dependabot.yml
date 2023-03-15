@@ -1,0 +1,14 @@
+version: 2
+updates:
+    - package-ecosystem: "maven"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+      open-pull-requests-limit: 5
+
+    - package-ecosystem: "maven"
+      directory: "/src/test/resources"
+      schedule:
+          interval: "monthly"
+          # Disable version updates for test resources dependencies
+      open-pull-requests-limit: 0
