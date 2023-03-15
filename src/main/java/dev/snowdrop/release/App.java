@@ -56,15 +56,21 @@ public class App implements QuarkusApplication {
     @CommandLine.Option(
         names = {"-u", "--user"},
         description = "JIRA user",
-        required = true,
+        required = false,
         scope = CommandLine.ScopeType.INHERIT)
     private String user;
     @CommandLine.Option(
         names = {"-p", "--password"},
         description = "JIRA password",
-        required = true,
+        required = false,
         scope = CommandLine.ScopeType.INHERIT)
     private String password;
+    @CommandLine.Option(
+        names = {"-t", "--token"},
+        description = "JIRA Personal Access Token",
+        required = true,
+        scope = CommandLine.ScopeType.INHERIT)
+    private String pat;
     @CommandLine.Option(
         names = "--url",
         description = "URL of the JIRA server",

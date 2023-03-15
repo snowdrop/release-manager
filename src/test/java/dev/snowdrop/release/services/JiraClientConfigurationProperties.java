@@ -11,6 +11,7 @@
  * an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations under the License.
  */
+
 package dev.snowdrop.release.services;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
@@ -33,9 +34,17 @@ public class JiraClientConfigurationProperties {
     @Produces
     @ApplicationScoped
     public JiraRestClient client() {
-        final String user = ConfigProvider.getConfig().getValue("jboss.jira.user", String.class);
-        final String password = ConfigProvider.getConfig().getValue("jboss.jira.password", String.class);
         AsynchronousJiraRestClientFactory factory = new AsynchronousJiraRestClientFactory();
-        return factory.createWithBasicHttpAuthentication(URI.create(Utility.JIRA_SERVER), user, password);
+        JiraRestClient jiraRestClient;
+        final String pat = ConfigProvider.getConfig().getValue("jboss.jira.pat", String.class);
+        if (pat != null) {
+            JiraBearerHttpAuthenticationHandler handler = new JiraBearerHttpAuthenticationHandler(pat);
+            jiraRestClient = factory.createWithAuthenticationHandler(URI.create(Utility.JIRA_SERVER), handler);
+        } else {
+            final String user = ConfigProvider.getConfig().getValue("jboss.jira.user", String.class);
+            final String password = ConfigProvider.getConfig().getValue("jboss.jira.password", String.class);
+            jiraRestClient = factory.createWithBasicHttpAuthentication(URI.create(Utility.JIRA_SERVER), user, password);
+        }
+        return jiraRestClient;
     }
 }

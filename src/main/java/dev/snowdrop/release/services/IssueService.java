@@ -17,6 +17,7 @@ import com.atlassian.jira.rest.client.api.domain.input.ComplexIssueInputFieldVal
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.api.domain.input.LinkIssuesInput;
+import com.atlassian.jira.rest.client.api.domain.input.TransitionInput;
 import dev.snowdrop.release.model.Component;
 import dev.snowdrop.release.model.IssueSource;
 import dev.snowdrop.release.model.Release;
@@ -179,6 +180,13 @@ public class IssueService {
         }
         LOG.infof("Issue %s doesn't exists for %s component, skipping it", getURLFor(key), source.getName());
         return null;
+    }
+
+    public void changeIssueState(String issueKey, int action) {
+        final IssueRestClient cl = restClient.getIssueClient();
+        Issue issue = cl.getIssue(issueKey).claim();
+        TransitionInput transitionInput = new TransitionInput(action);
+        cl.transition(issue, transitionInput);
     }
 
     private static IssueInput getIssueInput(IssueSource source) {
