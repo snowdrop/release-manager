@@ -235,10 +235,11 @@ $ java -jar target/quarkus-app/quarkus-run.jar \
 
 ## Testing
 
-The unit tests require the providing of 2 parameters to be able to login to the JIRA REST API.
+The unit tests require the providing authentication for 3 systems, GitHub, GitLab and JIRA. Whereas for GitHub and GitLab
+user and token are required, for JIRA a Personal Access Token (`pat`) will be used.
 
 ```bash
-$ ./mvnw test -Dgithub.user=${GITHUB_USER} -Dgithub.token=${GITHUB_TOKEN} -Dgitlab.user=${JBOSS_JIRA_USER} -Dgitlab.token=${GITLAB_TOKEN}
+$ ./mvnw test -Dgithub.user=${GITHUB_USER} -Dgithub.token=${GITHUB_TOKEN} -Dgitlab.user=${GITLAB_USER} -Dgitlab.token="${GITLAB_TOKEN}" -Djboss.jira.pat="${JIRA_TOKEN}"
 ```
 
 Test profiles have been implemented to differenciate unit tests and integration tests (testing against the actual JIRA API).
@@ -288,3 +289,6 @@ http --verify=no --follow --auth user:pwd https://issues.redhat.com/rest/api/2/i
 http --verify=no --follow  --auth user:pwd POST https://issues.redhat.com/rest/api/2/issue/ < jira.json
 ```
 
+## Troubleshooting
+
+For troubleshooting information check the [Troubleshooting Gudie](./troubleshooting.adoc).

@@ -1,0 +1,96 @@
+= Troubleshooting Guide
+A. Costa
+:icons: font
+:toc: left
+:toc-levels: 1
+
+== SSL Errors connecting to GitLab
+
+=== Problem
+
+*SSL problems* errors when executing tests.
+
+=== Symptoms
+
+Tests fail to execute with SSL related errors such as:
+
+* `https://gitlab.cee.redhat.com/snowdrop/build-configurations.git: Secure connection to https://gitlab.cee.redhat.com/snowdrop/build-configurations.git could not be established because of SSL problems`
+* `PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target`
+*
+
+=== Cause
+
+The SSL certificate for `gitlab.cee.redhat.com` is not being validated by the link:https://www.eclipse.org/jgit/[Eclipse JGit] library.
+
+=== Solution
+
+Add the SSL certificate to the git configuration.
+
+Get certificate of remote server, in this case it's `gitlab.cee.redhat.com`.
+
+.Click to check the details
+[%collapsible]
+====
+
+Obtain the certificate using `openssl`.
+
+[source,bash]
+----
+openssl s_client -connect gitlab.cee.redhat.com:443
+----
+
+From the `openssl` output, get the certificate contents. The contents are located at the `Server certificate` section.
+
+The certificate contents is the whole section between the `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----` lines, inclusive.
+
+[source]
+----
+-----BEGIN CERTIFICATE-----
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+-----END CERTIFICATE-----
+----
+
+====
+
+Store the certificate contents on a local folder, _e.g._, `$HOME/.git-certs/gitlab.redhat.com.pem`.
+
+Configure git to trust this certificate for the provided URL.
+
+.Click to check the details
+[%collapsible]
+====
+
+[source,bash]
+----
+git config --global http."https://gitlab.cee.redhat.com/".sslCAInfo $HOME/.git-certs/gitlab.redhat.com.pem
+----
+
+====
+
+Finally check the configuration has been stored.
+
+.Click to check the details
+[%collapsible]
+====
+
+Listing the git global configuration...
+
+[source,bash]
+----
+git config --global --list
+----
+
+...should present the configuration added.
+
+[source]
+----
+http.https://gitlab.cee.redhat.com/.sslcainfo=/home/janedoe/.git-certs/gitlab.redhat.com.pem
+----
+
+====
